@@ -7,9 +7,13 @@
 
 @php
     $wireModel = $attributes->wire('model')->value();
+    $currentVal = null;
+    if ($wireModel && isset($this)) {
+        $currentVal = data_get($this, $wireModel);
+    }
 @endphp
 
-<div x-data="nordroySmartColorPicker($wire, '{{ $wireModel }}', '{{ $defaultLight }}', '{{ $defaultDark }}')"
+<div x-data="nordroySmartColorPicker($wire, '{{ $wireModel }}', '{{ $defaultLight }}', '{{ $defaultDark }}', @js($currentVal))"
      class="w-full space-y-3">
     
     <div class="flex items-center justify-between">
@@ -21,9 +25,9 @@
         </div>
 
         <!-- Mode Indicator Badge -->
-        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
-              :class="color.mode === 'custom' ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'"
-              x-text="color.mode === 'custom' ? 'Custom Dual Mode' : 'Theme Default'">
+        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full"
+              :class="color.mode === 'custom' ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'"
+              x-text="color.mode === 'custom' ? 'Custom Color (কাস্টম)' : 'Theme Default (থিম ডিফল্ট)'">
         </span>
     </div>
 
@@ -31,21 +35,21 @@
     <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs font-bold">
         <button type="button" 
                 @click="setMode('theme')"
-                class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
-                :class="color.mode === 'theme' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'">
-            <span class="inline-flex items-center gap-1.5">
+                class="flex-1 py-2 px-3 rounded-lg transition-all text-center cursor-pointer"
+                :class="color.mode === 'theme' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs ring-1 ring-slate-200 dark:ring-slate-700' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'">
+            <span class="inline-flex items-center justify-center gap-1.5">
                 <x-icon name="solid:palette" class="w-3.5 h-3.5" />
-                <span>Theme Default</span>
+                <span>Theme Default (থিম ডিফল্ট)</span>
             </span>
         </button>
 
         <button type="button" 
                 @click="setMode('custom')"
-                class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
-                :class="color.mode === 'custom' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'">
-            <span class="inline-flex items-center gap-1.5">
+                class="flex-1 py-2 px-3 rounded-lg transition-all text-center cursor-pointer"
+                :class="color.mode === 'custom' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs ring-1 ring-slate-200 dark:ring-slate-700' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'">
+            <span class="inline-flex items-center justify-center gap-1.5">
                 <x-icon name="solid:sliders" class="w-3.5 h-3.5" />
-                <span>Custom Light &amp; Dark</span>
+                <span>Custom Color (কাস্টম মোড)</span>
             </span>
         </button>
     </div>
@@ -53,8 +57,8 @@
     <!-- Theme Default Explanation -->
     <div x-show="color.mode === 'theme'" 
          class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
-        <x-icon name="solid:circle-info" class="w-4 h-4 text-slate-400 shrink-0" />
-        <span>Uses global design system styling &amp; glassmorphism tokens automatically.</span>
+        <x-icon name="solid:circle-info" class="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+        <span><strong>থিম ডিফল্ট:</strong> গ্লোবাল ডিজাইন সিস্টেম ও হেডার স্টাইল (Glass / Solid / Transparent) অনুযায়ী ব্যাকগ্রাউন্ড কালার স্বয়ংক্রিয়ভাবে প্রযোজ্য হবে।</span>
     </div>
 
     <!-- Custom Light & Dark Mode Color Pickers -->
@@ -144,8 +148,25 @@
 </div>
 
 <script>
+    if (typeof window.nordroyHexToRgba !== 'function') {
+        window.nordroyHexToRgba = function(hex, opacity = 1) {
+            if (!hex) return 'transparent';
+            hex = String(hex).replace('#', '').trim();
+            if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            if (hex.length !== 6) {
+                return `rgba(255, 255, 255, ${opacity})`;
+            }
+            const r = parseInt(hex.substring(0, 2), 16) || 0;
+            const g = parseInt(hex.substring(2, 4), 16) || 0;
+            const b = parseInt(hex.substring(4, 6), 16) || 0;
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        };
+    }
+
     if (typeof window.nordroySmartColorPicker !== 'function') {
-        window.nordroySmartColorPicker = function($wire, wireModel, defaultLight, defaultDark) {
+        window.nordroySmartColorPicker = function($wire, wireModel, defaultLight, defaultDark, initialVal = null) {
             return {
                 color: {
                     mode: 'theme',
@@ -155,6 +176,9 @@
                 },
 
                 init() {
+                    if (initialVal && typeof initialVal === 'object') {
+                        this.color = Object.assign({}, this.color, initialVal);
+                    }
                     if (wireModel && $wire) {
                         try {
                             const val = $wire.get(wireModel);
@@ -174,6 +198,12 @@
                     const payload = JSON.parse(JSON.stringify(this.color));
                     if (wireModel && $wire) {
                         $wire.set(wireModel, payload);
+                    }
+                    window.dispatchEvent(new CustomEvent('smart-color-changed', {
+                        detail: { model: wireModel, color: payload }
+                    }));
+                    if (this.$dispatch) {
+                        this.$dispatch('smart-color-changed', { model: wireModel, color: payload });
                     }
                 }
             };

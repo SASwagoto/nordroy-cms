@@ -43,7 +43,39 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" x-data="{ canvasDark: false }">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" 
+         x-data="{ 
+             canvasDark: false,
+             headerBg: @js($headerBgColor),
+             getHeaderPreviewBg() {
+                 if (this.headerBg && this.headerBg.mode === 'custom') {
+                     const hex = this.canvasDark ? (this.headerBg.dark || '#07131e') : (this.headerBg.light || '#ffffff');
+                     const op = (this.headerBg.opacity !== undefined ? this.headerBg.opacity : 100) / 100;
+                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
+                 }
+                 const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
+                 const primary = ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
+                 if (style === 'solid') {
+                     return primary;
+                 }
+                 if (style === 'transparent') {
+                     return 'transparent';
+                 }
+                 if (style === 'floating') {
+                     return this.canvasDark ? 'rgba(11, 27, 43, 0.92)' : 'rgba(255, 255, 255, 0.92)';
+                 }
+                 // Glass Frosted default
+                 return this.canvasDark ? 'rgba(7, 19, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+             },
+             getHeaderTitleColor() {
+                 if (this.canvasDark) return '#ffffff';
+                 const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
+                 if (style === 'solid') return '#ffffff';
+                 return ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
+             }
+         }"
+         @smart-color-changed.window="if ($event.detail.model === 'headerBgColor') { headerBg = $event.detail.color; }"
+    >
         
         <!-- LEFT COLUMN: Navigation Tabs + Controls (7 cols) -->
         <div class="lg:col-span-7 space-y-5">
@@ -536,8 +568,17 @@
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                             <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Header Call to Action (CTA) Button</h3>
-                                <p class="text-[11px] text-slate-400 mt-0.5">High-visibility conversion button in the header (e.g. Request Instant RFQ)</p>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                                        হেডার কল-টু-অ্যাকশন (CTA) বাটন
+                                    </h3>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
+                                        Header Action Button
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                    হেডারের ডানপাশে থাকা প্রধান বাটন (যেমন: <strong>"Request RFQ"</strong> বা কোটেশন বাটন)। এটি ওয়েবসাইটে ভিজিটরদের সরাসরি যোগাযোগ বা নির্দিষ্ট পেজে নিয়ে যাওয়ার প্রধান কনভার্সন বাটন।
+                                </p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" wire:model.live="headerCta.enabled" value="1" class="sr-only peer">
@@ -548,20 +589,26 @@
                         @if(!empty($headerCta['enabled']))
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Button Label</label>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                        বাটনের লেখা (Button Text / Label)
+                                    </label>
                                     <input type="text" wire:model.live="headerCta.label" placeholder="Request RFQ"
                                            class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
                                 </div>
                                 <div class="flex items-end pb-2">
                                     <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
                                         <input type="checkbox" wire:model.live="headerCta.show_icon" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                        <span>Show Document Icon in Button</span>
+                                        <span>বাটনে ডকুমেন্ট আইকন দেখান (Show Icon)</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="pt-2">
-                                <x-smart-link-picker wire:model="headerCta.link" label="CTA Action / Destination" />
+                                <x-smart-link-picker 
+                                    wire:model="headerCta.link" 
+                                    label="বাটনের গন্তব্য লিঙ্ক (Button Destination Link)" 
+                                    help="হেডারের এই বাটনে ক্লিক করলে ভিজিটর কোন পেজ, নির্দিষ্ট সেকশন (#rfq), সার্ভিস বা ফোনে কল যাবে তা নির্বাচন করুন।"
+                                />
                             </div>
                         @endif
                     </div>
@@ -755,25 +802,38 @@
                         @endif
 
                         <!-- Mockup Header Navbar -->
-                        <div class="px-3.5 py-2 border flex items-center justify-between text-xs transition-all gap-2"
+                        @php
+                            $mockupBg = ($headerBgColor['mode'] ?? 'theme') === 'custom'
+                                ? \App\Services\SmartColorHelper::hexToRgba($headerBgColor['light'] ?? '#ffffff', ($headerBgColor['opacity'] ?? 100) / 100)
+                                : (($theme['theme_header_style'] ?? 'glass') === 'glass' ? 'rgba(255,255,255,0.85)' : (($theme['theme_header_style'] ?? 'glass') === 'solid' ? ($theme['theme_primary_color'] ?? '#003C58') : 'transparent'));
+                        @endphp
+                        <div class="px-3.5 py-2 border flex items-center justify-between text-xs transition-all gap-2 duration-300"
+                             :style="'border-radius: {{ $theme['theme_button_radius'] ?? '12px' }}; border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getHeaderPreviewBg()"
                              style="
                                  border-radius: {{ $theme['theme_button_radius'] ?? '12px' }};
-                                 background-color: {{ ($theme['theme_header_style'] ?? 'glass') === 'glass' ? 'rgba(255,255,255,0.15)' : (($theme['theme_header_style'] ?? 'glass') === 'solid' ? ($theme['theme_primary_color'] ?? '#003C58') : 'transparent') }};
+                                 background-color: {{ $mockupBg }};
                                  border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }};
                              ">
-                            <span class="font-extrabold uppercase tracking-wider text-[11px] shrink-0" 
+                            <span class="font-extrabold uppercase tracking-wider text-[11px] shrink-0 transition-colors" 
+                                  :style="'font-family: \'{{ $theme['theme_heading_font'] }}\', sans-serif; color: ' + getHeaderTitleColor()"
                                   style="font-family: '{{ $theme['theme_heading_font'] }}', sans-serif; color: {{ ($theme['theme_header_style'] ?? 'glass') === 'solid' ? '#ffffff' : ($theme['theme_primary_color'] ?? '#003C58') }}">
                                 {{ \App\Models\Setting::get('site_name', 'NORDROY') }}
                             </span>
-                            <div class="flex items-center gap-2 text-[10px] opacity-80 overflow-hidden" style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
+                            <div class="flex items-center gap-2 text-[10px] opacity-80 overflow-hidden transition-colors" 
+                                 :style="'font-family: \'{{ $theme['theme_body_font'] }}\', sans-serif; color: ' + (canvasDark ? '#cbd5e1' : '#334155')"
+                                 style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
                                 @foreach(array_slice($headerMenuItems, 0, 3) as $mItem)
                                     <span class="truncate font-medium">{{ $mItem['label'] }}</span>
                                 @endforeach
                             </div>
                             @if(!empty($headerCta['enabled']))
-                                <span class="px-2 py-0.5 text-[9px] font-bold rounded-md shrink-0 text-white shadow-xs"
+                                <span class="px-2.5 py-1 text-[9px] font-bold rounded-md shrink-0 text-white shadow-xs inline-flex items-center gap-1 cursor-default transition-all"
+                                      title="CTA Target: {{ \App\Services\LinkResolver::resolve($headerCta['link'] ?? [])['url'] }}"
                                       style="background: linear-gradient(135deg, {{ $theme['theme_primary_color'] ?? '#003C58' }}, {{ $theme['theme_accent_color'] ?? '#0ea5e9' }}); border-radius: {{ $theme['theme_button_radius'] ?? '6px' }};">
-                                    {{ $headerCta['label'] ?: 'RFQ' }}
+                                    @if(!empty($headerCta['show_icon']))
+                                        <x-icon name="solid:file-lines" class="w-2.5 h-2.5 shrink-0" />
+                                    @endif
+                                    <span>{{ $headerCta['label'] ?: 'RFQ' }}</span>
                                 </span>
                             @endif
                         </div>

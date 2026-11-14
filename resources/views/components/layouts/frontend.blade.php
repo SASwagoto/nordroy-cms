@@ -214,6 +214,20 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
         }
+
+        /* Smart Color Engine: Dynamic Header & Section Backgrounds */
+        html:not(.dark) .smart-custom-header-bg {
+            background-color: var(--header-bg-light) !important;
+        }
+        html.dark .smart-custom-header-bg {
+            background-color: var(--header-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-bg {
+            background-color: var(--sec-bg-light) !important;
+        }
+        html.dark .smart-custom-bg {
+            background-color: var(--sec-bg-dark) !important;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -370,9 +384,7 @@
             $resolvedCta = \App\Services\LinkResolver::resolve($headerCta['link'] ?? []);
         @endphp
 
-        @if($isCustomHeaderBg)
-            {!! \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') !!}
-        @endif
+
 
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         @if(!empty($headerTopbar['enabled']))
@@ -411,8 +423,8 @@
         @endif
 
         <!-- DYNAMIC PUBLIC HEADER -->
-        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800')) }} transition-colors duration-200"
-                style="{{ $isCustomHeaderBg ? 'background-color: var(--header-bg) !important;' : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
+        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} transition-colors duration-200"
+                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }};">
                 
