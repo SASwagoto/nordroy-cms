@@ -320,15 +320,24 @@ class MenuManager extends Component
     }
 
     /**
-     * Indent item right (make child of previous item).
+     * Indent item right (make child of previous item or increase nesting depth).
      */
     public function indentItem(int $index): void
     {
-        if ($index > 0) {
+        if ($index > 0 && isset($this->items[$index])) {
             $prev = $this->items[$index - 1];
-            if ($this->items[$index]['depth'] <= $prev['depth']) {
-                $this->items[$index]['depth'] = min(2, $this->items[$index]['depth'] + 1);
-                $this->items[$index]['parent_id'] = $prev['id'] ?? $prev['temp_id'];
+            // An item can only be up to 1 level deeper than the item directly above it, max depth 2
+            $maxAllowedDepth = min(2, ($prev['depth'] ?? 0) + 1);
+            if ($this->items[$index]['depth'] < $maxAllowedDepth) {
+                $this->items[$index]['depth']++;
+                $targetParentDepth = $this->items[$index]['depth'] - 1;
+                // Find nearest item above with depth = targetParentDepth
+                for ($j = $index - 1; $j >= 0; $j--) {
+                    if (($this->items[$j]['depth'] ?? 0) === $targetParentDepth) {
+                        $this->items[$index]['parent_id'] = $this->items[$j]['id'] ?? $this->items[$j]['temp_id'];
+                        break;
+                    }
+                }
             }
         }
     }
@@ -338,18 +347,76 @@ class MenuManager extends Component
      */
     public function outdentItem(int $index): void
     {
-        if ($this->items[$index]['depth'] > 0) {
+        if (isset($this->items[$index]) && $this->items[$index]['depth'] > 0) {
             $this->items[$index]['depth']--;
             if ($this->items[$index]['depth'] === 0) {
                 $this->items[$index]['parent_id'] = null;
             } else {
-                // Find nearest item above with depth - 1
+                $targetParentDepth = $this->items[$index]['depth'] - 1;
                 for ($j = $index - 1; $j >= 0; $j--) {
-                    if ($this->items[$j]['depth'] === ($this->items[$index]['depth'] - 1)) {
+                    if (($this->items[$j]['depth'] ?? 0) === $targetParentDepth) {
                         $this->items[$index]['parent_id'] = $this->items[$j]['id'] ?? $this->items[$j]['temp_id'];
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Set the parent item directly from a dropdown selector.
+     */
+    public function changeItemParent(int $index, ?string $parentId): void
+    {
+        if (!isset($this->items[$index])) {
+            return;
+        }
+
+        if (empty($parentId) || $parentId === 'none' || $parentId === 'root') {
+            $this->items[$index]['parent_id'] = null;
+            $this->items[$index]['depth'] = 0;
+            return;
+        }
+
+        // Find parent index in current items
+        $parentIndex = null;
+        foreach ($this->items as $idx => $it) {
+            $key = (string) ($it['id'] ?? $it['temp_id']);
+            if ($key === (string) $parentId) {
+                $parentIndex = $idx;
+                break;
+            }
+        }
+
+        if ($parentIndex !== null && $parentIndex !== $index) {
+            $parentItem = $this->items[$parentIndex];
+            $parentDepth = $parentItem['depth'] ?? 0;
+            $newDepth = min(2, $parentDepth + 1);
+
+            $this->items[$index]['depth'] = $newDepth;
+            $this->items[$index]['parent_id'] = $parentItem['id'] ?? $parentItem['temp_id'];
+
+            // Move item directly below the parent (after all existing children of that parent)
+            $itemToMove = $this->items[$index];
+            array_splice($this->items, $index, 1);
+
+            // Re-find parent index after removal
+            $newParentIndex = null;
+            foreach ($this->items as $idx => $it) {
+                $key = (string) ($it['id'] ?? $it['temp_id']);
+                if ($key === (string) $parentId) {
+                    $newParentIndex = $idx;
+                    break;
+                }
+            }
+
+            if ($newParentIndex !== null) {
+                $insertAt = $newParentIndex + 1;
+                while ($insertAt < count($this->items) && ($this->items[$insertAt]['depth'] ?? 0) > $parentDepth) {
+                    $insertAt++;
+                }
+                array_splice($this->items, $insertAt, 0, [$itemToMove]);
+                $this->expandedIndex = $insertAt;
             }
         }
     }
@@ -473,6 +540,15 @@ class MenuManager extends Component
                 if ($itemData['depth'] === 1) {
                     $parentKey = $itemData['parent_id'] ?? null;
                     $actualParentId = $idMap[$parentKey] ?? null;
+                    if (!$actualParentId) {
+                        for ($j = $order - 1; $j >= 0; $j--) {
+                            if (($this->items[$j]['depth'] ?? 0) === 0) {
+                                $nearestKey = $this->items[$j]['id'] ?? $this->items[$j]['temp_id'];
+                                $actualParentId = $idMap[$nearestKey] ?? null;
+                                break;
+                            }
+                        }
+                    }
                     $saved = $this->persistItem($menu->id, $actualParentId, $itemData, $order);
                     $savedIds[] = $saved->id;
                     $idMap[$itemData['id'] ?? $itemData['temp_id']] = $saved->id;
@@ -484,6 +560,15 @@ class MenuManager extends Component
                 if ($itemData['depth'] === 2) {
                     $parentKey = $itemData['parent_id'] ?? null;
                     $actualParentId = $idMap[$parentKey] ?? null;
+                    if (!$actualParentId) {
+                        for ($j = $order - 1; $j >= 0; $j--) {
+                            if (($this->items[$j]['depth'] ?? 0) === 1) {
+                                $nearestKey = $this->items[$j]['id'] ?? $this->items[$j]['temp_id'];
+                                $actualParentId = $idMap[$nearestKey] ?? null;
+                                break;
+                            }
+                        }
+                    }
                     $saved = $this->persistItem($menu->id, $actualParentId, $itemData, $order);
                     $savedIds[] = $saved->id;
                 }
