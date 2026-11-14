@@ -296,35 +296,75 @@
 
     <div class="min-h-full flex flex-col justify-between relative z-10">
         
-        <!-- TOP CORPORATE EMERGENCY & STATS STRIP (Light mode: 100% Light, Dark mode: Shipyard Navy) -->
+        @php
+            $headerTopbar = \App\Models\Setting::getJson('header_topbar', [
+                'enabled'    => true,
+                'badge_text' => '24/7 Port Call & Emergency Squads',
+                'subtext'    => 'Authorized Multi-Brand Turbocharger Engineering',
+                'phone'      => '',
+                'email'      => '',
+                'admin_link' => true,
+            ]);
+            $topbarPhone = !empty($headerTopbar['phone']) ? $headerTopbar['phone'] : \App\Models\Setting::get('contact_phone', '+880 1800-000000');
+            $topbarEmail = !empty($headerTopbar['email']) ? $headerTopbar['email'] : \App\Models\Setting::get('contact_email', 'operations@nordroy.com');
+            $headerSticky = \App\Models\Setting::get('header_sticky', '1') == '1';
+            $headerThemeToggle = \App\Models\Setting::get('header_theme_toggle', '1') == '1';
+            $headerStyle = \App\Models\Setting::get('theme_header_style', 'glass');
+            $headerHeight = \App\Models\Setting::get('theme_header_height', '80px');
+
+            $defaultMenuItems = (new \App\Livewire\Admin\Theme\ThemeStudio())->getDefaultMenuItems();
+            $headerMenuItems = \App\Models\Setting::getJson('header_menu_items') ?: $defaultMenuItems;
+
+            $headerCta = \App\Models\Setting::getJson('header_cta', [
+                'enabled'   => true,
+                'label'     => 'Request RFQ',
+                'link'      => ['type' => 'internal', 'page' => 'contact', 'section' => 'rfq', 'target_blank' => false],
+                'show_icon' => true,
+            ]);
+            $resolvedCta = \App\Services\LinkResolver::resolve($headerCta['link'] ?? []);
+        @endphp
+
+        <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
+        @if(!empty($headerTopbar['enabled']))
         <div class="bg-white/95 dark:bg-[#050f18]/95 text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px] py-2 px-4 sm:px-8 transition-colors">
             <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div class="flex items-center gap-3">
                     <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
-                        24/7 Port Call &amp; Emergency Squads
+                        {{ $headerTopbar['badge_text'] ?: '24/7 Port Call & Emergency Squads' }}
                     </span>
-                    <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
-                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">Authorized Multi-Brand Turbocharger Engineering</span>
+                    @if(!empty($headerTopbar['subtext']))
+                        <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
+                        <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ $headerTopbar['subtext'] }}</span>
+                    @endif
                 </div>
                 <div class="flex items-center gap-4 text-xs">
-                    <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
-                        <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                        <span>{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</span>
-                    </a>
-                    <a href="mailto:{{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <span>{{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}</span>
-                    </a>
-                    <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
-                        Admin Portal &rarr;
-                    </a>
+                    @if(!empty($topbarPhone))
+                        <a href="tel:{{ preg_replace('/[^\d+]/', '', $topbarPhone) }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
+                            <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <span>{{ $topbarPhone }}</span>
+                        </a>
+                    @endif
+                    @if(!empty($topbarEmail))
+                        <a href="mailto:{{ $topbarEmail }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>{{ $topbarEmail }}</span>
+                        </a>
+                    @endif
+                    @if(!empty($headerTopbar['admin_link']))
+                        <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
+                            Admin Portal &rarr;
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
+        @endif
 
-        <!-- STICKY GLASSMORPHISM PUBLIC HEADER -->
-        <header class="sticky top-0 z-40 glass-nav border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
-            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+        <!-- DYNAMIC PUBLIC HEADER -->
+        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800')) }} transition-colors duration-200"
+                style="{{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
+            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
+                 style="height: {{ $headerHeight ?: '80px' }};">
                 
                 <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
@@ -338,137 +378,63 @@
                          class="h-10 w-auto object-contain hidden dark:block group-hover:scale-102 transition-transform duration-200" />
                 </a>
 
-                <!-- DESKTOP MULTI-LAYER NAVIGATION LINKS WITH CLEAN SUBMENUS (Consistent Title Case) -->
+                <!-- DESKTOP MULTI-LAYER DYNAMIC NAVIGATION LINKS WITH SUBMENUS -->
                 <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200 tracking-normal">
-                    
-                    <!-- 1. Home Link -->
-                    <a href="{{ route('home') }}" 
-                       class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('home') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
-                        Home
-                    </a>
+                    @foreach($headerMenuItems as $item)
+                        @php
+                            $hasChildren = !empty($item['children']) && count($item['children']) > 0;
+                            $resolved = \App\Services\LinkResolver::resolve($item['link'] ?? []);
+                            $isCurrent = request()->url() === rtrim($resolved['url'], '/') || request()->fullUrl() === $resolved['url'];
+                        @endphp
 
-                    <!-- 2. About Conglomerate (Dropdown) -->
-                    <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>About Us</span>
-                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-                        <!-- Submenu Dropdown Card -->
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 translate-y-2"
-                             class="absolute left-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
-                             style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Conglomerate Structure</div>
-                            <a href="{{ route('about') }}#overview" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Corporate Heritage &amp; Profile
+                        @if(!$hasChildren)
+                            <!-- Single Link -->
+                            <a href="{{ $resolved['url'] }}" 
+                               target="{{ $resolved['target'] }}" 
+                               @if(!empty($resolved['rel'])) rel="{{ $resolved['rel'] }}" @endif
+                               class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ $isCurrent ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
+                                {{ $item['label'] }}
                             </a>
-                            <a href="{{ route('about') }}#mission" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Mission, Vision &amp; Core Values
-                            </a>
-                            <a href="{{ route('about') }}#leadership" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Leadership &amp; Engineering Board
-                            </a>
-                            <a href="{{ route('about') }}#certifications" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                ISO 9001:2015 &amp; DNV Standards
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- 3. Overhaul Services (Dropdown) -->
-                    <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>Services</span>
-                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 translate-y-2"
-                             class="absolute left-0 mt-1 w-72 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
-                             style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Precision Engineering</div>
-                            <a href="{{ route('services') }}#balancing" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Dynamic Rotor Balancing (100k RPM)
-                            </a>
-                            <a href="{{ route('services') }}#overhaul" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Turbine Blading &amp; TIG Welding
-                            </a>
-                            <a href="{{ route('services') }}#cartridge" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Cartridge (CHRA) Exchange &amp; Rebuild
-                            </a>
-                            <a href="{{ route('services') }}#ultrasonic" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Ultrasonic Chemical Cleaning
-                            </a>
-                            <a href="{{ route('services') }}#flying-squad" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                24/7 Port Flying Squads to Vessel
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- 4. Business Units -->
-                    <a href="{{ route('home') }}#divisions" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors">
-                        Business Units
-                    </a>
-
-                    <!-- 5. Projects & Media (Dropdown) -->
-                    <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>Projects &amp; Media</span>
-                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 translate-y-2"
-                             class="absolute left-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
-                             style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Portfolio &amp; Media</div>
-                            <a href="{{ route('projects') }}#projects" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Industrial Projects
-                            </a>
-                            <a href="{{ route('projects') }}#videos" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Video Gallery (Hover Play)
-                            </a>
-                            <a href="{{ route('projects') }}#photos" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Photo Gallery &amp; Workshops
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- 6. Contact Link -->
-                    <a href="{{ route('contact') }}" 
-                       class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('contact') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
-                        Contact
-                    </a>
-
+                        @else
+                            <!-- Dropdown Menu Item -->
+                            <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                                <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
+                                    <span>{{ $item['label'] }}</span>
+                                    <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <!-- Submenu Dropdown Card -->
+                                <div x-show="open" 
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 translate-y-2"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 translate-y-2"
+                                     class="absolute left-0 mt-1 min-w-[260px] max-w-sm rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
+                                     style="display: none;">
+                                    <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ $item['label'] }}</div>
+                                    @foreach($item['children'] as $child)
+                                        @php
+                                            $childResolved = \App\Services\LinkResolver::resolve($child['link'] ?? []);
+                                        @endphp
+                                        <a href="{{ $childResolved['url'] }}" 
+                                           target="{{ $childResolved['target'] }}" 
+                                           @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
+                                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400 shrink-0"></span>
+                                            <span class="truncate">{{ $child['label'] }}</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
                 </nav>
 
                 <!-- Header Actions: Theme Toggle + CTA + Mobile Hamburger -->
                 <div class="flex items-center gap-3 sm:gap-4">
                     
+                    @if($headerThemeToggle)
                     <!-- Theme Toggle (Instant 0ms Vanilla JS + Pure CSS Icons) -->
                     <button type="button" onclick="window.toggleSiteTheme(event)"
                             class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-amber-400 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -482,14 +448,21 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                         </svg>
                     </button>
+                    @endif
 
-                    <!-- Instant RFQ CTA Button -->
-                    <a href="{{ route('contact') }}#rfq" 
+                    @if(!empty($headerCta['enabled']))
+                    <!-- Dynamic CTA Button -->
+                    <a href="{{ $resolvedCta['url'] }}" 
+                       target="{{ $resolvedCta['target'] }}" 
+                       @if(!empty($resolvedCta['rel'])) rel="{{ $resolvedCta['rel'] }}" @endif
                        class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all"
                        style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span>Request RFQ</span>
+                        @if(!empty($headerCta['show_icon']))
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        @endif
+                        <span>{{ $headerCta['label'] ?: 'Request RFQ' }}</span>
                     </a>
+                    @endif
 
                     <!-- Mobile Hamburger Button -->
                     <button type="button" @click="mobileNavOpen = true" class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -555,80 +528,68 @@
                         </div>
                     </div>
 
-                    <!-- Drawer Nav Items (with Accordion Submenus - Pure Title Case) -->
+                    <!-- Drawer Nav Items (Dynamic Accordion Submenus) -->
                     <div class="flex-1 overflow-y-auto p-5 space-y-2 text-sm font-semibold tracking-normal">
-                        
-                        <a href="{{ route('home') }}" @click="mobileNavOpen = false" 
-                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('home') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
-                            Home
-                        </a>
+                        @foreach($headerMenuItems as $mi => $item)
+                            @php
+                                $hasChildren = !empty($item['children']) && count($item['children']) > 0;
+                                $resolved = \App\Services\LinkResolver::resolve($item['link'] ?? []);
+                                $isCurrent = request()->url() === rtrim($resolved['url'], '/') || request()->fullUrl() === $resolved['url'];
+                            @endphp
 
-                        <!-- About Us Accordion -->
-                        <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
-                            <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'about' ? null : 'about')" 
-                                    class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>About Us</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'about' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <div x-show="activeMobileSubmenu === 'about'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('about') }}#overview" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Corporate Heritage &amp; Profile</a>
-                                <a href="{{ route('about') }}#mission" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Mission, Vision &amp; Core Values</a>
-                                <a href="{{ route('about') }}#leadership" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Leadership &amp; Engineering Board</a>
-                                <a href="{{ route('about') }}#certifications" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">ISO 9001:2015 &amp; DNV Standards</a>
-                            </div>
-                        </div>
-
-                        <!-- Services Accordion -->
-                        <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
-                            <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'services' ? null : 'services')" 
-                                    class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>Services</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'services' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <div x-show="activeMobileSubmenu === 'services'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('services') }}#balancing" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Dynamic Rotor Balancing (100k RPM)</a>
-                                <a href="{{ route('services') }}#overhaul" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Turbine Blading &amp; TIG Welding</a>
-                                <a href="{{ route('services') }}#cartridge" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Cartridge (CHRA) Exchange</a>
-                                <a href="{{ route('services') }}#ultrasonic" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Ultrasonic Chemical Cleaning</a>
-                                <a href="{{ route('services') }}#flying-squad" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">24/7 Port Emergency Flying Squads</a>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('home') }}#divisions" @click="mobileNavOpen = false" 
-                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800/80 pb-2 transition-colors">
-                            Business Units
-                        </a>
-
-                        <!-- Projects Accordion -->
-                        <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
-                            <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'projects' ? null : 'projects')" 
-                                    class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>Projects &amp; Media</span>
-                                <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'projects' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <div x-show="activeMobileSubmenu === 'projects'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('projects') }}#projects" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Featured Industrial Projects</a>
-                                <a href="{{ route('projects') }}#videos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Video Gallery (Hover to Play)</a>
-                                <a href="{{ route('projects') }}#photos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Photo Gallery &amp; Workshops</a>
-                            </div>
-                        </div>
-
-                        <a href="{{ route('contact') }}" @click="mobileNavOpen = false" 
-                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('contact') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
-                            Contact &amp; RFQ
-                        </a>
+                            @if(!$hasChildren)
+                                <a href="{{ $resolved['url'] }}" 
+                                   target="{{ $resolved['target'] }}" 
+                                   @if(!empty($resolved['rel'])) rel="{{ $resolved['rel'] }}" @endif
+                                   @click="mobileNavOpen = false" 
+                                   class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ $isCurrent ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
+                                    {{ $item['label'] }}
+                                </a>
+                            @else
+                                <!-- Accordion for Dropdowns -->
+                                <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
+                                    <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === '{{ $mi }}' ? null : '{{ $mi }}')" 
+                                            class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
+                                        <span>{{ $item['label'] }}</span>
+                                        <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === '{{ $mi }}' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                    <div x-show="activeMobileSubmenu === '{{ $mi }}'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                        @foreach($item['children'] as $child)
+                                            @php
+                                                $childResolved = \App\Services\LinkResolver::resolve($child['link'] ?? []);
+                                            @endphp
+                                            <a href="{{ $childResolved['url'] }}" 
+                                               target="{{ $childResolved['target'] }}" 
+                                               @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
+                                               @click="mobileNavOpen = false" 
+                                               class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                                                {{ $child['label'] }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
 
                     <!-- Drawer Footer CTA & Emergency Info -->
                     <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-3">
-                        <a href="{{ route('contact') }}#rfq" @click="mobileNavOpen = false" 
+                        @if(!empty($headerCta['enabled']))
+                        <a href="{{ $resolvedCta['url'] }}" 
+                           target="{{ $resolvedCta['target'] }}" 
+                           @if(!empty($resolvedCta['rel'])) rel="{{ $resolvedCta['rel'] }}" @endif
+                           @click="mobileNavOpen = false" 
                            class="w-full inline-flex items-center justify-center py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md"
                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
-                            Request Instant RFQ
+                            {{ $headerCta['label'] ?: 'Request Instant RFQ' }}
                         </a>
+                        @endif
+
+                        @if(!empty($topbarPhone))
                         <div class="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
-                            24/7 Port Helpline: <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="font-bold text-[#003C58] dark:text-cyan-400">{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</a>
+                            24/7 Port Helpline: <a href="tel:{{ preg_replace('/[^\d+]/', '', $topbarPhone) }}" class="font-bold text-[#003C58] dark:text-cyan-400">{{ $topbarPhone }}</a>
                         </div>
+                        @endif
                     </div>
 
                 </div>

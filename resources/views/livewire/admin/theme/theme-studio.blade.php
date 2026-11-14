@@ -368,31 +368,313 @@
                 </div>
             @endif
 
-            <!-- TAB 5: HEADER & NAVIGATION -->
+            <!-- TAB 5: HEADER & NAVIGATION BUILDER -->
             @if($activeTab === 'header')
-                <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Top Navigation Bar Style</h3>
+                <div class="space-y-6">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Header Navbar Appearance</label>
-                            <select wire:model.live="theme.theme_header_style" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                <option value="glass">Glass Frosted (Blurred semi-transparent - Recommended)</option>
-                                <option value="solid">Solid Crisp Background</option>
-                                <option value="transparent">Fully Transparent (Floats directly over hero)</option>
-                                <option value="floating">Floating Island Navbar (Pill Container)</option>
-                            </select>
+                    <!-- SECTION 1: TOP EMERGENCY & INFORMATION STRIP -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Top Emergency &amp; Information Strip</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Top bar for 24/7 emergency dispatch, hotline phone, and admin shortcuts</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model.live="headerTopbar.enabled" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#003C58] dark:peer-checked:bg-cyan-500"></div>
+                            </label>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Navbar Height</label>
-                            <select wire:model.live="theme.theme_header_height" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                <option value="64px">Compact (64px)</option>
-                                <option value="80px">Standard Corporate (80px - Recommended)</option>
-                                <option value="96px">Spacious Grand (96px)</option>
-                            </select>
+                        @if(!empty($headerTopbar['enabled']))
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Emergency Badge / Headline</label>
+                                    <input type="text" wire:model.live="headerTopbar.badge_text" placeholder="24/7 Port Call &amp; Emergency Squads"
+                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subtext / Service Tagline</label>
+                                    <input type="text" wire:model.live="headerTopbar.subtext" placeholder="Authorized Multi-Brand Turbocharger Engineering"
+                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Hotline Phone Override (Optional)</label>
+                                    <input type="text" wire:model.live="headerTopbar.phone" placeholder="Default: {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}"
+                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Duty Email Override (Optional)</label>
+                                    <input type="text" wire:model.live="headerTopbar.email" placeholder="Default: {{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}"
+                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                    <input type="checkbox" wire:model.live="headerTopbar.admin_link" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show "Admin Portal &rarr;" Quick Link in Top Bar</span>
+                                </label>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- SECTION 2: MAIN HEADER STYLING & BEHAVIOR -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Header Appearance &amp; Sticky Behavior</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Header Navbar Appearance</label>
+                                <select wire:model.live="theme.theme_header_style" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    <option value="glass">Glass Frosted (Blurred semi-transparent - Recommended)</option>
+                                    <option value="solid">Solid Crisp Background</option>
+                                    <option value="transparent">Fully Transparent (Floats directly over hero)</option>
+                                    <option value="floating">Floating Island Navbar (Pill Container)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Navbar Height</label>
+                                <select wire:model.live="theme.theme_header_height" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    <option value="64px">Compact (64px)</option>
+                                    <option value="80px">Standard Corporate (80px - Recommended)</option>
+                                    <option value="96px">Spacious Grand (96px)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <label class="flex items-center gap-2.5 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                <input type="checkbox" wire:model.live="headerSticky" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                <div>
+                                    <span class="font-bold">Sticky Header Navbar</span>
+                                    <p class="text-[11px] text-slate-400">Keeps header visible on scroll</p>
+                                </div>
+                            </label>
+
+                            <label class="flex items-center gap-2.5 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                <input type="checkbox" wire:model.live="headerThemeToggle" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                <div>
+                                    <span class="font-bold">Dark / Light Mode Toggle</span>
+                                    <p class="text-[11px] text-slate-400">Show sun/moon theme switch button</p>
+                                </div>
+                            </label>
                         </div>
                     </div>
+
+                    <!-- SECTION 3: NAVIGATION MENU ITEMS BUILDER -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Navigation Menu Items</h3>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
+                                        {{ count($headerMenuItems) }} Items
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Configure main navigation links, section anchors, and dropdown submenus</p>
+                            </div>
+
+                            <button type="button" wire:click="addMenuItem"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-2xs transition-all cursor-pointer">
+                                <x-icon name="solid:plus" class="w-3.5 h-3.5" />
+                                <span>Add Menu Item</span>
+                            </button>
+                        </div>
+
+                        <!-- Menu Items List -->
+                        <div class="space-y-3">
+                            @forelse($headerMenuItems as $i => $item)
+                                <div wire:key="nav-item-{{ $item['id'] ?? $i }}"
+                                     class="rounded-2xl border transition-all {{ $expandedMenuIndex === $i ? 'border-[#003C58] dark:border-cyan-400 bg-slate-50/50 dark:bg-slate-950/40 shadow-xs' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900' }}">
+                                    
+                                    <!-- Collapsed Item Header -->
+                                    <div class="p-3.5 flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                            <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-mono text-[10px] font-bold text-slate-500 shrink-0">
+                                                {{ $i + 1 }}
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                                        {{ $item['label'] ?: 'Untitled Item' }}
+                                                    </p>
+                                                    @if(!empty($item['children']) && count($item['children']) > 0)
+                                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
+                                                            {{ count($item['children']) }} Sub-Items
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <p class="text-[10px] font-mono text-slate-400 truncate">
+                                                    {{ \App\Services\LinkResolver::url($item['link'] ?? []) }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Item Action Controls -->
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            <!-- Move Up -->
+                                            <button type="button" wire:click="moveMenuItem({{ $i }}, 'up')"
+                                                    @disabled($i === 0)
+                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                                    title="Move Up">
+                                                <x-icon name="solid:arrow-up" class="w-3.5 h-3.5" />
+                                            </button>
+
+                                            <!-- Move Down -->
+                                            <button type="button" wire:click="moveMenuItem({{ $i }}, 'down')"
+                                                    @disabled($i === count($headerMenuItems) - 1)
+                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                                    title="Move Down">
+                                                <x-icon name="solid:arrow-down" class="w-3.5 h-3.5" />
+                                            </button>
+
+                                            <!-- Expand / Collapse -->
+                                            <button type="button" wire:click="toggleMenuItem({{ $i }})"
+                                                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors {{ $expandedMenuIndex === $i ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200' }}">
+                                                {{ $expandedMenuIndex === $i ? 'Close' : 'Edit' }}
+                                            </button>
+
+                                            <!-- Delete -->
+                                            <button type="button" wire:click="removeMenuItem({{ $i }})"
+                                                    wire:confirm="Are you sure you want to remove this navigation item and its submenus?"
+                                                    class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                                                    title="Delete Item">
+                                                <x-icon name="solid:trash" class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Expanded Item Configuration HUD -->
+                                    @if($expandedMenuIndex === $i)
+                                        <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 space-y-4 bg-white/60 dark:bg-slate-900/60 rounded-b-2xl">
+                                            
+                                            <!-- Label Input -->
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Navigation Label Text</label>
+                                                <input type="text" wire:model.live="headerMenuItems.{{ $i }}.label"
+                                                       placeholder="e.g. Services"
+                                                       class="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                            </div>
+
+                                            <!-- Destination Smart Link Picker -->
+                                            <div class="pt-1">
+                                                <x-smart-link-picker wire:model="headerMenuItems.{{ $i }}.link" label="Primary Target Destination" />
+                                            </div>
+
+                                            <!-- Submenu Dropdowns Section -->
+                                            <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800 space-y-3">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <h4 class="text-xs font-bold text-slate-800 dark:text-white">Submenu Dropdown Items (Optional)</h4>
+                                                        <p class="text-[10px] text-slate-400">Visitors hovering over this item will see these child links</p>
+                                                    </div>
+
+                                                    <button type="button" wire:click="addChildMenuItem({{ $i }})"
+                                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                                        <x-icon name="solid:plus" class="w-3 h-3" />
+                                                        <span>Add Sub-Item</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Submenu Children List -->
+                                                @if(!empty($item['children']))
+                                                    <div class="space-y-2.5 pl-2 sm:pl-4 border-l-2 border-[#003C58]/30 dark:border-cyan-400/30">
+                                                        @foreach($item['children'] as $ci => $child)
+                                                            <div wire:key="child-{{ $i }}-{{ $ci }}"
+                                                                 class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                                                                <div class="flex items-center justify-between gap-2">
+                                                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                                                        <span class="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-mono text-[9px] font-bold text-slate-500 shrink-0">
+                                                                            {{ $ci + 1 }}
+                                                                        </span>
+                                                                        <input type="text" wire:model.live="headerMenuItems.{{ $i }}.children.{{ $ci }}.label"
+                                                                               placeholder="Sub-item label (e.g. Dynamic Rotor Balancing)"
+                                                                               class="flex-1 px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                                                    </div>
+
+                                                                    <div class="flex items-center gap-1 shrink-0">
+                                                                        <button type="button" wire:click="moveChildMenuItem({{ $i }}, {{ $ci }}, 'up')"
+                                                                                @disabled($ci === 0)
+                                                                                class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30">
+                                                                            <x-icon name="solid:arrow-up" class="w-3 h-3" />
+                                                                        </button>
+                                                                        <button type="button" wire:click="moveChildMenuItem({{ $i }}, {{ $ci }}, 'down')"
+                                                                                @disabled($ci === count($item['children']) - 1)
+                                                                                class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30">
+                                                                            <x-icon name="solid:arrow-down" class="w-3 h-3" />
+                                                                        </button>
+                                                                        <button type="button" wire:click="removeChildMenuItem({{ $i }}, {{ $ci }})"
+                                                                                class="p-1 rounded text-rose-500 hover:text-rose-700">
+                                                                            <x-icon name="solid:trash" class="w-3 h-3" />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Child Smart Link Picker -->
+                                                                <div>
+                                                                    <x-smart-link-picker wire:model="headerMenuItems.{{ $i }}.children.{{ $ci }}.link" label="Sub-item Destination" />
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                        </div>
+                                    @endif
+
+                                </div>
+                            @empty
+                                <div class="p-6 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400">
+                                    <x-icon name="solid:compass" class="w-8 h-8 mx-auto mb-2 opacity-40" />
+                                    <p class="text-xs font-semibold">No navigation items configured.</p>
+                                    <button type="button" wire:click="addMenuItem" class="mt-2 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
+                                        + Add First Navigation Item
+                                    </button>
+                                </div>
+                            @endforelse
+                        </div>
+
+                    </div>
+
+                    <!-- SECTION 4: CALL TO ACTION (CTA) BUTTON -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Header Call to Action (CTA) Button</h3>
+                                <p class="text-[11px] text-slate-400 mt-0.5">High-visibility conversion button in the header (e.g. Request Instant RFQ)</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model.live="headerCta.enabled" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#003C58] dark:peer-checked:bg-cyan-500"></div>
+                            </label>
+                        </div>
+
+                        @if(!empty($headerCta['enabled']))
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Button Label</label>
+                                    <input type="text" wire:model.live="headerCta.label" placeholder="Request RFQ"
+                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                </div>
+                                <div class="flex items-end pb-2">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                        <input type="checkbox" wire:model.live="headerCta.show_icon" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                        <span>Show Document Icon in Button</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <x-smart-link-picker wire:model="headerCta.link" label="CTA Action / Destination" />
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
             @endif
 
@@ -568,22 +850,41 @@
                     @endif
 
                     <div class="relative z-10 space-y-4">
+                        <!-- Mockup Topbar (if enabled) -->
+                        @if(!empty($headerTopbar['enabled']))
+                            <div class="px-2.5 py-1 text-[9px] flex items-center justify-between border-b transition-all rounded-t-xl"
+                                 style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: rgba(0,0,0,0.03);">
+                                <span class="truncate font-semibold text-cyan-600 dark:text-cyan-400">
+                                    {{ $headerTopbar['badge_text'] ?: '24/7 Port Call & Emergency Squads' }}
+                                </span>
+                                <span class="hidden sm:inline font-mono opacity-60 text-[8px]">
+                                    {{ $headerTopbar['phone'] ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                </span>
+                            </div>
+                        @endif
+
                         <!-- Mockup Header Navbar -->
-                        <div class="px-3.5 py-2.5 border flex items-center justify-between text-xs transition-all"
+                        <div class="px-3.5 py-2 border flex items-center justify-between text-xs transition-all gap-2"
                              style="
                                  border-radius: {{ $theme['theme_button_radius'] ?? '12px' }};
-                                 background-color: {{ ($theme['theme_header_style'] ?? 'glass') === 'glass' ? 'rgba(255,255,255,0.1)' : (($theme['theme_header_style'] ?? 'glass') === 'solid' ? ($theme['theme_primary_color'] ?? '#003C58') : 'transparent') }};
+                                 background-color: {{ ($theme['theme_header_style'] ?? 'glass') === 'glass' ? 'rgba(255,255,255,0.15)' : (($theme['theme_header_style'] ?? 'glass') === 'solid' ? ($theme['theme_primary_color'] ?? '#003C58') : 'transparent') }};
                                  border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }};
                              ">
-                            <span class="font-extrabold uppercase tracking-wider text-[11px]" 
+                            <span class="font-extrabold uppercase tracking-wider text-[11px] shrink-0" 
                                   style="font-family: '{{ $theme['theme_heading_font'] }}', sans-serif; color: {{ ($theme['theme_header_style'] ?? 'glass') === 'solid' ? '#ffffff' : ($theme['theme_primary_color'] ?? '#003C58') }}">
-                                NORDROY GLOBAL
+                                {{ \App\Models\Setting::get('site_name', 'NORDROY') }}
                             </span>
-                            <div class="flex items-center gap-3 text-[10px] opacity-80" style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
-                                <span>Services</span>
-                                <span>Products</span>
-                                <span>Contact</span>
+                            <div class="flex items-center gap-2 text-[10px] opacity-80 overflow-hidden" style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
+                                @foreach(array_slice($headerMenuItems, 0, 3) as $mItem)
+                                    <span class="truncate font-medium">{{ $mItem['label'] }}</span>
+                                @endforeach
                             </div>
+                            @if(!empty($headerCta['enabled']))
+                                <span class="px-2 py-0.5 text-[9px] font-bold rounded-md shrink-0 text-white shadow-xs"
+                                      style="background: linear-gradient(135deg, {{ $theme['theme_primary_color'] ?? '#003C58' }}, {{ $theme['theme_accent_color'] ?? '#0ea5e9' }}); border-radius: {{ $theme['theme_button_radius'] ?? '6px' }};">
+                                    {{ $headerCta['label'] ?: 'RFQ' }}
+                                </span>
+                            @endif
                         </div>
 
                     <!-- Category Badge -->

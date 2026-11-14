@@ -25,6 +25,14 @@ class ThemeStudio extends Component
     // Full Design Tokens State
     public array $theme = [];
 
+    // Header & Navigation Builder State
+    public array $headerMenuItems = [];
+    public array $headerCta = [];
+    public array $headerTopbar = [];
+    public bool $headerSticky = true;
+    public bool $headerThemeToggle = true;
+    public ?int $expandedMenuIndex = null;
+
     // Pre-engineered Industrial Presets
     public array $presets = [
         'nordroy_marine' => [
@@ -221,6 +229,13 @@ class ThemeStudio extends Component
         ];
 
         $this->theme = array_merge($defaults, $existing);
+
+        // Initialize Header & Navigation Builder State
+        $this->headerMenuItems = Setting::getJson('header_menu_items') ?: $this->getDefaultMenuItems();
+        $this->headerCta = array_merge($this->getDefaultHeaderCta(), Setting::getJson('header_cta') ?: []);
+        $this->headerTopbar = array_merge($this->getDefaultHeaderTopbar(), Setting::getJson('header_topbar') ?: []);
+        $this->headerSticky = (bool) Setting::get('header_sticky', '1');
+        $this->headerThemeToggle = (bool) Setting::get('header_theme_toggle', '1');
     }
 
     #[On('media-selected')]
@@ -314,13 +329,172 @@ class ThemeStudio extends Component
         }
     }
 
+    public function toggleMenuItem(int $index): void
+    {
+        $this->expandedMenuIndex = ($this->expandedMenuIndex === $index) ? null : $index;
+    }
+
+    public function addMenuItem(): void
+    {
+        $this->headerMenuItems[] = [
+            'id'       => 'nav_' . uniqid(),
+            'label'    => 'New Menu Item',
+            'link'     => ['type' => 'internal', 'page' => 'home', 'section' => '', 'target_blank' => false],
+            'children' => [],
+        ];
+        $this->expandedMenuIndex = count($this->headerMenuItems) - 1;
+    }
+
+    public function removeMenuItem(int $index): void
+    {
+        if (isset($this->headerMenuItems[$index])) {
+            array_splice($this->headerMenuItems, $index, 1);
+            if ($this->expandedMenuIndex === $index) {
+                $this->expandedMenuIndex = null;
+            } elseif ($this->expandedMenuIndex > $index) {
+                $this->expandedMenuIndex--;
+            }
+        }
+    }
+
+    public function moveMenuItem(int $index, string $direction): void
+    {
+        $targetIndex = $direction === 'up' ? $index - 1 : $index + 1;
+        if ($targetIndex >= 0 && $targetIndex < count($this->headerMenuItems)) {
+            $temp = $this->headerMenuItems[$index];
+            $this->headerMenuItems[$index] = $this->headerMenuItems[$targetIndex];
+            $this->headerMenuItems[$targetIndex] = $temp;
+            $this->expandedMenuIndex = $targetIndex;
+        }
+    }
+
+    public function addChildMenuItem(int $parentIndex): void
+    {
+        if (!isset($this->headerMenuItems[$parentIndex]['children'])) {
+            $this->headerMenuItems[$parentIndex]['children'] = [];
+        }
+        $this->headerMenuItems[$parentIndex]['children'][] = [
+            'id'    => 'child_' . uniqid(),
+            'label' => 'Sub Item',
+            'link'  => ['type' => 'internal', 'page' => 'services', 'section' => '', 'target_blank' => false],
+        ];
+        $this->expandedMenuIndex = $parentIndex;
+    }
+
+    public function removeChildMenuItem(int $parentIndex, int $childIndex): void
+    {
+        if (isset($this->headerMenuItems[$parentIndex]['children'][$childIndex])) {
+            array_splice($this->headerMenuItems[$parentIndex]['children'], $childIndex, 1);
+        }
+    }
+
+    public function moveChildMenuItem(int $parentIndex, int $childIndex, string $direction): void
+    {
+        if (!isset($this->headerMenuItems[$parentIndex]['children'])) {
+            return;
+        }
+        $children = &$this->headerMenuItems[$parentIndex]['children'];
+        $targetIndex = $direction === 'up' ? $childIndex - 1 : $childIndex + 1;
+        if ($targetIndex >= 0 && $targetIndex < count($children)) {
+            $temp = $children[$childIndex];
+            $children[$childIndex] = $children[$targetIndex];
+            $children[$targetIndex] = $temp;
+        }
+    }
+
+    public function getDefaultMenuItems(): array
+    {
+        return [
+            [
+                'id'       => 'nav_home',
+                'label'    => 'Home',
+                'link'     => ['type' => 'internal', 'page' => 'home', 'section' => '', 'target_blank' => false],
+                'children' => [],
+            ],
+            [
+                'id'       => 'nav_about',
+                'label'    => 'About Us',
+                'link'     => ['type' => 'internal', 'page' => 'about', 'section' => '', 'target_blank' => false],
+                'children' => [
+                    ['id' => 'about_1', 'label' => 'Corporate Heritage & Profile', 'link' => ['type' => 'internal', 'page' => 'about', 'section' => 'story', 'target_blank' => false]],
+                    ['id' => 'about_2', 'label' => 'Mission, Vision & Core Values', 'link' => ['type' => 'internal', 'page' => 'about', 'section' => 'story', 'target_blank' => false]],
+                    ['id' => 'about_3', 'label' => 'Leadership & Engineering Board', 'link' => ['type' => 'internal', 'page' => 'about', 'section' => 'leadership', 'target_blank' => false]],
+                    ['id' => 'about_4', 'label' => 'ISO 9001:2015 & DNV Standards', 'link' => ['type' => 'internal', 'page' => 'about', 'section' => 'certifications', 'target_blank' => false]],
+                ],
+            ],
+            [
+                'id'       => 'nav_services',
+                'label'    => 'Services',
+                'link'     => ['type' => 'internal', 'page' => 'services', 'section' => '', 'target_blank' => false],
+                'children' => [
+                    ['id' => 'srv_1', 'label' => 'Dynamic Rotor Balancing (100k RPM)', 'link' => ['type' => 'internal', 'page' => 'services', 'section' => 'capabilities', 'target_blank' => false]],
+                    ['id' => 'srv_2', 'label' => 'Turbine Blading & TIG Welding', 'link' => ['type' => 'internal', 'page' => 'services', 'section' => 'overview', 'target_blank' => false]],
+                    ['id' => 'srv_3', 'label' => 'Cartridge (CHRA) Exchange & Rebuild', 'link' => ['type' => 'internal', 'page' => 'services', 'section' => 'categories', 'target_blank' => false]],
+                    ['id' => 'srv_4', 'label' => 'Ultrasonic Chemical Cleaning', 'link' => ['type' => 'internal', 'page' => 'services', 'section' => 'categories', 'target_blank' => false]],
+                    ['id' => 'srv_5', 'label' => '24/7 Port Flying Squads to Vessel', 'link' => ['type' => 'internal', 'page' => 'services', 'section' => 'inquiry', 'target_blank' => false]],
+                ],
+            ],
+            [
+                'id'       => 'nav_divisions',
+                'label'    => 'Business Units',
+                'link'     => ['type' => 'internal', 'page' => 'home', 'section' => 'partners', 'target_blank' => false],
+                'children' => [],
+            ],
+            [
+                'id'       => 'nav_projects',
+                'label'    => 'Projects & Media',
+                'link'     => ['type' => 'internal', 'page' => 'projects', 'section' => '', 'target_blank' => false],
+                'children' => [
+                    ['id' => 'prj_1', 'label' => 'Industrial Projects', 'link' => ['type' => 'internal', 'page' => 'projects', 'section' => 'featured', 'target_blank' => false]],
+                    ['id' => 'prj_2', 'label' => 'Video Gallery (Hover Play)', 'link' => ['type' => 'internal', 'page' => 'projects', 'section' => 'archive', 'target_blank' => false]],
+                    ['id' => 'prj_3', 'label' => 'Photo Gallery & Workshops', 'link' => ['type' => 'internal', 'page' => 'projects', 'section' => 'archive', 'target_blank' => false]],
+                ],
+            ],
+            [
+                'id'       => 'nav_contact',
+                'label'    => 'Contact',
+                'link'     => ['type' => 'internal', 'page' => 'contact', 'section' => '', 'target_blank' => false],
+                'children' => [],
+            ],
+        ];
+    }
+
+    public function getDefaultHeaderCta(): array
+    {
+        return [
+            'enabled'   => true,
+            'label'     => 'Request RFQ',
+            'link'      => ['type' => 'internal', 'page' => 'contact', 'section' => 'rfq', 'target_blank' => false],
+            'show_icon' => true,
+        ];
+    }
+
+    public function getDefaultHeaderTopbar(): array
+    {
+        return [
+            'enabled'    => true,
+            'badge_text' => '24/7 Port Call & Emergency Squads',
+            'subtext'    => 'Authorized Multi-Brand Turbocharger Engineering',
+            'phone'      => '',
+            'email'      => '',
+            'admin_link' => true,
+        ];
+    }
+
     public function saveThemeTokens(): void
     {
         foreach ($this->theme as $key => $value) {
             Setting::set($key, $value, 'theme');
         }
 
-        session()->flash('message', 'Full Corporate Design System tokens successfully published and synced.');
+        // Save Header & Navigation Builder configuration
+        Setting::set('header_menu_items', $this->headerMenuItems, 'header', 'json');
+        Setting::set('header_cta', $this->headerCta, 'header', 'json');
+        Setting::set('header_topbar', $this->headerTopbar, 'header', 'json');
+        Setting::set('header_sticky', $this->headerSticky ? '1' : '0', 'header');
+        Setting::set('header_theme_toggle', $this->headerThemeToggle ? '1' : '0', 'header');
+
+        session()->flash('message', 'Full Corporate Design System & Header Navigation successfully published and synchronized.');
     }
 
     public function render()

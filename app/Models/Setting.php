@@ -52,18 +52,39 @@ class Setting extends Model
     }
 
     /**
+     * Retrieve a JSON decoded setting as an array or object.
+     */
+    public static function getJson(string $key, mixed $default = []): mixed
+    {
+        $val = static::get($key);
+        if ($val === null || $val === '') {
+            return $default;
+        }
+        if (is_array($val)) {
+            return $val;
+        }
+        $decoded = json_decode($val, true);
+        return (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : $default;
+    }
+
+    /**
      * Set/Update setting and IMMEDIATELY flush memory & disk cache.
      */
     public static function set(string $key, mixed $value, string $group = 'general', string $type = 'text'): self
     {
+        $storedValue = is_array($value) ? json_encode($value) : $value;
+        if (is_array($value) && $type === 'text') {
+            $type = 'json';
+        }
+
         $setting = static::updateOrCreate(
             ['key' => $key],
-            ['value' => $value, 'group' => $group, 'type' => $type]
+            ['value' => $storedValue, 'group' => $group, 'type' => $type]
         );
 
         // Force zero-latency memory sync
         if (static::$runtimeCache !== null) {
-            static::$runtimeCache[$key] = $value;
+            static::$runtimeCache[$key] = $storedValue;
         }
 
         Cache::forget('cms_settings_all');

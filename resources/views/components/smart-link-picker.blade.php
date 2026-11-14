@@ -19,6 +19,7 @@
 
 <div x-data="nordroySmartLinkPicker({
         linkData: @if($wireModel) $wire.entangle('{{ $wireModel }}') @else {} @endif,
+        wireModel: '{{ $wireModel }}',
         sectionsMap: @json($sectionsMap),
         showLabel: {{ $showLabelInput ? 'true' : 'false' }}
     })"
@@ -63,7 +64,7 @@
                 class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 inline-flex items-center gap-1.5"
                 :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
             <span x-text="isExpanded ? 'Done' : 'Configure'"></span>
-            <x-icon :name="isExpanded ? 'solid:chevron-up' : 'solid:chevron-down'" class="w-3 h-3" />
+            <x-icon name="solid:chevron-down" class="w-3 h-3 transition-transform duration-200" ::class="isExpanded ? 'rotate-180' : ''" />
         </button>
     </div>
 
@@ -257,6 +258,8 @@
                 isExpanded: false,
                 sectionsMap: config.sectionsMap || {},
                 showLabel: config.showLabel || false,
+                wireModel: config.wireModel || null,
+                linkData: config.linkData || null,
                 link: {
                     type: 'internal',
                     page: 'home',
@@ -270,10 +273,10 @@
                 },
 
                 init() {
-                    if (config.linkData) {
-                        this.loadData(config.linkData);
+                    if (this.linkData) {
+                        this.loadData(this.linkData);
                     }
-                    this.$watch('config.linkData', (val) => {
+                    this.$watch('linkData', (val) => {
                         this.loadData(val);
                     });
                 },
@@ -381,12 +384,14 @@
                 },
 
                 syncToLivewire() {
-                    if (config.linkData && typeof config.linkData === 'object') {
-                        // Deep clone to avoid proxy reactivity loops
-                        const payload = JSON.parse(JSON.stringify(this.link));
+                    const payload = JSON.parse(JSON.stringify(this.link));
+                    if (this.linkData && typeof this.linkData === 'object') {
                         for (let k in payload) {
-                            config.linkData[k] = payload[k];
+                            this.linkData[k] = payload[k];
                         }
+                    }
+                    if (this.wireModel && typeof this.$wire !== 'undefined') {
+                        this.$wire.set(this.wireModel, payload);
                     }
                 }
             };
