@@ -34,6 +34,12 @@ class ThemeStudio extends Component
         'dark'    => '#07131e',
         'opacity' => 100,
     ];
+    public array $headerTextColor = [
+        'mode'    => 'theme',
+        'light'   => '#0f172a',
+        'dark'    => '#ffffff',
+        'opacity' => 100,
+    ];
     public array $headerMenuItems = [];
     public array $headerCta = [];
     public array $headerTopbar = [];
@@ -243,6 +249,12 @@ class ThemeStudio extends Component
             'mode'    => 'theme',
             'light'   => '#ffffff',
             'dark'    => '#07131e',
+            'opacity' => 100,
+        ];
+        $this->headerTextColor = Setting::getJson('header_text_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#0f172a',
+            'dark'    => '#ffffff',
             'opacity' => 100,
         ];
         $this->headerMenuId = Setting::get('header_menu_id')
@@ -489,12 +501,24 @@ class ThemeStudio extends Component
     public function getDefaultHeaderTopbar(): array
     {
         return [
-            'enabled'    => true,
-            'badge_text' => '24/7 Port Call & Emergency Squads',
-            'subtext'    => 'Authorized Multi-Brand Turbocharger Engineering',
-            'phone'      => '',
-            'email'      => '',
-            'admin_link' => true,
+            'enabled'           => true,
+            'badge_text'        => '24/7 Port Call & Emergency Squads',
+            'subtext'           => 'Authorized Multi-Brand Turbocharger Engineering',
+            'show_badge'        => true,
+            'show_phone'        => true,
+            'phone'             => '',
+            'show_email'        => true,
+            'email'             => '',
+            'show_social'       => true,
+            'show_custom_link'  => false,
+            'custom_link_text'  => 'Vessel Tracking',
+            'custom_link_url'   => '',
+            'custom_link_blank' => false,
+            'admin_link'        => true,
+            'alignment'         => 'between',
+            'density'           => 'standard',
+            'bg_color'          => ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#050f18', 'opacity' => 95],
+            'text_color'        => ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100],
         ];
     }
 
@@ -507,6 +531,7 @@ class ThemeStudio extends Component
         // Save Header & Navigation Builder configuration
         Setting::set('header_menu_id', (string) ($this->headerMenuId ?? ''), 'header');
         Setting::set('header_bg_color', $this->headerBgColor, 'header', 'json');
+        Setting::set('header_text_color', $this->headerTextColor, 'header', 'json');
         Setting::set('header_menu_items', $this->headerMenuItems, 'header', 'json');
         Setting::set('header_cta', $this->headerCta, 'header', 'json');
         Setting::set('header_topbar', $this->headerTopbar, 'header', 'json');

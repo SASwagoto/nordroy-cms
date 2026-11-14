@@ -22,7 +22,7 @@
     <!-- Anti-FOUC & Bulletproof Theme Persistence (Dark Mode Default, Syncs with Livewire wire:navigate) -->
     <script>
         function applyNordroyAdminTheme() {
-            var theme = localStorage.getItem('theme');
+            var theme = localStorage.getItem('nordroy_admin_theme') || localStorage.getItem('theme');
             if (theme === 'light') {
                 document.documentElement.classList.remove('dark');
                 document.documentElement.style.colorScheme = 'light';
@@ -68,13 +68,13 @@
 <body class="h-full font-sans antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 selection:bg-[#003C58] selection:text-white transition-colors duration-200"
       x-data="{
           mobileSidebarOpen: false,
-          isDark: (localStorage.getItem('theme') !== 'light'),
+          isDark: ((localStorage.getItem('nordroy_admin_theme') || localStorage.getItem('theme')) !== 'light'),
           init() {
               this.syncTheme();
               window.addEventListener('nordroy-theme-changed', () => this.syncTheme());
           },
           syncTheme() {
-              this.isDark = (localStorage.getItem('theme') !== 'light');
+              this.isDark = ((localStorage.getItem('nordroy_admin_theme') || localStorage.getItem('theme')) !== 'light');
               if (this.isDark) {
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
@@ -88,11 +88,11 @@
               if (this.isDark) {
                   document.documentElement.classList.add('dark');
                   document.documentElement.style.colorScheme = 'dark';
-                  localStorage.setItem('theme', 'dark');
+                  localStorage.setItem('nordroy_admin_theme', 'dark');
               } else {
                   document.documentElement.classList.remove('dark');
                   document.documentElement.style.colorScheme = 'light';
-                  localStorage.setItem('theme', 'light');
+                  localStorage.setItem('nordroy_admin_theme', 'light');
               }
               window.dispatchEvent(new CustomEvent('nordroy-theme-changed'));
           }

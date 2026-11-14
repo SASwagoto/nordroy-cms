@@ -215,13 +215,41 @@
             -webkit-backdrop-filter: blur(16px);
         }
 
-        /* Smart Color Engine: Dynamic Header & Section Backgrounds */
+        /* Smart Color Engine: Dynamic Header, Topbar & Section Backgrounds/Text */
         html:not(.dark) .smart-custom-header-bg {
             background-color: var(--header-bg-light) !important;
         }
         html.dark .smart-custom-header-bg {
             background-color: var(--header-bg-dark) !important;
         }
+        html:not(.dark) .smart-custom-header-text,
+        html:not(.dark) .smart-custom-header-text nav a,
+        html:not(.dark) .smart-custom-header-text nav button {
+            color: var(--header-text-light) !important;
+        }
+        html.dark .smart-custom-header-text,
+        html.dark .smart-custom-header-text nav a,
+        html.dark .smart-custom-header-text nav button {
+            color: var(--header-text-dark) !important;
+        }
+
+        html:not(.dark) .smart-custom-topbar-bg {
+            background-color: var(--topbar-bg-light) !important;
+        }
+        html.dark .smart-custom-topbar-bg {
+            background-color: var(--topbar-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-topbar-text,
+        html:not(.dark) .smart-custom-topbar-text a,
+        html:not(.dark) .smart-custom-topbar-text span {
+            color: var(--topbar-text-light) !important;
+        }
+        html.dark .smart-custom-topbar-text,
+        html.dark .smart-custom-topbar-text a,
+        html.dark .smart-custom-topbar-text span {
+            color: var(--topbar-text-dark) !important;
+        }
+
         html:not(.dark) .smart-custom-bg {
             background-color: var(--sec-bg-light) !important;
         }
@@ -311,22 +339,51 @@
     <div class="min-h-full flex flex-col justify-between relative z-10">
         
         @php
-            $headerTopbar = \App\Models\Setting::getJson('header_topbar', [
-                'enabled'    => true,
-                'badge_text' => '24/7 Port Call & Emergency Squads',
-                'subtext'    => 'Authorized Multi-Brand Turbocharger Engineering',
-                'phone'      => '',
-                'email'      => '',
-                'admin_link' => true,
-            ]);
+            $headerTopbar = array_merge([
+                'enabled'           => true,
+                'badge_text'        => '24/7 Port Call & Emergency Squads',
+                'subtext'           => 'Authorized Multi-Brand Turbocharger Engineering',
+                'show_badge'        => true,
+                'show_phone'        => true,
+                'phone'             => '',
+                'show_email'        => true,
+                'email'             => '',
+                'show_social'       => true,
+                'show_custom_link'  => false,
+                'custom_link_text'  => 'Vessel Tracking',
+                'custom_link_url'   => '',
+                'custom_link_blank' => false,
+                'admin_link'        => true,
+                'alignment'         => 'between',
+                'density'           => 'standard',
+                'bg_color'          => ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#050f18', 'opacity' => 95],
+                'text_color'        => ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100],
+            ], \App\Models\Setting::getJson('header_topbar') ?: []);
+
+            $topbarBgColor = $headerTopbar['bg_color'] ?? ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#050f18', 'opacity' => 95];
+            $isCustomTopbarBg = \App\Services\SmartColorHelper::isCustom($topbarBgColor);
+
+            $topbarTextColor = $headerTopbar['text_color'] ?? ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100];
+            $isCustomTopbarText = \App\Services\SmartColorHelper::isCustom($topbarTextColor);
+
+            $topbarAlignment = $headerTopbar['alignment'] ?? 'between';
+            $topbarDensity = $headerTopbar['density'] ?? 'standard';
+            $densityClass = match($topbarDensity) {
+                'compact'  => 'py-1 text-[10px]',
+                'spacious' => 'py-3 text-xs',
+                default    => 'py-2 text-[11px]',
+            };
+
             $topbarPhone = !empty($headerTopbar['phone']) ? $headerTopbar['phone'] : \App\Models\Setting::get('contact_phone', '+880 1800-000000');
             $topbarEmail = !empty($headerTopbar['email']) ? $headerTopbar['email'] : \App\Models\Setting::get('contact_email', 'operations@nordroy.com');
+            $socialLinks = json_decode(\App\Models\Setting::get('social_links_data', '[]'), true) ?: [];
+
             $headerSticky = \App\Models\Setting::get('header_sticky', '1') == '1';
             $headerThemeToggle = \App\Models\Setting::get('header_theme_toggle', '1') == '1';
             $headerStyle = \App\Models\Setting::get('theme_header_style', 'glass');
             $headerHeight = \App\Models\Setting::get('theme_header_height', '80px');
 
-            // Header Background Color Engine (Theme vs Custom Light/Dark)
+            // Header Background & Text Color Engines (Theme vs Custom Light/Dark)
             $headerBgColor = \App\Models\Setting::getJson('header_bg_color', [
                 'mode'    => 'theme',
                 'light'   => '#ffffff',
@@ -334,6 +391,14 @@
                 'opacity' => 100,
             ]);
             $isCustomHeaderBg = \App\Services\SmartColorHelper::isCustom($headerBgColor);
+
+            $headerTextColor = \App\Models\Setting::getJson('header_text_color', [
+                'mode'    => 'theme',
+                'light'   => '#0f172a',
+                'dark'    => '#ffffff',
+                'opacity' => 100,
+            ]);
+            $isCustomHeaderText = \App\Services\SmartColorHelper::isCustom($headerTextColor);
 
             // Active Multi-layer Navigation Menu (from DB Menu Builder with fallback)
             $headerMenuId = \App\Models\Setting::get('header_menu_id');
@@ -384,33 +449,57 @@
             $resolvedCta = \App\Services\LinkResolver::resolve($headerCta['link'] ?? []);
         @endphp
 
-
-
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         @if(!empty($headerTopbar['enabled']))
-        <div class="bg-white/95 dark:bg-[#050f18]/95 text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px] py-2 px-4 sm:px-8 transition-colors">
-            <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="flex items-center gap-3">
-                    <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
-                        {{ $headerTopbar['badge_text'] ?: '24/7 Port Call & Emergency Squads' }}
-                    </span>
-                    @if(!empty($headerTopbar['subtext']))
-                        <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
-                        <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ $headerTopbar['subtext'] }}</span>
-                    @endif
-                </div>
-                <div class="flex items-center gap-4 text-xs">
-                    @if(!empty($topbarPhone))
+        <div class="{{ $isCustomTopbarBg ? 'smart-custom-topbar-bg' : 'bg-white/95 dark:bg-[#050f18]/95' }} {{ $isCustomTopbarText ? 'smart-custom-topbar-text' : 'text-slate-700 dark:text-slate-300' }} border-b border-slate-200/90 dark:border-slate-800 {{ $densityClass }} px-4 sm:px-8 transition-colors"
+             style="{{ $isCustomTopbarBg ? \App\Services\SmartColorHelper::cssVars($topbarBgColor, 'topbar-bg') : '' }} {{ $isCustomTopbarText ? \App\Services\SmartColorHelper::cssVars($topbarTextColor, 'topbar-text') : '' }}">
+            <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center {{ $topbarAlignment === 'center' ? 'justify-center gap-4 text-center' : ($topbarAlignment === 'start' ? 'justify-start gap-4' : 'justify-between gap-2') }}">
+                @if(!empty($headerTopbar['show_badge'] ?? true) && !empty($headerTopbar['badge_text']))
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
+                            {{ $headerTopbar['badge_text'] }}
+                        </span>
+                        @if(!empty($headerTopbar['subtext']))
+                            <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
+                            <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ $headerTopbar['subtext'] }}</span>
+                        @endif
+                    </div>
+                @endif
+                <div class="flex items-center flex-wrap gap-3 sm:gap-4 {{ $topbarDensity === 'compact' ? 'text-[11px]' : 'text-xs' }}">
+                    @if(!empty($headerTopbar['show_phone'] ?? true) && !empty($topbarPhone))
                         <a href="tel:{{ preg_replace('/[^\d+]/', '', $topbarPhone) }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
                             <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                             <span>{{ $topbarPhone }}</span>
                         </a>
                     @endif
-                    @if(!empty($topbarEmail))
+                    @if(!empty($headerTopbar['show_email'] ?? true) && !empty($topbarEmail))
                         <a href="mailto:{{ $topbarEmail }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             <span>{{ $topbarEmail }}</span>
                         </a>
+                    @endif
+                    @if(!empty($headerTopbar['show_custom_link']) && !empty($headerTopbar['custom_link_text']))
+                        <a href="{{ $headerTopbar['custom_link_url'] ?: '#' }}" 
+                           @if(!empty($headerTopbar['custom_link_blank'])) target="_blank" rel="noopener noreferrer" @endif
+                           class="hover:text-[#003C58] dark:hover:text-cyan-400 font-bold transition-colors inline-flex items-center gap-1">
+                            <span>{{ $headerTopbar['custom_link_text'] }}</span>
+                            @if(!empty($headerTopbar['custom_link_blank']))
+                                <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            @endif
+                        </a>
+                    @endif
+                    @if(!empty($headerTopbar['show_social'] ?? true) && count($socialLinks) > 0)
+                        <div class="flex items-center gap-1.5 border-l border-slate-300 dark:border-slate-700 pl-3">
+                            @foreach($socialLinks as $slink)
+                                @if(!empty($slink['url']))
+                                    <a href="{{ $slink['url'] }}" target="_blank" rel="noopener noreferrer"
+                                       title="{{ $slink['title'] ?? 'Social' }}"
+                                       class="w-5 h-5 rounded flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors">
+                                        <x-icon :name="$slink['icon'] ?? 'solid:globe'" class="w-3 h-3" />
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
                     @endif
                     @if(!empty($headerTopbar['admin_link']))
                         <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
@@ -423,8 +512,8 @@
         @endif
 
         <!-- DYNAMIC PUBLIC HEADER -->
-        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} transition-colors duration-200"
-                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
+        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
+                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }};">
                 

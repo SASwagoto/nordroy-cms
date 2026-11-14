@@ -50,6 +50,11 @@
              headerBgLight: '{{ $headerBgColor['light'] ?? '#ffffff' }}',
              headerBgDark: '{{ $headerBgColor['dark'] ?? '#07131e' }}',
              headerBgOpacity: {{ (int) ($headerBgColor['opacity'] ?? 100) }},
+
+             headerTextMode: '{{ $headerTextColor['mode'] ?? 'theme' }}',
+             headerTextLight: '{{ $headerTextColor['light'] ?? '#0f172a' }}',
+             headerTextDark: '{{ $headerTextColor['dark'] ?? '#ffffff' }}',
+
              getHeaderPreviewBg() {
                  if (this.headerBgMode === 'custom') {
                      const hex = this.canvasDark ? (this.headerBgDark || '#07131e') : (this.headerBgLight || '#ffffff');
@@ -71,18 +76,33 @@
                  return this.canvasDark ? 'rgba(7, 19, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)';
              },
              getHeaderTitleColor() {
+                 if (this.headerTextMode === 'custom') {
+                     return this.canvasDark ? (this.headerTextDark || '#ffffff') : (this.headerTextLight || '#0f172a');
+                 }
                  if (this.canvasDark) return '#ffffff';
                  const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
                  if (style === 'solid') return '#ffffff';
                  return ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
+             },
+             getHeaderNavTextColor() {
+                 if (this.headerTextMode === 'custom') {
+                     return this.canvasDark ? (this.headerTextDark || '#ffffff') : (this.headerTextLight || '#0f172a');
+                 }
+                 return this.canvasDark ? '#cbd5e1' : '#334155';
              }
          }"
-         @smart-color-changed.window="if ($event.detail.model === 'headerBgColor') { 
-             headerBgMode = $event.detail.color.mode; 
-             headerBgLight = $event.detail.color.light; 
-             headerBgDark = $event.detail.color.dark; 
-             headerBgOpacity = $event.detail.color.opacity; 
-         }"
+         @smart-color-changed.window="
+             if ($event.detail.model === 'headerBgColor') { 
+                 headerBgMode = $event.detail.color.mode; 
+                 headerBgLight = $event.detail.color.light; 
+                 headerBgDark = $event.detail.color.dark; 
+                 headerBgOpacity = $event.detail.color.opacity; 
+             } else if ($event.detail.model === 'headerTextColor') {
+                 headerTextMode = $event.detail.color.mode;
+                 headerTextLight = $event.detail.color.light;
+                 headerTextDark = $event.detail.color.dark;
+             }
+         "
     >
         
         <!-- LEFT COLUMN: Navigation Tabs + Controls (7 cols) -->
@@ -417,7 +437,7 @@
                         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                             <div>
                                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Top Emergency &amp; Information Strip</h3>
-                                <p class="text-[11px] text-slate-400 mt-0.5">Top bar for 24/7 emergency dispatch, hotline phone, and admin shortcuts</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Customizable utility strip for 24/7 hotline, email, dynamic social icons, and custom portal links</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" wire:model.live="headerTopbar.enabled" value="1" class="sr-only peer">
@@ -426,37 +446,121 @@
                         </div>
 
                         @if(!empty($headerTopbar['enabled']))
+                            <!-- Badge & Tagline -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Emergency Badge / Headline</label>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Emergency Badge / Headline</label>
+                                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-slate-500">
+                                            <input type="checkbox" wire:model.live="headerTopbar.show_badge" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                            <span>Show</span>
+                                        </label>
+                                    </div>
                                     <input type="text" wire:model.live="headerTopbar.badge_text" placeholder="24/7 Port Call &amp; Emergency Squads"
-                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                           class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subtext / Service Tagline</label>
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Subtext / Service Tagline</label>
                                     <input type="text" wire:model.live="headerTopbar.subtext" placeholder="Authorized Multi-Brand Turbocharger Engineering"
-                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                           class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                            <!-- Phone & Email Overrides with Show Toggles -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Hotline Phone Override (Optional)</label>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Hotline Phone Override</label>
+                                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-slate-500">
+                                            <input type="checkbox" wire:model.live="headerTopbar.show_phone" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                            <span>Show</span>
+                                        </label>
+                                    </div>
                                     <input type="text" wire:model.live="headerTopbar.phone" placeholder="Default: {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}"
-                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                           class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Leave empty to use Global Settings contact phone.</span>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Duty Email Override (Optional)</label>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Duty Email Override</label>
+                                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-slate-500">
+                                            <input type="checkbox" wire:model.live="headerTopbar.show_email" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                            <span>Show</span>
+                                        </label>
+                                    </div>
                                     <input type="text" wire:model.live="headerTopbar.email" placeholder="Default: {{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}"
-                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                           class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Leave empty to use Global Settings duty email.</span>
                                 </div>
                             </div>
 
-                            <div class="pt-2">
+                            <!-- Social Icons & Custom Link -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Dynamic Social Media Icons</label>
+                                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-slate-500">
+                                            <input type="checkbox" wire:model.live="headerTopbar.show_social" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                            <span>Show</span>
+                                        </label>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                        Dynamically renders brand icons (LinkedIn, Facebook, X, etc.) configured in <a href="{{ route('admin.settings') }}" wire:navigate class="font-bold text-cyan-600 dark:text-cyan-400 hover:underline">Global Settings &rarr; Social Links</a>.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">Custom Topbar Link</label>
+                                        <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-semibold text-slate-500">
+                                            <input type="checkbox" wire:model.live="headerTopbar.show_custom_link" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                            <span>Show</span>
+                                        </label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="text" wire:model.live="headerTopbar.custom_link_text" placeholder="e.g. Vessel Tracking"
+                                               class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                        <input type="text" wire:model.live="headerTopbar.custom_link_url" placeholder="https://... or /tracking"
+                                               class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    </div>
+                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-600 dark:text-slate-400">
+                                        <input type="checkbox" wire:model.live="headerTopbar.custom_link_blank" value="1" class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0">
+                                        <span>Open custom link in new tab</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Alignment & Density Layout Controls -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Strip Alignment</label>
+                                    <select wire:model.live="headerTopbar.alignment" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                        <option value="between">Split / Between (Left: Badge &amp; Info | Right: Contact &amp; Social - Recommended)</option>
+                                        <option value="center">Centered (Center-aligned information strip)</option>
+                                        <option value="start">Left-Aligned (All items grouped on left)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Vertical Density / Height</label>
+                                    <select wire:model.live="headerTopbar.density" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                        <option value="compact">Compact (py-1 - 28px thin ribbon)</option>
+                                        <option value="standard">Standard (py-2 - 36px corporate height - Recommended)</option>
+                                        <option value="spacious">Spacious (py-3 - 44px comfortable bar)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex items-center justify-between">
                                 <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
                                     <input type="checkbox" wire:model.live="headerTopbar.admin_link" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
                                     <span>Show "Admin Portal &rarr;" Quick Link in Top Bar</span>
                                 </label>
+                            </div>
+
+                            <!-- Smart Color Pickers for Topbar Background & Text -->
+                            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                                <x-smart-color-picker wire:model="headerTopbar.bg_color" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
+                                <x-smart-color-picker wire:model="headerTopbar.text_color" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
                             </div>
                         @endif
                     </div>
@@ -507,6 +611,11 @@
                         <!-- Smart Color Engine for Header Background (Theme Default vs Custom Light/Dark) -->
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
                             <x-smart-color-picker wire:model="headerBgColor" label="Header Background Color" />
+                        </div>
+
+                        <!-- Smart Color Engine for Header Text & Navigation Links -->
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <x-smart-color-picker wire:model="headerTextColor" label="Header Text & Navigation Links Color" default-light="#0f172a" default-dark="#ffffff" />
                         </div>
                     </div>
 
@@ -798,14 +907,43 @@
                     <div class="relative z-10 space-y-4">
                         <!-- Mockup Topbar (if enabled) -->
                         @if(!empty($headerTopbar['enabled']))
-                            <div class="px-2.5 py-1 text-[9px] flex items-center justify-between border-b transition-all rounded-t-xl"
-                                 style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: rgba(0,0,0,0.03);">
-                                <span class="truncate font-semibold text-cyan-600 dark:text-cyan-400">
-                                    {{ $headerTopbar['badge_text'] ?: '24/7 Port Call & Emergency Squads' }}
-                                </span>
-                                <span class="hidden sm:inline font-mono opacity-60 text-[8px]">
-                                    {{ $headerTopbar['phone'] ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
-                                </span>
+                            @php
+                                $tbBg = ($headerTopbar['bg_color']['mode'] ?? 'theme') === 'custom'
+                                    ? \App\Services\SmartColorHelper::hexToRgba($headerTopbar['bg_color']['light'] ?? '#ffffff', ($headerTopbar['bg_color']['opacity'] ?? 100) / 100)
+                                    : 'rgba(0,0,0,0.03)';
+                                $tbAlign = $headerTopbar['alignment'] ?? 'between';
+                                $tbDensity = $headerTopbar['density'] ?? 'standard';
+                                $tbPad = match($tbDensity) {
+                                    'compact'  => 'py-0.5 text-[8px]',
+                                    'spacious' => 'py-2 text-[10px]',
+                                    default    => 'py-1 text-[9px]',
+                                };
+                            @endphp
+                            <div class="px-2.5 {{ $tbPad }} flex items-center {{ $tbAlign === 'center' ? 'justify-center gap-3 text-center' : ($tbAlign === 'start' ? 'justify-start gap-3' : 'justify-between') }} border-b transition-all rounded-t-xl"
+                                 style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: {{ $tbBg }};">
+                                @if(!empty($headerTopbar['show_badge'] ?? true))
+                                    <span class="truncate font-bold text-cyan-600 dark:text-cyan-400">
+                                        {{ $headerTopbar['badge_text'] ?: '24/7 Emergency' }}
+                                    </span>
+                                @endif
+                                <div class="flex items-center gap-2 font-mono opacity-80 text-[8px]">
+                                    @if(!empty($headerTopbar['show_phone'] ?? true))
+                                        <span class="hidden sm:inline">
+                                            {{ $headerTopbar['phone'] ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                        </span>
+                                    @endif
+                                    @if(!empty($headerTopbar['show_custom_link']) && !empty($headerTopbar['custom_link_text']))
+                                        <span class="text-cyan-600 dark:text-cyan-400 font-bold underline">
+                                            {{ $headerTopbar['custom_link_text'] }}
+                                        </span>
+                                    @endif
+                                    @if(!empty($headerTopbar['show_social'] ?? true))
+                                        <div class="flex items-center gap-1 border-l border-slate-300 dark:border-slate-700 pl-1.5">
+                                            <span class="w-3 h-3 rounded-full bg-[#003C58]/10 dark:bg-cyan-500/20 text-[#003C58] dark:text-cyan-400 flex items-center justify-center text-[7px] font-bold">in</span>
+                                            <span class="w-3 h-3 rounded-full bg-[#003C58]/10 dark:bg-cyan-500/20 text-[#003C58] dark:text-cyan-400 flex items-center justify-center text-[7px] font-bold">f</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endif
 
@@ -828,7 +966,7 @@
                                 {{ \App\Models\Setting::get('site_name', 'NORDROY') }}
                             </span>
                             <div class="flex items-center gap-2 text-[10px] opacity-80 overflow-hidden transition-colors" 
-                                 :style="'font-family: \'{{ $theme['theme_body_font'] }}\', sans-serif; color: ' + (canvasDark ? '#cbd5e1' : '#334155')"
+                                 :style="'font-family: \'{{ $theme['theme_body_font'] }}\', sans-serif; color: ' + getHeaderNavTextColor()"
                                  style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
                                 @foreach(array_slice($headerMenuItems, 0, 3) as $mItem)
                                     <span class="truncate font-medium">{{ $mItem['label'] }}</span>

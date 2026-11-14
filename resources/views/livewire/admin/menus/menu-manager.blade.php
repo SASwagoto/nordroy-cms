@@ -196,16 +196,16 @@
                     </button>
                 </div>
             @else
-                <div class="space-y-3">
+                <div class="space-y-1.5">
                     @foreach($items as $index => $item)
                         @php
                             $depth = $item['depth'] ?? 0;
                             
-                            // High-contrast container styling for both light & dark mode
+                            // High-contrast, streamlined compact container styling
                             $containerClass = match($depth) {
-                                1 => 'ml-5 sm:ml-10 bg-blue-50/30 dark:bg-slate-800/90 border-blue-200/80 dark:border-blue-500/40 border-l-[5px] border-l-blue-500 dark:border-l-blue-400 shadow-sm',
-                                2 => 'ml-10 sm:ml-20 bg-amber-50/30 dark:bg-slate-800/60 border-amber-200/80 dark:border-amber-500/40 border-l-[5px] border-l-amber-500 dark:border-l-amber-400 shadow-sm',
-                                default => 'ml-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/80 border-l-[5px] border-l-cyan-500 dark:border-l-cyan-400 shadow-xs',
+                                1 => 'ml-3 sm:ml-7 bg-blue-50/40 dark:bg-slate-900/90 border-blue-200 dark:border-blue-900/60 border-l-[4px] border-l-blue-500 dark:border-l-blue-400 shadow-2xs',
+                                2 => 'ml-6 sm:ml-14 bg-amber-50/40 dark:bg-slate-900/90 border-amber-200 dark:border-amber-900/60 border-l-[4px] border-l-amber-500 dark:border-l-amber-400 shadow-2xs',
+                                default => 'ml-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 border-l-[4px] border-l-cyan-500 dark:border-l-cyan-400 shadow-2xs',
                             };
                             
                             $badgeColor = match($depth) {
@@ -215,9 +215,9 @@
                             };
                             
                             $depthLabel = match($depth) {
-                                1 => 'Submenu (L1)',
-                                2 => 'Child (L2)',
-                                default => 'Root (L0)',
+                                1 => 'L1',
+                                2 => 'L2',
+                                default => 'L0',
                             };
 
                             $canIndent = ($index > 0 && $depth < 2 && $depth < min(2, ($items[$index - 1]['depth'] ?? 0) + 1));
@@ -226,23 +226,25 @@
                         @endphp
 
                         <div wire:key="menu-item-{{ $item['temp_id'] ?? $item['id'] ?? $index }}" 
-                             class="rounded-2xl border transition-all overflow-hidden {{ $containerClass }}">
+                             class="rounded-xl border transition-all overflow-hidden {{ $containerClass }}">
                             
-                            <!-- Item Row Header -->
-                            <div class="p-3.5 flex items-center justify-between gap-3 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/60 dark:border-slate-700/60">
-                                <div class="flex items-center gap-3 min-w-0">
+                            <!-- Compact Streamlined Item Row Header -->
+                            <div class="py-1.5 px-3 flex items-center justify-between gap-2.5 bg-slate-50/80 dark:bg-slate-800/60 {{ $isExpanded ? 'border-b border-slate-200 dark:border-slate-700' : '' }}">
+                                <div class="flex items-center gap-2 min-w-0 flex-1">
                                     <!-- Depth Badge -->
-                                    <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0 shadow-2xs {{ $badgeColor }}">
+                                    <span class="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 shadow-2xs {{ $badgeColor }}"
+                                          title="{{ $depth === 0 ? 'Root Level (L0)' : ($depth === 1 ? 'Submenu Level 1' : 'Child Level 2') }}">
                                         {{ $depthLabel }}
                                     </span>
 
                                     <!-- Title Display -->
-                                    <div class="min-w-0 flex items-center gap-2">
-                                        <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                                    <div class="min-w-0 flex items-center gap-2 flex-1">
+                                        <button type="button" wire:click="toggleItem({{ $index }})" 
+                                                class="text-xs font-bold text-slate-900 dark:text-white truncate hover:text-cyan-600 dark:hover:text-cyan-400 text-left cursor-pointer transition-colors">
                                             {{ $item['title'] ?: 'Untitled Item' }}
-                                        </span>
+                                        </button>
                                         @if(!empty($item['link']['type']))
-                                            <span class="text-[11px] text-slate-500 dark:text-cyan-400/90 font-mono hidden md:inline truncate max-w-[220px]">
+                                            <span class="text-[10px] text-slate-500 dark:text-cyan-400/90 font-mono hidden sm:inline truncate max-w-[200px]">
                                                 @if($item['link']['type'] === 'internal')
                                                     ({{ $item['link']['page'] ?? 'home' }}{{ !empty($item['link']['section']) ? '#' . $item['link']['section'] : '' }})
                                                 @elseif($item['link']['type'] === 'service')
@@ -257,59 +259,59 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons (High Contrast in Dark Mode) -->
-                                <div class="flex items-center gap-1.5 shrink-0">
+                                <!-- Action Buttons (Ultra-compact Toolbar) -->
+                                <div class="flex items-center gap-1 shrink-0">
                                     <!-- Outdent Button (<) -->
                                     <button type="button" wire:click="outdentItem({{ $index }})" 
                                             @disabled(!$canOutdent) 
-                                            class="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
+                                            class="p-1 rounded-md text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
                                             title="Outdent to Parent / Root (Move Left)">
-                                        <x-icon name="solid:arrow-left" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:arrow-left" class="w-3 h-3" />
                                     </button>
 
                                     <!-- Indent Button (>) -->
                                     <button type="button" wire:click="indentItem({{ $index }})" 
                                             @disabled(!$canIndent) 
-                                            class="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
+                                            class="p-1 rounded-md text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
                                             title="Indent as Submenu (Move Right)">
-                                        <x-icon name="solid:arrow-right" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:arrow-right" class="w-3 h-3" />
                                     </button>
 
                                     <!-- Move Up -->
                                     <button type="button" wire:click="moveItem({{ $index }}, 'up')" 
                                             @disabled($index === 0) 
-                                            class="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
+                                            class="p-1 rounded-md text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
                                             title="Move Up">
-                                        <x-icon name="solid:arrow-up" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:arrow-up" class="w-3 h-3" />
                                     </button>
 
                                     <!-- Move Down -->
                                     <button type="button" wire:click="moveItem({{ $index }}, 'down')" 
                                             @disabled($index === count($items) - 1) 
-                                            class="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
+                                            class="p-1 rounded-md text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs disabled:opacity-20 disabled:pointer-events-none" 
                                             title="Move Down">
-                                        <x-icon name="solid:arrow-down" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:arrow-down" class="w-3 h-3" />
                                     </button>
 
                                     <!-- Toggle Edit HUD -->
                                     <button type="button" wire:click="toggleItem({{ $index }})" 
-                                            class="p-1.5 rounded-lg text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/80 hover:bg-cyan-100 dark:hover:bg-cyan-900 border border-cyan-200 dark:border-cyan-700/60 transition-colors shadow-2xs ml-0.5" 
+                                            class="p-1 rounded-md text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/80 hover:bg-cyan-100 dark:hover:bg-cyan-900 border border-cyan-200 dark:border-cyan-800 transition-colors shadow-2xs" 
                                             title="Configure item details &amp; parent">
-                                        <x-icon name="solid:sliders" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:sliders" class="w-3 h-3" />
                                     </button>
 
                                     <!-- Delete Item -->
                                     <button type="button" wire:click="removeItem({{ $index }})" 
-                                            class="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-800/60 transition-colors shadow-2xs" 
+                                            class="p-1 rounded-md text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-900 transition-colors shadow-2xs" 
                                             title="Delete item">
-                                        <x-icon name="solid:trash" class="w-3.5 h-3.5" />
+                                        <x-icon name="solid:trash" class="w-3 h-3" />
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Expanded Edit Panel -->
                             @if($isExpanded)
-                                <div class="p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 space-y-4">
+                                <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 space-y-3">
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <!-- Hierarchy Parent Selector Dropdown -->
                                         <div>
