@@ -467,8 +467,8 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Header Navbar Appearance</label>
-                                <select wire:model.live="theme.theme_header_style" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Header Navbar Appearance</label>
+                                <select wire:model.live="theme.theme_header_style" class="w-full px-3 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                     <option value="glass">Glass Frosted (Blurred semi-transparent - Recommended)</option>
                                     <option value="solid">Solid Crisp Background</option>
                                     <option value="transparent">Fully Transparent (Floats directly over hero)</option>
@@ -477,8 +477,8 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Navbar Height</label>
-                                <select wire:model.live="theme.theme_header_height" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Navbar Height</label>
+                                <select wire:model.live="theme.theme_header_height" class="w-full px-3 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                     <option value="64px">Compact (64px)</option>
                                     <option value="80px">Standard Corporate (80px - Recommended)</option>
                                     <option value="96px">Spacious Grand (96px)</option>
@@ -533,8 +533,8 @@
                         <!-- Menu Selector Dropdown -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Header Display Menu</label>
-                                <select wire:model.live="headerMenuId" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Header Display Menu</label>
+                                <select wire:model.live="headerMenuId" class="w-full px-3 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                     @forelse($availableMenus as $m)
                                         <option value="{{ $m->id }}">{{ $m->name }} ({{ $m->items_count }} items) [{{ $m->location }}]</option>
                                     @empty
@@ -543,8 +543,8 @@
                                 </select>
                             </div>
 
-                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
-                                <span class="font-bold text-slate-900 dark:text-white block mb-0.5">Standalone Tree Builder:</span>
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border-2 border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                                <span class="font-extrabold text-slate-900 dark:text-white block mb-0.5">Standalone Tree Builder:</span>
                                 <span>Multi-layer indentation, internal page anchors, and dynamic services are managed in the dedicated <a href="{{ route('admin.menus') }}" wire:navigate class="font-bold text-cyan-600 dark:text-cyan-400 hover:underline">Navigation Menu Builder</a>.</span>
                             </div>
                         </div>
@@ -597,11 +597,11 @@
                         @if(!empty($headerCta['enabled']))
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
                                         Button Display Text
                                     </label>
                                     <input type="text" wire:model.live="headerCta.label" placeholder="Request RFQ"
-                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                           class="w-full px-3 py-2.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                                 </div>
                                 <div class="flex items-end pb-2">
                                     <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">

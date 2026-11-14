@@ -30,7 +30,8 @@
     $initQuick = $initType . ':' . ($initType === 'internal' ? ($initPage . ':' . $initSection) : ($initType === 'service' ? $initServiceSlug : ($initType === 'action' ? $initActionType : 'custom')));
 @endphp
 
-<div x-data="{
+<div wire:ignore.self
+     x-data="{
         isExpanded: false,
         showLabel: {{ $showLabelInput ? 'true' : 'false' }},
         type: '{{ addslashes($initType) }}',
@@ -128,12 +129,12 @@
 
         get typeBadgeClass() {
             switch(this.type) {
-                case 'internal': return 'bg-blue-500/10 text-blue-600 dark:text-blue-400';
-                case 'anchor': return 'bg-purple-500/10 text-purple-600 dark:text-purple-400';
-                case 'service': return 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400';
-                case 'external': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400';
-                case 'action': return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-                default: return 'bg-slate-100 text-slate-500';
+                case 'internal': return 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30';
+                case 'anchor': return 'bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30';
+                case 'service': return 'bg-cyan-100 text-cyan-800 border border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-400 dark:border-cyan-500/30';
+                case 'external': return 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30';
+                case 'action': return 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30';
+                default: return 'bg-slate-200 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300';
             }
         },
 
@@ -183,12 +184,12 @@
     @if ($label)
         <div class="flex items-center justify-between">
             <div>
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">{{ $label }}</label>
+                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">{{ $label }}</label>
                 @if($help)
-                    <p class="text-[11px] text-slate-400 mt-0.5">{{ $help }}</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">{{ $help }}</p>
                 @endif
             </div>
-            <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold shrink-0" x-text="typeBadgeLabel"></span>
+            <span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md shrink-0" :class="typeBadgeClass" x-text="typeBadgeLabel"></span>
         </div>
     @endif
 
@@ -198,42 +199,42 @@
          tabindex="0"
          @keydown.enter.prevent="isExpanded = !isExpanded"
          @keydown.space.prevent="isExpanded = !isExpanded"
-         class="p-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs hover:border-[#003C58] dark:hover:border-cyan-400 transition-all flex items-center justify-between gap-3 cursor-pointer select-none group">
+         class="p-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs hover:border-[#003C58] dark:hover:border-cyan-400 transition-all flex items-center justify-between gap-3 cursor-pointer select-none group">
         
-        <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <div class="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" :class="typeBadgeClass">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" :class="typeBadgeClass">
                 <template x-if="type === 'internal'">
-                    <x-icon name="solid:file-lines" class="w-3.5 h-3.5" />
+                    <x-icon name="solid:file-lines" class="w-4 h-4" />
                 </template>
                 <template x-if="type === 'anchor'">
-                    <x-icon name="solid:anchor" class="w-3.5 h-3.5" />
+                    <x-icon name="solid:anchor" class="w-4 h-4" />
                 </template>
                 <template x-if="type === 'service'">
-                    <x-icon name="solid:gear" class="w-3.5 h-3.5" />
+                    <x-icon name="solid:gear" class="w-4 h-4" />
                 </template>
                 <template x-if="type === 'external'">
-                    <x-icon name="solid:arrow-up-right-from-square" class="w-3.5 h-3.5" />
+                    <x-icon name="solid:arrow-up-right-from-square" class="w-4 h-4" />
                 </template>
                 <template x-if="type === 'action'">
-                    <x-icon name="solid:bolt" class="w-3.5 h-3.5" />
+                    <x-icon name="solid:bolt" class="w-4 h-4" />
                 </template>
             </div>
 
             <div class="min-w-0 flex-1">
-                <p class="text-xs font-bold text-slate-800 dark:text-white truncate group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors" 
+                <p class="text-xs font-extrabold text-slate-900 dark:text-white truncate group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors" 
                    x-text="resolvedSummaryText || 'Click to select destination'"></p>
-                <p class="text-[10px] font-mono text-slate-400 truncate" x-text="resolvedPreviewUrl || '#'"></p>
+                <p class="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 truncate" x-text="resolvedPreviewUrl || '#'"></p>
             </div>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[11px] font-semibold text-slate-400 group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors hidden sm:inline"
-                  x-text="isExpanded ? 'Close Dropdown' : 'Select Destination'"></span>
+            <span class="text-[11px] font-bold text-slate-500 group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors hidden sm:inline"
+                  x-text="isExpanded ? 'Close Settings' : 'Change Destination'"></span>
             
             <button type="button" 
                     @click.stop="isExpanded = !isExpanded"
-                    class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0 inline-flex items-center gap-1.5"
-                    :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 shadow-2xs"
+                    :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'">
                 <span x-text="isExpanded ? 'Done' : 'Change'"></span>
                 <x-icon name="solid:chevron-down" class="w-3 h-3 transition-transform duration-200" ::class="isExpanded ? 'rotate-180' : ''" />
             </button>
@@ -243,21 +244,21 @@
     <!-- Collapsible Configuration HUD / Dropdown Content -->
     <div x-show="isExpanded" 
          x-collapse
-         class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+         class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 shadow-md space-y-4">
         
         <!-- 1. DIRECT QUICK DESTINATION SELECTOR -->
-        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs space-y-2.5">
             <div class="flex items-center justify-between">
-                <label class="block text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
-                    <x-icon name="solid:list-check" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                <label class="block text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <x-icon name="solid:list-check" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" />
                     <span>Quick Destination Dropdown</span>
                 </label>
-                <span class="text-[10px] text-slate-400 font-mono">1-Click Selection</span>
+                <span class="text-[10px] text-[#003C58] dark:text-cyan-400 font-mono font-bold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-300 dark:border-slate-700">1-Click Selection</span>
             </div>
 
             <select x-model="quickSelected" 
                     @change="applyQuickSelection($event.target.value)"
-                    class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                    class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                 <option value="">-- Choose destination from list --</option>
                 <optgroup label="Website Pages &amp; Sections">
                     <option value="internal:contact:rfq">Contact Us - RFQ Quotation Form (/contact#rfq) [Recommended for CTA]</option>
@@ -281,59 +282,76 @@
                     <option value="external:custom">Custom External URL (https://...)</option>
                 </optgroup>
             </select>
-            <p class="text-[11px] text-slate-400 leading-relaxed">
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                 Selecting from the list instantly updates the link target. You can also fine-tune parameters below.
             </p>
         </div>
 
         <!-- 2. GRANULAR CUSTOM BUILDER -->
-        <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <div class="space-y-3 pt-3 border-t-2 border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-300">
                     Granular Link Builder
                 </span>
-                <span class="text-[10px] text-slate-400">Mode: <strong x-text="typeBadgeLabel"></strong></span>
+                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                    Mode: <strong class="text-[#003C58] dark:text-cyan-400" x-text="typeBadgeLabel"></strong>
+                </span>
             </div>
 
             <!-- Type Pill Selector -->
-            <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-200/80 dark:bg-slate-900 text-xs font-bold overflow-x-auto">
+            <div class="flex items-center gap-1.5 p-1.5 rounded-xl bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs font-bold overflow-x-auto">
                 <button type="button" 
                         @click="setType('internal')"
-                        :class="type === 'internal' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                        class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <x-icon name="solid:file-lines" class="w-3 h-3" />
+                        :class="{
+                            'bg-[#003C58] text-white shadow-sm ring-2 ring-[#003C58]/30 font-extrabold dark:bg-cyan-500 dark:text-slate-950 dark:ring-cyan-400/40': type === 'internal',
+                            'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-slate-300 font-semibold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white': type !== 'internal'
+                        }"
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <x-icon name="solid:file-lines" class="w-3.5 h-3.5" />
                     <span>Page</span>
                 </button>
 
                 <button type="button" 
                         @click="setType('anchor')"
-                        :class="type === 'anchor' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                        class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <x-icon name="solid:anchor" class="w-3 h-3" />
+                        :class="{
+                            'bg-[#003C58] text-white shadow-sm ring-2 ring-[#003C58]/30 font-extrabold dark:bg-cyan-500 dark:text-slate-950 dark:ring-cyan-400/40': type === 'anchor',
+                            'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-slate-300 font-semibold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white': type !== 'anchor'
+                        }"
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <x-icon name="solid:anchor" class="w-3.5 h-3.5" />
                     <span>#Section</span>
                 </button>
 
                 <button type="button" 
                         @click="setType('service')"
-                        :class="type === 'service' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                        class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <x-icon name="solid:gear" class="w-3 h-3" />
+                        :class="{
+                            'bg-[#003C58] text-white shadow-sm ring-2 ring-[#003C58]/30 font-extrabold dark:bg-cyan-500 dark:text-slate-950 dark:ring-cyan-400/40': type === 'service',
+                            'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-slate-300 font-semibold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white': type !== 'service'
+                        }"
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <x-icon name="solid:gear" class="w-3.5 h-3.5" />
                     <span>Service</span>
                 </button>
 
                 <button type="button" 
                         @click="setType('external')"
-                        :class="type === 'external' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                        class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <x-icon name="solid:arrow-up-right-from-square" class="w-3 h-3" />
+                        :class="{
+                            'bg-[#003C58] text-white shadow-sm ring-2 ring-[#003C58]/30 font-extrabold dark:bg-cyan-500 dark:text-slate-950 dark:ring-cyan-400/40': type === 'external',
+                            'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-slate-300 font-semibold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white': type !== 'external'
+                        }"
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <x-icon name="solid:arrow-up-right-from-square" class="w-3.5 h-3.5" />
                     <span>External</span>
                 </button>
 
                 <button type="button" 
                         @click="setType('action')"
-                        :class="type === 'action' ? 'bg-white dark:bg-slate-800 text-[#003C58] dark:text-cyan-400 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                        class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shrink-0">
-                    <x-icon name="solid:bolt" class="w-3 h-3" />
+                        :class="{
+                            'bg-[#003C58] text-white shadow-sm ring-2 ring-[#003C58]/30 font-extrabold dark:bg-cyan-500 dark:text-slate-950 dark:ring-cyan-400/40': type === 'action',
+                            'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-slate-300 font-semibold dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white': type !== 'action'
+                        }"
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shrink-0">
+                    <x-icon name="solid:bolt" class="w-3.5 h-3.5" />
                     <span>Action</span>
                 </button>
             </div>
@@ -341,12 +359,12 @@
             <!-- Optional Label Text Input -->
             <template x-if="showLabel">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Link Display Text</label>
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Link Display Text</label>
                     <input type="text" 
                            x-model="label" 
                            @input.debounce.250ms="sync()"
                            placeholder="e.g. Request Instant RFQ" 
-                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
+                           class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]" />
                 </div>
             </template>
 
@@ -354,10 +372,10 @@
             <div x-show="type === 'internal'" class="space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Page</label>
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Target Page</label>
                         <select x-model="page" 
                                 @change="updateQuickSelected(); sync()"
-                                class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                             @foreach ($availablePages as $p)
                                 <option value="{{ $p['slug'] }}">{{ $p['title'] }} ({{ $p['url'] }})</option>
                             @endforeach
@@ -365,10 +383,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Jump to Section Anchor (Optional)</label>
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Jump to Section Anchor (Optional)</label>
                         <select x-model="section" 
                                 @change="updateQuickSelected(); sync()"
-                                class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                             <option value="">-- Top of Page (No Anchor) --</option>
                             @foreach ($sectionsMap as $pSlug => $secs)
                                 <optgroup label="Sections on {{ ucfirst($pSlug) }} Page">
@@ -382,35 +400,35 @@
                 </div>
 
                 <div class="flex items-center gap-2 pt-1">
-                    <span class="text-[10px] text-slate-400 font-mono">Or custom #anchor:</span>
+                    <span class="text-[11px] text-slate-700 dark:text-slate-300 font-bold font-mono">Or custom #anchor:</span>
                     <input type="text" 
                            x-model="section" 
                            @input.debounce.250ms="updateQuickSelected(); sync()"
                            placeholder="e.g. rfq, workshop, services" 
-                           class="flex-1 px-2.5 py-1 text-xs font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]" />
+                           class="flex-1 px-3 py-1.5 text-xs font-mono font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]" />
                 </div>
             </div>
 
             <!-- TYPE 2: IN-PAGE ANCHOR (FOR ONE-PAGE SCROLLS) -->
             <div x-show="type === 'anchor'" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Section Anchor Identifier</label>
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Section Anchor Identifier</label>
                     <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono text-xs font-bold text-slate-500">#</span>
+                        <span class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono text-xs font-extrabold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">#</span>
                         <input type="text" 
                                x-model="section" 
                                @input.debounce.250ms="sync()"
                                placeholder="rfq (e.g. #rfq, #services, #workshop)" 
-                               class="flex-1 px-3 py-1.5 text-xs font-mono rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
+                               class="flex-1 px-3 py-2 text-xs font-mono font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]" />
                     </div>
                 </div>
                 
-                <div class="flex flex-wrap gap-1.5">
-                    <span class="text-[10px] text-slate-400 self-center">Quick Presets:</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Quick Presets:</span>
                     @foreach ($sectionsMap['home'] as $quickSec)
                         <button type="button" 
                                 @click="section = '{{ $quickSec['id'] }}'; sync()"
-                                class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-cyan-400 cursor-pointer">
+                                class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-[#003C58] hover:text-white hover:border-[#003C58] dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition-colors cursor-pointer shadow-2xs">
                             #{{ $quickSec['id'] }}
                         </button>
                     @endforeach
@@ -420,10 +438,10 @@
             <!-- TYPE 3: DYNAMIC SERVICE DIRECT LINK -->
             <div x-show="type === 'service'" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Select Marine Service</label>
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Select Marine Service</label>
                     <select x-model="service_slug" 
                             @change="updateQuickSelected(); sync()"
-                            class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                            class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                         <option value="">-- All Services Page (/services) --</option>
                         @foreach ($dynamicServices as $svc)
                             <option value="{{ $svc['slug'] }}">{{ $svc['title'] }} (/services#{{ $svc['slug'] }})</option>
@@ -435,12 +453,12 @@
             <!-- TYPE 4: EXTERNAL WEB URL -->
             <div x-show="type === 'external'" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Destination URL</label>
+                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Full Destination URL</label>
                     <input type="url" 
                            x-model="url" 
                            @input.debounce.250ms="updateQuickSelected(); sync()"
                            placeholder="https://example.com/portal" 
-                           class="w-full px-3 py-1.5 text-xs font-mono rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
+                           class="w-full px-3 py-2 text-xs font-mono font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]" />
                 </div>
             </div>
 
@@ -448,10 +466,10 @@
             <div x-show="type === 'action'" class="space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Action Protocol</label>
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Action Protocol</label>
                         <select x-model="action_type" 
                                 @change="updateQuickSelected(); sync()"
-                                class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
                             <option value="tel">Direct Phone Call (tel:)</option>
                             <option value="mailto">Email Message (mailto:)</option>
                             <option value="whatsapp">WhatsApp Instant Chat (https://wa.me/)</option>
@@ -459,27 +477,27 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Value (Leave blank for default)</label>
+                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Value (Leave blank for default)</label>
                         <input type="text" 
                                x-model="action_value" 
                                @input.debounce.250ms="sync()"
                                :placeholder="action_type === 'mailto' ? 'operations@nordroy.com' : '+880 1800-000000'" 
-                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
+                               class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]" />
                     </div>
                 </div>
             </div>
 
             <!-- Bottom Controls: Target Blank & Computed Summary -->
-            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                 <label class="flex items-center gap-2 cursor-pointer select-none">
                     <input type="checkbox" 
                            x-model="target_blank" 
                            @change="sync()"
-                           class="w-3.5 h-3.5 rounded text-[#003C58] focus:ring-0" />
-                    <span class="text-slate-600 dark:text-slate-300 font-medium">Open in new tab (target="_blank")</span>
+                           class="w-4 h-4 rounded text-[#003C58] focus:ring-0" />
+                    <span class="text-slate-800 dark:text-slate-200 font-bold">Open in new tab (target="_blank")</span>
                 </label>
 
-                <span class="text-[10px] font-mono text-slate-400" x-text="'Resolved: ' + resolvedPreviewUrl"></span>
+                <span class="text-[11px] font-mono font-bold text-slate-700 dark:text-cyan-400 bg-slate-100 dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-800" x-text="'Resolved: ' + resolvedPreviewUrl"></span>
             </div>
 
         </div>
