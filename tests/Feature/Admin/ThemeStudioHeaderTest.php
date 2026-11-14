@@ -26,11 +26,11 @@ class ThemeStudioHeaderTest extends TestCase
         Livewire::actingAs($this->admin)
             ->test(ThemeStudio::class)
             ->set('activeTab', 'header')
-            ->assertSee('হেডার কল-টু-অ্যাকশন (CTA) বাটন')
-            ->assertSee('বাটনের গন্তব্য লিঙ্ক (Button Destination Link)')
+            ->assertSee('Header Call to Action (CTA) Button')
+            ->assertSee('Button Destination Link')
             ->assertSee('Header Background Color')
-            ->assertSee('Theme Default (থিম ডিফল্ট)')
-            ->assertSee('Custom Color (কাস্টম মোড)');
+            ->assertSee('Theme Default')
+            ->assertSee('Custom Dual Mode');
     }
 
     public function test_theme_studio_custom_header_color_and_cta_can_be_saved(): void

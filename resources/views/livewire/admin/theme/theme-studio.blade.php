@@ -46,11 +46,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" 
          x-data="{ 
              canvasDark: false,
-             headerBg: @js($headerBgColor),
+             headerBgMode: '{{ $headerBgColor['mode'] ?? 'theme' }}',
+             headerBgLight: '{{ $headerBgColor['light'] ?? '#ffffff' }}',
+             headerBgDark: '{{ $headerBgColor['dark'] ?? '#07131e' }}',
+             headerBgOpacity: {{ (int) ($headerBgColor['opacity'] ?? 100) }},
              getHeaderPreviewBg() {
-                 if (this.headerBg && this.headerBg.mode === 'custom') {
-                     const hex = this.canvasDark ? (this.headerBg.dark || '#07131e') : (this.headerBg.light || '#ffffff');
-                     const op = (this.headerBg.opacity !== undefined ? this.headerBg.opacity : 100) / 100;
+                 if (this.headerBgMode === 'custom') {
+                     const hex = this.canvasDark ? (this.headerBgDark || '#07131e') : (this.headerBgLight || '#ffffff');
+                     const op = (this.headerBgOpacity !== undefined ? this.headerBgOpacity : 100) / 100;
                      return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
                  }
                  const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
@@ -74,7 +77,12 @@
                  return ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
              }
          }"
-         @smart-color-changed.window="if ($event.detail.model === 'headerBgColor') { headerBg = $event.detail.color; }"
+         @smart-color-changed.window="if ($event.detail.model === 'headerBgColor') { 
+             headerBgMode = $event.detail.color.mode; 
+             headerBgLight = $event.detail.color.light; 
+             headerBgDark = $event.detail.color.dark; 
+             headerBgOpacity = $event.detail.color.opacity; 
+         }"
     >
         
         <!-- LEFT COLUMN: Navigation Tabs + Controls (7 cols) -->
@@ -570,14 +578,14 @@
                             <div>
                                 <div class="flex items-center gap-2">
                                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
-                                        হেডার কল-টু-অ্যাকশন (CTA) বাটন
+                                        Header Call to Action (CTA) Button
                                     </h3>
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
-                                        Header Action Button
+                                        Primary Conversion Button
                                     </span>
                                 </div>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                                    হেডারের ডানপাশে থাকা প্রধান বাটন (যেমন: <strong>"Request RFQ"</strong> বা কোটেশন বাটন)। এটি ওয়েবসাইটে ভিজিটরদের সরাসরি যোগাযোগ বা নির্দিষ্ট পেজে নিয়ে যাওয়ার প্রধান কনভার্সন বাটন।
+                                    The prominent conversion button in the header (e.g. <strong>"Request RFQ"</strong>). Directs visitors straight to quote requests or key consultation channels.
                                 </p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
@@ -590,7 +598,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                        বাটনের লেখা (Button Text / Label)
+                                        Button Display Text
                                     </label>
                                     <input type="text" wire:model.live="headerCta.label" placeholder="Request RFQ"
                                            class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
@@ -598,7 +606,7 @@
                                 <div class="flex items-end pb-2">
                                     <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-slate-700 dark:text-slate-300 font-medium">
                                         <input type="checkbox" wire:model.live="headerCta.show_icon" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                        <span>বাটনে ডকুমেন্ট আইকন দেখান (Show Icon)</span>
+                                        <span>Show Document Icon in Button</span>
                                     </label>
                                 </div>
                             </div>
@@ -606,8 +614,8 @@
                             <div class="pt-2">
                                 <x-smart-link-picker 
                                     wire:model="headerCta.link" 
-                                    label="বাটনের গন্তব্য লিঙ্ক (Button Destination Link)" 
-                                    help="হেডারের এই বাটনে ক্লিক করলে ভিজিটর কোন পেজ, নির্দিষ্ট সেকশন (#rfq), সার্ভিস বা ফোনে কল যাবে তা নির্বাচন করুন।"
+                                    label="Button Destination Link" 
+                                    help="Select which page, section anchor (#rfq), dynamic service, or direct call action this button links to."
                                 />
                             </div>
                         @endif
