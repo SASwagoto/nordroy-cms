@@ -312,8 +312,54 @@
             $headerStyle = \App\Models\Setting::get('theme_header_style', 'glass');
             $headerHeight = \App\Models\Setting::get('theme_header_height', '80px');
 
-            $defaultMenuItems = (new \App\Livewire\Admin\Theme\ThemeStudio())->getDefaultMenuItems();
-            $headerMenuItems = \App\Models\Setting::getJson('header_menu_items') ?: $defaultMenuItems;
+            // Header Background Color Engine (Theme vs Custom Light/Dark)
+            $headerBgColor = \App\Models\Setting::getJson('header_bg_color', [
+                'mode'    => 'theme',
+                'light'   => '#ffffff',
+                'dark'    => '#07131e',
+                'opacity' => 100,
+            ]);
+            $isCustomHeaderBg = \App\Services\SmartColorHelper::isCustom($headerBgColor);
+
+            // Active Multi-layer Navigation Menu (from DB Menu Builder with fallback)
+            $headerMenuId = \App\Models\Setting::get('header_menu_id');
+            $activeMenu = null;
+            if ($headerMenuId) {
+                $activeMenu = \App\Models\Menu::with(['items.children.children'])->find($headerMenuId);
+            }
+            if (!$activeMenu) {
+                $activeMenu = \App\Models\Menu::with(['items.children.children'])->where('location', 'primary')->first();
+            }
+
+            $navTree = [];
+            if ($activeMenu && $activeMenu->items()->whereNull('parent_id')->count() > 0) {
+                $dbRoots = $activeMenu->items()->whereNull('parent_id')->where('is_active', true)->orderBy('order')->get();
+                foreach ($dbRoots as $root) {
+                    $children = [];
+                    foreach ($root->children()->where('is_active', true)->orderBy('order')->get() as $c) {
+                        $grandChildren = [];
+                        foreach ($c->children()->where('is_active', true)->orderBy('order')->get() as $gc) {
+                            $grandChildren[] = [
+                                'label' => $gc->display_title,
+                                'link'  => $gc->mega_menu_schema ?: ['type' => 'external', 'url' => $gc->url ?: '#', 'target_blank' => ($gc->target === '_blank')],
+                            ];
+                        }
+                        $children[] = [
+                            'label'    => $c->display_title,
+                            'link'     => $c->mega_menu_schema ?: ['type' => 'external', 'url' => $c->url ?: '#', 'target_blank' => ($c->target === '_blank')],
+                            'children' => $grandChildren,
+                        ];
+                    }
+                    $navTree[] = [
+                        'label'    => $root->display_title,
+                        'link'     => $root->mega_menu_schema ?: ['type' => 'external', 'url' => $root->url ?: '#', 'target_blank' => ($root->target === '_blank')],
+                        'children' => $children,
+                    ];
+                }
+            } else {
+                $defaultMenuItems = (new \App\Livewire\Admin\Theme\ThemeStudio())->getDefaultMenuItems();
+                $navTree = \App\Models\Setting::getJson('header_menu_items') ?: $defaultMenuItems;
+            }
 
             $headerCta = \App\Models\Setting::getJson('header_cta', [
                 'enabled'   => true,
@@ -323,6 +369,10 @@
             ]);
             $resolvedCta = \App\Services\LinkResolver::resolve($headerCta['link'] ?? []);
         @endphp
+
+        @if($isCustomHeaderBg)
+            {!! \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') !!}
+        @endif
 
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         @if(!empty($headerTopbar['enabled']))
@@ -362,7 +412,7 @@
 
         <!-- DYNAMIC PUBLIC HEADER -->
         <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800')) }} transition-colors duration-200"
-                style="{{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
+                style="{{ $isCustomHeaderBg ? 'background-color: var(--header-bg) !important;' : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }};">
                 
@@ -380,7 +430,7 @@
 
                 <!-- DESKTOP MULTI-LAYER DYNAMIC NAVIGATION LINKS WITH SUBMENUS -->
                 <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200 tracking-normal">
-                    @foreach($headerMenuItems as $item)
+                    @foreach($navTree as $item)
                         @php
                             $hasChildren = !empty($item['children']) && count($item['children']) > 0;
                             $resolved = \App\Services\LinkResolver::resolve($item['link'] ?? []);
@@ -410,20 +460,37 @@
                                      x-transition:leave="transition ease-in duration-150"
                                      x-transition:leave-start="opacity-100 translate-y-0"
                                      x-transition:leave-end="opacity-0 translate-y-2"
-                                     class="absolute left-0 mt-1 min-w-[260px] max-w-sm rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
+                                     class="absolute left-0 mt-1 min-w-[280px] max-w-md rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
                                      style="display: none;">
                                     <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ $item['label'] }}</div>
                                     @foreach($item['children'] as $child)
                                         @php
                                             $childResolved = \App\Services\LinkResolver::resolve($child['link'] ?? []);
+                                            $hasGrandChildren = !empty($child['children']) && count($child['children']) > 0;
                                         @endphp
-                                        <a href="{{ $childResolved['url'] }}" 
-                                           target="{{ $childResolved['target'] }}" 
-                                           @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
-                                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400 shrink-0"></span>
-                                            <span class="truncate">{{ $child['label'] }}</span>
-                                        </a>
+                                        <div class="space-y-0.5">
+                                            <a href="{{ $childResolved['url'] }}" 
+                                               target="{{ $childResolved['target'] }}" 
+                                               @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
+                                               class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400 shrink-0"></span>
+                                                <span class="truncate">{{ $child['label'] }}</span>
+                                            </a>
+                                            @if($hasGrandChildren)
+                                                <div class="pl-6 pr-2 py-0.5 space-y-0.5">
+                                                    @foreach($child['children'] as $gc)
+                                                        @php
+                                                            $gcResolved = \App\Services\LinkResolver::resolve($gc['link'] ?? []);
+                                                        @endphp
+                                                        <a href="{{ $gcResolved['url'] }}"
+                                                           target="{{ $gcResolved['target'] }}"
+                                                           class="block px-2.5 py-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                                                            &bull; {{ $gc['label'] }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -530,7 +597,7 @@
 
                     <!-- Drawer Nav Items (Dynamic Accordion Submenus) -->
                     <div class="flex-1 overflow-y-auto p-5 space-y-2 text-sm font-semibold tracking-normal">
-                        @foreach($headerMenuItems as $mi => $item)
+                        @foreach($navTree as $mi => $item)
                             @php
                                 $hasChildren = !empty($item['children']) && count($item['children']) > 0;
                                 $resolved = \App\Services\LinkResolver::resolve($item['link'] ?? []);
@@ -553,18 +620,36 @@
                                         <span>{{ $item['label'] }}</span>
                                         <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === '{{ $mi }}' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                     </button>
-                                    <div x-show="activeMobileSubmenu === '{{ $mi }}'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                    <div x-show="activeMobileSubmenu === '{{ $mi }}'" x-transition class="pl-4 pt-1 space-y-1 text-xs font-medium text-slate-600 dark:text-slate-400">
                                         @foreach($item['children'] as $child)
                                             @php
                                                 $childResolved = \App\Services\LinkResolver::resolve($child['link'] ?? []);
+                                                $hasGrandChildren = !empty($child['children']) && count($child['children']) > 0;
                                             @endphp
-                                            <a href="{{ $childResolved['url'] }}" 
-                                               target="{{ $childResolved['target'] }}" 
-                                               @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
-                                               @click="mobileNavOpen = false" 
-                                               class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-                                                {{ $child['label'] }}
-                                            </a>
+                                            <div>
+                                                <a href="{{ $childResolved['url'] }}" 
+                                                   target="{{ $childResolved['target'] }}" 
+                                                   @if(!empty($childResolved['rel'])) rel="{{ $childResolved['rel'] }}" @endif
+                                                   @click="mobileNavOpen = false" 
+                                                   class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 font-semibold">
+                                                    {{ $child['label'] }}
+                                                </a>
+                                                @if($hasGrandChildren)
+                                                    <div class="pl-4 space-y-0.5 pb-1">
+                                                        @foreach($child['children'] as $gc)
+                                                            @php
+                                                                $gcResolved = \App\Services\LinkResolver::resolve($gc['link'] ?? []);
+                                                            @endphp
+                                                            <a href="{{ $gcResolved['url'] }}" 
+                                                               target="{{ $gcResolved['target'] }}"
+                                                               @click="mobileNavOpen = false" 
+                                                               class="block py-1 px-2 rounded text-[11px] text-slate-500 hover:text-cyan-500">
+                                                                &bull; {{ $gc['label'] }}
+                                                            </a>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endforeach
                                     </div>
                                 </div>

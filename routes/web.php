@@ -3,6 +3,7 @@
 use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Media\MediaManager;
+use App\Livewire\Admin\Menus\MenuManager;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
 use App\Livewire\Admin\Theme\ThemeStudio;
@@ -225,6 +226,11 @@ Route::middleware([
     Route::get('/theme', ThemeStudio::class)
         ->middleware('permission:theme.manage')
         ->name('theme');
+
+    // Navigation Menus Builder
+    Route::get('/menus', MenuManager::class)
+        ->middleware('permission:theme.manage')
+        ->name('menus');
 
     // Media Asset Library
     Route::get('/media', MediaManager::class)

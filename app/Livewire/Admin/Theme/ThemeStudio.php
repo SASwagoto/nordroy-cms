@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Theme;
 
+use App\Models\Menu;
 use App\Models\Setting;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -26,6 +27,13 @@ class ThemeStudio extends Component
     public array $theme = [];
 
     // Header & Navigation Builder State
+    public ?int $headerMenuId = null;
+    public array $headerBgColor = [
+        'mode'    => 'theme',
+        'light'   => '#ffffff',
+        'dark'    => '#07131e',
+        'opacity' => 100,
+    ];
     public array $headerMenuItems = [];
     public array $headerCta = [];
     public array $headerTopbar = [];
@@ -231,6 +239,15 @@ class ThemeStudio extends Component
         $this->theme = array_merge($defaults, $existing);
 
         // Initialize Header & Navigation Builder State
+        $this->headerBgColor = Setting::getJson('header_bg_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#ffffff',
+            'dark'    => '#07131e',
+            'opacity' => 100,
+        ];
+        $this->headerMenuId = Setting::get('header_menu_id')
+            ? (int) Setting::get('header_menu_id')
+            : (Menu::where('location', 'primary')->value('id') ?? Menu::value('id') ?? null);
         $this->headerMenuItems = Setting::getJson('header_menu_items') ?: $this->getDefaultMenuItems();
         $this->headerCta = array_merge($this->getDefaultHeaderCta(), Setting::getJson('header_cta') ?: []);
         $this->headerTopbar = array_merge($this->getDefaultHeaderTopbar(), Setting::getJson('header_topbar') ?: []);
@@ -488,6 +505,8 @@ class ThemeStudio extends Component
         }
 
         // Save Header & Navigation Builder configuration
+        Setting::set('header_menu_id', (string) ($this->headerMenuId ?? ''), 'header');
+        Setting::set('header_bg_color', $this->headerBgColor, 'header', 'json');
         Setting::set('header_menu_items', $this->headerMenuItems, 'header', 'json');
         Setting::set('header_cta', $this->headerCta, 'header', 'json');
         Setting::set('header_topbar', $this->headerTopbar, 'header', 'json');
@@ -500,7 +519,8 @@ class ThemeStudio extends Component
     public function render()
     {
         return view('livewire.admin.theme.theme-studio', [
-            'presets' => $this->presets,
+            'presets'        => $this->presets,
+            'availableMenus' => Menu::withCount('items')->get(),
         ])->title('Theme Customizer Studio | ' . Setting::get('site_name', 'Nordroy CMS'));
     }
 }

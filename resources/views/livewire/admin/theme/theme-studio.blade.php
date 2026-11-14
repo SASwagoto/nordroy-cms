@@ -463,182 +463,73 @@
                                 </div>
                             </label>
                         </div>
+
+                        <!-- Smart Color Engine for Header Background (Theme Default vs Custom Light/Dark) -->
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <x-smart-color-picker wire:model="headerBgColor" label="Header Background Color" />
+                        </div>
                     </div>
 
-                    <!-- SECTION 3: NAVIGATION MENU ITEMS BUILDER -->
+                    <!-- SECTION 3: NAVIGATION MENU SELECTION -->
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Navigation Menu Items</h3>
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Active Navigation Menu</h3>
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
-                                        {{ count($headerMenuItems) }} Items
+                                        Multi-Tier Engine
                                     </span>
                                 </div>
-                                <p class="text-[11px] text-slate-400 mt-0.5">Configure main navigation links, section anchors, and dropdown submenus</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Select which navigation menu to render in the main website header</p>
                             </div>
 
-                            <button type="button" wire:click="addMenuItem"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-2xs transition-all cursor-pointer">
-                                <x-icon name="solid:plus" class="w-3.5 h-3.5" />
-                                <span>Add Menu Item</span>
-                            </button>
+                            <a href="{{ route('admin.menus') }}" wire:navigate
+                               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-2xs transition-all">
+                                <x-icon name="solid:bars-staggered" class="w-3.5 h-3.5" />
+                                <span>Manage Menus &amp; Tree &rarr;</span>
+                            </a>
                         </div>
 
-                        <!-- Menu Items List -->
-                        <div class="space-y-3">
-                            @forelse($headerMenuItems as $i => $item)
-                                <div wire:key="nav-item-{{ $item['id'] ?? $i }}"
-                                     class="rounded-2xl border transition-all {{ $expandedMenuIndex === $i ? 'border-[#003C58] dark:border-cyan-400 bg-slate-50/50 dark:bg-slate-950/40 shadow-xs' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900' }}">
-                                    
-                                    <!-- Collapsed Item Header -->
-                                    <div class="p-3.5 flex items-center justify-between gap-3">
-                                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                                            <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-mono text-[10px] font-bold text-slate-500 shrink-0">
-                                                {{ $i + 1 }}
-                                            </span>
-                                            <div class="min-w-0 flex-1">
-                                                <div class="flex items-center gap-2">
-                                                    <p class="text-xs font-bold text-slate-900 dark:text-white truncate">
-                                                        {{ $item['label'] ?: 'Untitled Item' }}
-                                                    </p>
-                                                    @if(!empty($item['children']) && count($item['children']) > 0)
-                                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
-                                                            {{ count($item['children']) }} Sub-Items
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                <p class="text-[10px] font-mono text-slate-400 truncate">
-                                                    {{ \App\Services\LinkResolver::url($item['link'] ?? []) }}
-                                                </p>
-                                            </div>
-                                        </div>
+                        <!-- Menu Selector Dropdown -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Header Display Menu</label>
+                                <select wire:model.live="headerMenuId" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    @forelse($availableMenus as $m)
+                                        <option value="{{ $m->id }}">{{ $m->name }} ({{ $m->items_count }} items) [{{ $m->location }}]</option>
+                                    @empty
+                                        <option value="">No menus created yet</option>
+                                    @endforelse
+                                </select>
+                            </div>
 
-                                        <!-- Item Action Controls -->
-                                        <div class="flex items-center gap-1 shrink-0">
-                                            <!-- Move Up -->
-                                            <button type="button" wire:click="moveMenuItem({{ $i }}, 'up')"
-                                                    @disabled($i === 0)
-                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                                    title="Move Up">
-                                                <x-icon name="solid:arrow-up" class="w-3.5 h-3.5" />
-                                            </button>
-
-                                            <!-- Move Down -->
-                                            <button type="button" wire:click="moveMenuItem({{ $i }}, 'down')"
-                                                    @disabled($i === count($headerMenuItems) - 1)
-                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                                    title="Move Down">
-                                                <x-icon name="solid:arrow-down" class="w-3.5 h-3.5" />
-                                            </button>
-
-                                            <!-- Expand / Collapse -->
-                                            <button type="button" wire:click="toggleMenuItem({{ $i }})"
-                                                    class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors {{ $expandedMenuIndex === $i ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200' }}">
-                                                {{ $expandedMenuIndex === $i ? 'Close' : 'Edit' }}
-                                            </button>
-
-                                            <!-- Delete -->
-                                            <button type="button" wire:click="removeMenuItem({{ $i }})"
-                                                    wire:confirm="Are you sure you want to remove this navigation item and its submenus?"
-                                                    class="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
-                                                    title="Delete Item">
-                                                <x-icon name="solid:trash" class="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Expanded Item Configuration HUD -->
-                                    @if($expandedMenuIndex === $i)
-                                        <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 space-y-4 bg-white/60 dark:bg-slate-900/60 rounded-b-2xl">
-                                            
-                                            <!-- Label Input -->
-                                            <div>
-                                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Navigation Label Text</label>
-                                                <input type="text" wire:model.live="headerMenuItems.{{ $i }}.label"
-                                                       placeholder="e.g. Services"
-                                                       class="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                            </div>
-
-                                            <!-- Destination Smart Link Picker -->
-                                            <div class="pt-1">
-                                                <x-smart-link-picker wire:model="headerMenuItems.{{ $i }}.link" label="Primary Target Destination" />
-                                            </div>
-
-                                            <!-- Submenu Dropdowns Section -->
-                                            <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800 space-y-3">
-                                                <div class="flex items-center justify-between">
-                                                    <div>
-                                                        <h4 class="text-xs font-bold text-slate-800 dark:text-white">Submenu Dropdown Items (Optional)</h4>
-                                                        <p class="text-[10px] text-slate-400">Visitors hovering over this item will see these child links</p>
-                                                    </div>
-
-                                                    <button type="button" wire:click="addChildMenuItem({{ $i }})"
-                                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
-                                                        <x-icon name="solid:plus" class="w-3 h-3" />
-                                                        <span>Add Sub-Item</span>
-                                                    </button>
-                                                </div>
-
-                                                <!-- Submenu Children List -->
-                                                @if(!empty($item['children']))
-                                                    <div class="space-y-2.5 pl-2 sm:pl-4 border-l-2 border-[#003C58]/30 dark:border-cyan-400/30">
-                                                        @foreach($item['children'] as $ci => $child)
-                                                            <div wire:key="child-{{ $i }}-{{ $ci }}"
-                                                                 class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2.5">
-                                                                <div class="flex items-center justify-between gap-2">
-                                                                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                                                                        <span class="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-mono text-[9px] font-bold text-slate-500 shrink-0">
-                                                                            {{ $ci + 1 }}
-                                                                        </span>
-                                                                        <input type="text" wire:model.live="headerMenuItems.{{ $i }}.children.{{ $ci }}.label"
-                                                                               placeholder="Sub-item label (e.g. Dynamic Rotor Balancing)"
-                                                                               class="flex-1 px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                                                    </div>
-
-                                                                    <div class="flex items-center gap-1 shrink-0">
-                                                                        <button type="button" wire:click="moveChildMenuItem({{ $i }}, {{ $ci }}, 'up')"
-                                                                                @disabled($ci === 0)
-                                                                                class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30">
-                                                                            <x-icon name="solid:arrow-up" class="w-3 h-3" />
-                                                                        </button>
-                                                                        <button type="button" wire:click="moveChildMenuItem({{ $i }}, {{ $ci }}, 'down')"
-                                                                                @disabled($ci === count($item['children']) - 1)
-                                                                                class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30">
-                                                                            <x-icon name="solid:arrow-down" class="w-3 h-3" />
-                                                                        </button>
-                                                                        <button type="button" wire:click="removeChildMenuItem({{ $i }}, {{ $ci }})"
-                                                                                class="p-1 rounded text-rose-500 hover:text-rose-700">
-                                                                            <x-icon name="solid:trash" class="w-3 h-3" />
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Child Smart Link Picker -->
-                                                                <div>
-                                                                    <x-smart-link-picker wire:model="headerMenuItems.{{ $i }}.children.{{ $ci }}.link" label="Sub-item Destination" />
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                        </div>
-                                    @endif
-
-                                </div>
-                            @empty
-                                <div class="p-6 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-400">
-                                    <x-icon name="solid:compass" class="w-8 h-8 mx-auto mb-2 opacity-40" />
-                                    <p class="text-xs font-semibold">No navigation items configured.</p>
-                                    <button type="button" wire:click="addMenuItem" class="mt-2 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                                        + Add First Navigation Item
-                                    </button>
-                                </div>
-                            @endforelse
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                                <span class="font-bold text-slate-900 dark:text-white block mb-0.5">Standalone Tree Builder:</span>
+                                <span>Multi-layer indentation, internal page anchors, and dynamic services are managed in the dedicated <a href="{{ route('admin.menus') }}" wire:navigate class="font-bold text-cyan-600 dark:text-cyan-400 hover:underline">Navigation Menu Builder</a>.</span>
+                            </div>
                         </div>
 
+                        @php
+                            $activeMenuModel = $availableMenus->firstWhere('id', $headerMenuId) ?: $availableMenus->first();
+                        @endphp
+                        @if($activeMenuModel)
+                            <div class="p-4 rounded-xl bg-cyan-50/50 dark:bg-cyan-950/20 border border-cyan-200/60 dark:border-cyan-800/40">
+                                <div class="flex items-center justify-between text-xs mb-2">
+                                    <span class="font-bold text-cyan-950 dark:text-cyan-200">Active Menu: {{ $activeMenuModel->name }}</span>
+                                    <span class="text-[10px] font-mono text-cyan-700 dark:text-cyan-400">{{ $activeMenuModel->items_count }} items configured</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($activeMenuModel->items()->whereNull('parent_id')->orderBy('order')->get() as $root)
+                                        <span class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 flex items-center gap-1">
+                                            <span>{{ $root->display_title }}</span>
+                                            @if($root->children()->count() > 0)
+                                                <span class="text-[9px] px-1 rounded-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-mono">+{{ $root->children()->count() }}</span>
+                                            @endif
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- SECTION 4: CALL TO ACTION (CTA) BUTTON -->

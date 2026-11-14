@@ -17,12 +17,7 @@
     $dynamicServices = \App\Services\LinkResolver::getDynamicServices();
 @endphp
 
-<div x-data="nordroySmartLinkPicker({
-        linkData: @if($wireModel) $wire.entangle('{{ $wireModel }}') @else {} @endif,
-        wireModel: '{{ $wireModel }}',
-        sectionsMap: @json($sectionsMap),
-        showLabel: {{ $showLabelInput ? 'true' : 'false' }}
-    })"
+<div x-data="nordroySmartLinkPicker($wire, '{{ $wireModel }}', {{ $showLabelInput ? 'true' : 'false' }})"
     class="w-full space-y-2">
 
     @if ($label)
@@ -122,7 +117,7 @@
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Link Display Text</label>
                 <input type="text" 
                        x-model="link.label" 
-                       @input="syncToLivewire()"
+                       @input.debounce.250ms="syncToLivewire()"
                        placeholder="e.g. Request Instant RFQ" 
                        class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
             </div>
@@ -147,12 +142,25 @@
                     <select x-model="link.section" 
                             @change="syncToLivewire()"
                             class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="">-- Top of Page --</option>
-                        <template x-for="sec in currentAvailableSections" :key="sec.id">
-                            <option :value="sec.id" x-text="sec.name"></option>
-                        </template>
+                        <option value="">-- Top of Page (No Anchor) --</option>
+                        @foreach ($sectionsMap as $pSlug => $secs)
+                            <optgroup label="Sections on {{ ucfirst($pSlug) }} Page">
+                                @foreach ($secs as $sec)
+                                    <option value="{{ $sec['id'] }}">#{{ $sec['id'] }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
                     </select>
                 </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-400 font-mono">Or custom #anchor:</span>
+                <input type="text" 
+                       x-model="link.section" 
+                       @input.debounce.250ms="syncToLivewire()"
+                       placeholder="e.g. rfq, workshop, services" 
+                       class="flex-1 px-2.5 py-1 text-xs font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]" />
             </div>
         </div>
 
@@ -164,7 +172,7 @@
                     <span class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono text-xs font-bold text-slate-500">#</span>
                     <input type="text" 
                            x-model="link.section" 
-                           @input="syncToLivewire()"
+                           @input.debounce.250ms="syncToLivewire()"
                            placeholder="rfq (e.g. #rfq, #services, #workshop)" 
                            class="flex-1 px-3 py-1.5 text-xs font-mono rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
                 </div>
@@ -203,7 +211,7 @@
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Destination URL</label>
                 <input type="url" 
                        x-model="link.url" 
-                       @input="syncToLivewire()"
+                       @input.debounce.250ms="syncToLivewire()"
                        placeholder="https://example.com/portal" 
                        class="w-full px-3 py-1.5 text-xs font-mono rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
             </div>
@@ -227,7 +235,7 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Value (Leave blank for default)</label>
                     <input type="text" 
                            x-model="link.action_value" 
-                           @input="syncToLivewire()"
+                           @input.debounce.250ms="syncToLivewire()"
                            :placeholder="link.action_type === 'mailto' ? 'duty@nordroy.com' : '+880 1700-000000'" 
                            class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
                 </div>
@@ -253,13 +261,10 @@
 
 <script>
     if (typeof window.nordroySmartLinkPicker !== 'function') {
-        window.nordroySmartLinkPicker = function(config) {
+        window.nordroySmartLinkPicker = function($wire, wireModel, showLabel) {
             return {
                 isExpanded: false,
-                sectionsMap: config.sectionsMap || {},
-                showLabel: config.showLabel || false,
-                wireModel: config.wireModel || null,
-                linkData: config.linkData || null,
+                showLabel: showLabel || false,
                 link: {
                     type: 'internal',
                     page: 'home',
@@ -273,12 +278,12 @@
                 },
 
                 init() {
-                    if (this.linkData) {
-                        this.loadData(this.linkData);
+                    if (wireModel && $wire) {
+                        try {
+                            const initial = $wire.get(wireModel);
+                            this.loadData(initial);
+                        } catch (e) {}
                     }
-                    this.$watch('linkData', (val) => {
-                        this.loadData(val);
-                    });
                 },
 
                 loadData(data) {
@@ -311,13 +316,7 @@
                 },
 
                 onPageChange() {
-                    this.link.section = '';
                     this.syncToLivewire();
-                },
-
-                get currentAvailableSections() {
-                    const p = this.link.page || 'home';
-                    return this.sectionsMap[p] || [];
                 },
 
                 get typeBadgeLabel() {
@@ -385,13 +384,8 @@
 
                 syncToLivewire() {
                     const payload = JSON.parse(JSON.stringify(this.link));
-                    if (this.linkData && typeof this.linkData === 'object') {
-                        for (let k in payload) {
-                            this.linkData[k] = payload[k];
-                        }
-                    }
-                    if (this.wireModel && typeof this.$wire !== 'undefined') {
-                        this.$wire.set(this.wireModel, payload);
+                    if (wireModel && $wire) {
+                        $wire.set(wireModel, payload);
                     }
                 }
             };

@@ -47,4 +47,22 @@ class MenuItem extends Model
     {
         return $this->hasMany(MenuItem::class, 'parent_id')->where('is_active', true)->orderBy('order');
     }
+
+    public function allChildren(): HasMany
+    {
+        return $this->hasMany(MenuItem::class, 'parent_id')->orderBy('order');
+    }
+
+    public function getDisplayTitleAttribute(): string
+    {
+        $val = $this->getTranslation('title');
+        if (!empty($val)) {
+            return (string) $val;
+        }
+        $raw = $this->attributes['title'] ?? null;
+        if (is_array($raw)) {
+            return reset($raw) ?: 'Untitled';
+        }
+        return (string) ($raw ?: 'Untitled');
+    }
 }
