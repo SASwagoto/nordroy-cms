@@ -6,6 +6,7 @@ use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
+use App\Livewire\Admin\Theme\HeaderFooterBuilder;
 use App\Livewire\Admin\Theme\ThemeStudio;
 use App\Services\IconRegistry;
 use Illuminate\Http\Request;
@@ -226,6 +227,11 @@ Route::middleware([
     Route::get('/theme', ThemeStudio::class)
         ->middleware('permission:theme.manage')
         ->name('theme');
+
+    // Dedicated Header & Footer Visual Builder
+    Route::get('/header-footer', HeaderFooterBuilder::class)
+        ->middleware('permission:theme.manage')
+        ->name('header-footer');
 
     // Navigation Menus Builder
     Route::get('/menus', MenuManager::class)

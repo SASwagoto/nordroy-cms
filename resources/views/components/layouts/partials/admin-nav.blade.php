@@ -99,6 +99,11 @@
                 </span>
             @endif
         </a>
+        <a href="{{ route('admin.header-footer') }}" wire:navigate
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.header-footer*') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
+            <x-icon name="solid:compass-drafting" class="w-4 h-4" />
+            <span>Header &amp; Footer</span>
+        </a>
         <a href="{{ route('admin.theme') }}" wire:navigate
             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.theme') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
             <x-icon name="solid:palette" class="w-4 h-4" />

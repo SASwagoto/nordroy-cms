@@ -182,9 +182,8 @@ class ThemeStudioHeaderTest extends TestCase
             ->assertSee('Footer Text & Links Color')
             ->assertSee('Footer Box Model & Spacing Engine')
             ->assertSee('Footer Columns & Content Modules')
-            ->assertSee('Show Social Media Icons')
-            ->assertSee('Show Business Units Column')
-            ->assertSee('Show Technical Services Column');
+            ->assertSee('Presets:')
+            ->assertSee('Add Column');
     }
 
     public function test_theme_studio_saves_topbar_box_model_footer_and_section_box_model(): void

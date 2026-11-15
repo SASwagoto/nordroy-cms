@@ -533,9 +533,14 @@
 
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         @if(!empty($headerTopbar['enabled']))
+        @php
+            $tbWidth = $topbarBoxModel['width'] ?? '1536px';
+            $tbWidthStyle = ($tbWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$tbWidth}; width: 100%;";
+        @endphp
         <div class="{{ $isCustomTopbarBg ? 'smart-custom-topbar-bg' : 'bg-white/95 dark:bg-[#050f18]/95' }} {{ $isCustomTopbarText ? 'smart-custom-topbar-text' : 'text-slate-700 dark:text-slate-300' }} border-b border-slate-200/90 dark:border-slate-800 {{ $densityClass }} px-4 sm:px-8 transition-colors"
              style="{{ $isCustomTopbarBg ? \App\Services\SmartColorHelper::cssVars($topbarBgColor, 'topbar-bg') : '' }} {{ $isCustomTopbarText ? \App\Services\SmartColorHelper::cssVars($topbarTextColor, 'topbar-text') : '' }} {{ $topbarBoxCss }}">
-            <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center {{ $topbarAlignment === 'center' ? 'justify-center gap-4 text-center' : ($topbarAlignment === 'start' ? 'justify-start gap-4' : 'justify-between gap-2') }}">
+            <div class="mx-auto flex flex-col sm:flex-row items-center {{ $topbarAlignment === 'center' ? 'justify-center gap-4 text-center' : ($topbarAlignment === 'start' ? 'justify-start gap-4' : 'justify-between gap-2') }}"
+                 style="{{ $tbWidthStyle }}">
                 @if(!empty($headerTopbar['show_badge'] ?? true) && !empty($headerTopbar['badge_text']))
                     <div class="flex items-center gap-3">
                         <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
@@ -594,10 +599,14 @@
         @endif
 
         <!-- DYNAMIC PUBLIC HEADER -->
+        @php
+            $hWidth = $headerBoxModel['width'] ?? '1536px';
+            $hWidthStyle = ($hWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$hWidth}; width: 100%;";
+        @endphp
         <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 w-full {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
                 style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerBorderSpan === 'full' ? $headerBorderCss : '' }}">
-            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
-                 style="height: {{ $headerHeight ?: '80px' }}; {{ $headerBorderSpan === 'boxed' ? $headerBorderCss : '' }} {{ $headerBoxCss }}">
+            <div class="mx-auto px-4 sm:px-8 flex items-center justify-between"
+                 style="height: {{ $headerHeight ?: '80px' }}; {{ $headerBorderSpan === 'boxed' ? $headerBorderCss : '' }} {{ $headerBoxCss }} {{ $hWidthStyle }}">
                 
                 <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
@@ -722,10 +731,15 @@
             </div>
 
             @if(!empty($headerBottom['enabled']))
+            @php
+                $hbWidth = ($headerBottom['box_model'] ?? [])['width'] ?? '1536px';
+                $hbWidthStyle = ($hbWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$hbWidth}; width: 100%;";
+            @endphp
             <!-- ROW 3: BOTTOM SUB-HEADER BAR -->
             <div class="{{ $isCustomHeaderBottomBg ? 'smart-custom-hb-bg' : 'bg-slate-50/95 dark:bg-[#061320]/95' }} {{ $isCustomHeaderBottomText ? 'smart-custom-hb-text' : 'text-slate-600 dark:text-slate-400' }} border-t border-slate-200/80 dark:border-slate-800 transition-colors"
                  style="{{ $isCustomHeaderBottomBg ? \App\Services\SmartColorHelper::cssVars($headerBottom['bg_color'], 'hb-bg') : '' }} {{ $isCustomHeaderBottomText ? \App\Services\SmartColorHelper::cssVars($headerBottom['text_color'], 'hb-text') : '' }} {{ $headerBottomBoxCss }}">
-                <div class="max-w-[1536px] mx-auto px-4 sm:px-8 py-2 flex items-center {{ ($headerBottom['layout'] ?? 'between') === 'center' ? 'justify-center text-center gap-4' : (($headerBottom['layout'] ?? 'between') === 'start' ? 'justify-start gap-4' : 'justify-between gap-4') }} text-xs">
+                <div class="mx-auto px-4 sm:px-8 py-2 flex items-center {{ ($headerBottom['layout'] ?? 'between') === 'center' ? 'justify-center text-center gap-4' : (($headerBottom['layout'] ?? 'between') === 'start' ? 'justify-start gap-4' : 'justify-between gap-4') }} text-xs"
+                     style="{{ $hbWidthStyle }}">
                     @if(!empty($headerBottom['text']))
                         <div class="flex items-center gap-2 truncate">
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase tracking-wider shrink-0">
@@ -949,10 +963,15 @@
                 style="{{ $isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '' }} {{ $isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '' }} {{ $footerBoxCss }}">
             
             @if(!empty($footerTop['enabled']))
+            @php
+                $ftWidth = ($footerTop['box_model'] ?? [])['width'] ?? '1536px';
+                $ftWidthStyle = ($ftWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$ftWidth}; width: 100%;";
+            @endphp
             <!-- ROW 1: TOP PRE-FOOTER CALLOUT BAR -->
             <div class="{{ $isCustomFooterTopBg ? 'smart-custom-ft-bg' : 'bg-[#003C58] dark:bg-[#061a28]' }} {{ $isCustomFooterTopText ? 'smart-custom-ft-text' : 'text-white dark:text-slate-100' }} border-b border-slate-200/30 dark:border-slate-800 transition-colors mb-8"
                  style="{{ $isCustomFooterTopBg ? \App\Services\SmartColorHelper::cssVars($footerTop['bg_color'], 'ft-bg') : '' }} {{ $isCustomFooterTopText ? \App\Services\SmartColorHelper::cssVars($footerTop['text_color'], 'ft-text') : '' }} {{ $footerTopBoxCss }}">
-                <div class="max-w-[1536px] mx-auto px-4 sm:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="mx-auto px-4 sm:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6"
+                     style="{{ $ftWidthStyle }}">
                     <div class="space-y-1 text-center md:text-left max-w-2xl">
                         <h3 class="text-base sm:text-lg font-bold font-heading">
                             {{ $footerTop['headline'] ?: 'Subscribe to Maritime Technical Bulletins' }}
@@ -992,7 +1011,11 @@
             </div>
             @endif
 
-            <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
+            @php
+                $footerWidth = $footerBoxModel['width'] ?? '1536px';
+                $footerWidthStyle = ($footerWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$footerWidth}; width: 100%;";
+            @endphp
+            <div class="mx-auto px-4 sm:px-8" style="{{ $footerWidthStyle }}">
                 
                 <!-- Main Modular Footer Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ $lgGridCols }} gap-8 lg:gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
@@ -1167,8 +1190,15 @@
                     @endforeach
                 </div>
 
+                @php
+                    $subFooterBoxModel = \App\Models\Setting::getJson('footer_bottom_box_model') ?: [];
+                    $subFooterWidth = $subFooterBoxModel['width'] ?? '1536px';
+                    $subFooterWidthStyle = ($subFooterWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$subFooterWidth}; width: 100%;";
+                    $subFooterBoxCss = \App\Services\SmartBoxModelHelper::toCss($subFooterBoxModel);
+                @endphp
                 <!-- Sub-Footer / Bottom Strip -->
-                <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500"
+                     style="{{ $subFooterWidthStyle }} {{ $subFooterBoxCss }}">
                     @foreach($footerBottomColumns as $bCol)
                         @php
                             $bType = $bCol['type'] ?? 'copyright';

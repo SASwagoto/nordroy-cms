@@ -264,16 +264,16 @@
     @endif
 
     @if($showWidth)
-    <!-- MAX WIDTH ROW -->
-    <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
-        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 w-14 shrink-0">Width</span>
+    <!-- CONTAINER WIDTH SELECTOR (Elementor Style) -->
+    <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 w-24 shrink-0">Row Width</span>
         <select x-model="width" @change="sync()"
-                class="flex-1 px-2 py-0.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
-            <option value="1280px">1280px (Standard)</option>
-            <option value="1440px">1440px (Wide)</option>
-            <option value="1536px">1536px (Ultra Wide - Recommended)</option>
-            <option value="1680px">1680px (Panoramic)</option>
+                class="flex-1 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white cursor-pointer focus:ring-1 focus:ring-[#003C58]">
             <option value="100%">100% Fluid Full Width</option>
+            <option value="1536px">Ultra Wide (1536px - Recommended)</option>
+            <option value="1440px">Corporate Wide (1440px)</option>
+            <option value="1280px">Standard Boxed (1280px)</option>
+            <option value="1680px">Panoramic (1680px)</option>
         </select>
     </div>
     @endif

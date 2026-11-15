@@ -485,6 +485,21 @@
             @if($activeTab === 'header')
                 <div class="space-y-6">
 
+                    <!-- Shortcut Banner to Dedicated Header & Footer Builder -->
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#003C58]/10 via-cyan-500/10 to-transparent border border-[#003C58]/20 dark:border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center gap-2.5">
+                            <x-icon name="solid:compass-drafting" class="w-4 h-4 text-[#003C58] dark:text-cyan-400 shrink-0" />
+                            <div>
+                                <strong class="block text-xs text-slate-800 dark:text-white font-bold">Dedicated Visual Header &amp; Footer Builder Available</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400">Design multi-row headers and footers with independent box models in a dedicated studio.</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.header-footer') }}" wire:navigate
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#003C58] hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 font-bold text-xs text-white shrink-0 shadow-2xs transition-all">
+                            <span>Open Dedicated Builder &rarr;</span>
+                        </a>
+                    </div>
+
                     <!-- SECTION 1: TOP EMERGENCY & INFORMATION STRIP -->
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -605,10 +620,11 @@
                                 </label>
                             </div>
 
-                            <!-- Smart Color Pickers for Topbar Background & Text -->
+                            <!-- Topbar Box Model & Styling -->
                             <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                <x-smart-color-picker wire:model="topbarBgColor" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
-                                <x-smart-color-picker wire:model="topbarTextColor" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
+                                <x-smart-box-model wire:model="topbarBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Topbar Layout & Box Model" />
+                                <x-smart-color-picker wire:model="topbarBgColor" :allow-glass="true" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
+                                <x-smart-color-picker wire:model="topbarTextColor" :allow-glass="false" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
                             </div>
                         @endif
                     </div>
@@ -663,12 +679,12 @@
 
                         <!-- Smart Color Engine for Header Text & Navigation Links -->
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <x-smart-color-picker wire:model="headerTextColor" label="Header Text & Navigation Links Color" default-light="#0f172a" default-dark="#ffffff" />
+                            <x-smart-color-picker wire:model="headerTextColor" :allow-glass="false" label="Header Text & Navigation Links Color" default-light="#0f172a" default-dark="#ffffff" />
                         </div>
 
                         <!-- Smart Box Model Engine for Header Navbar -->
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <x-smart-box-model wire:model="headerBoxModel" :show-margin="false" :show-width="false" label="Header Navbar Box Model & Spacing" />
+                            <x-smart-box-model wire:model="headerBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Header Navbar Box Model & Spacing" />
                         </div>
 
                         <!-- Header Bottom Border Controls (Full-Width vs Boxed) -->
@@ -876,10 +892,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Sub-Header Background & Text Color -->
+                                <!-- Sub-Header Box Model & Colors -->
                                 <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                    <x-smart-color-picker wire:model="headerBottom.bg_color" label="Bottom Header Background Color" default-light="#f8fafc" default-dark="#061320" />
-                                    <x-smart-color-picker wire:model="headerBottom.text_color" label="Bottom Header Text Color" default-light="#475569" default-dark="#94a3b8" />
+                                    <x-smart-box-model wire:model="headerBottom.box_model" :show-width="true" :show-margin="true" :show-border="true" label="Sub-Header Layout & Box Model" />
+                                    <x-smart-color-picker wire:model="headerBottom.bg_color" :allow-glass="true" label="Bottom Header Background Color" default-light="#f8fafc" default-dark="#061320" />
+                                    <x-smart-color-picker wire:model="headerBottom.text_color" :allow-glass="false" label="Bottom Header Text Color" default-light="#475569" default-dark="#94a3b8" />
                                 </div>
                             </div>
                         @endif
@@ -891,6 +908,22 @@
             <!-- TAB 6: FOOTER CUSTOMIZER STUDIO -->
             @if($activeTab === 'footer')
                 <div class="space-y-6">
+
+                    <!-- Shortcut Banner to Dedicated Header & Footer Builder -->
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#003C58]/10 via-cyan-500/10 to-transparent border border-[#003C58]/20 dark:border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                        <div class="flex items-center gap-2.5">
+                            <x-icon name="solid:compass-drafting" class="w-4 h-4 text-[#003C58] dark:text-cyan-400 shrink-0" />
+                            <div>
+                                <strong class="block text-xs text-slate-800 dark:text-white font-bold">Dedicated Visual Header &amp; Footer Builder Available</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400">Design multi-row headers and footers with independent box models in a dedicated studio.</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.header-footer') }}" wire:navigate
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#003C58] hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 font-bold text-xs text-white shrink-0 shadow-2xs transition-all">
+                            <span>Open Dedicated Builder &rarr;</span>
+                        </a>
+                    </div>
+
                     <!-- SECTION 1: FOOTER APPEARANCE & COLORS -->
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -899,8 +932,8 @@
                         </div>
 
                         <div class="space-y-4">
-                            <x-smart-color-picker wire:model="footerBgColor" label="Footer Background Color" default-light="#f1f5f9" default-dark="#040e17" />
-                            <x-smart-color-picker wire:model="footerTextColor" label="Footer Text & Links Color" default-light="#334155" default-dark="#cbd5e1" />
+                            <x-smart-color-picker wire:model="footerBgColor" :allow-glass="true" label="Footer Background Color" default-light="#f1f5f9" default-dark="#040e17" />
+                            <x-smart-color-picker wire:model="footerTextColor" :allow-glass="false" label="Footer Text & Links Color" default-light="#334155" default-dark="#cbd5e1" />
                         </div>
                     </div>
 
@@ -963,10 +996,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Pre-Footer Styling -->
+                                <!-- Pre-Footer Styling & Box Model -->
                                 <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                    <x-smart-color-picker wire:model="footerTop.bg_color" label="Pre-Footer Background Color" default-light="#003C58" default-dark="#061a28" />
-                                    <x-smart-color-picker wire:model="footerTop.text_color" label="Pre-Footer Text Color" default-light="#ffffff" default-dark="#f1f5f9" />
+                                    <x-smart-box-model wire:model="footerTop.box_model" :show-width="true" :show-margin="true" :show-border="true" label="Pre-Footer Layout & Box Model" />
+                                    <x-smart-color-picker wire:model="footerTop.bg_color" :allow-glass="true" label="Pre-Footer Background Color" default-light="#003C58" default-dark="#061a28" />
+                                    <x-smart-color-picker wire:model="footerTop.text_color" :allow-glass="false" label="Pre-Footer Text Color" default-light="#ffffff" default-dark="#f1f5f9" />
                                 </div>
                             </div>
                         @endif
@@ -1409,7 +1443,7 @@
                         <!-- Universal Section Color Engine -->
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
                             <x-smart-color-picker wire:model="sectionBgColor" label="Global Section Background Color" default-light="#ffffff" default-dark="#07131e" />
-                            <x-smart-color-picker wire:model="sectionTextColor" label="Global Section Text Color" default-light="#0f172a" default-dark="#f8fafc" />
+                            <x-smart-color-picker wire:model="sectionTextColor" :allow-glass="false" label="Global Section Text Color" default-light="#0f172a" default-dark="#f8fafc" />
                         </div>
                     </div>
                 </div>
