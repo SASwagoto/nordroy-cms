@@ -263,7 +263,7 @@ class ServiceManager extends Component
         $maxOrder = (int) Service::max('order');
 
         $copyTitleEn = ($source->title['en'] ?? 'Service') . ' (Copy)';
-        $copyTitleBn = ($source->title['bn'] ?? 'সার্ভিস') . ' (কপি)';
+        $copyTitleBn = ($source->title['bn'] ?? 'Service') . ' (Copy)';
 
         $newSlug = Str::slug($source->slug . '-copy-' . time());
 

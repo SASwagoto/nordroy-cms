@@ -256,6 +256,28 @@
         html.dark .smart-custom-bg {
             background-color: var(--sec-bg-dark) !important;
         }
+
+        /* Smart Footer Custom Colors */
+        html:not(.dark) .smart-custom-footer-bg {
+            background-color: var(--footer-bg-light) !important;
+        }
+        html.dark .smart-custom-footer-bg {
+            background-color: var(--footer-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-footer-text,
+        html:not(.dark) .smart-custom-footer-text a,
+        html:not(.dark) .smart-custom-footer-text p,
+        html:not(.dark) .smart-custom-footer-text span,
+        html:not(.dark) .smart-custom-footer-text h4 {
+            color: var(--footer-text-light) !important;
+        }
+        html.dark .smart-custom-footer-text,
+        html.dark .smart-custom-footer-text a,
+        html.dark .smart-custom-footer-text p,
+        html.dark .smart-custom-footer-text span,
+        html.dark .smart-custom-footer-text h4 {
+            color: var(--footer-text-dark) !important;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -276,6 +298,15 @@
             $siteBgVideoOpacity = 85;
         }
         $opacityDecimal = $siteBgVideoOpacity / 100;
+
+        // Unified Full-Viewport Video Glaze / Frosted Backdrop Layer
+        $bgGlaze = \App\Models\Setting::get('theme_hero_backdrop', 'frosted');
+        $glazeOverlayClass = match($bgGlaze) {
+            'transparent' => 'bg-transparent backdrop-blur-none',
+            'subtle_tint' => 'bg-white/60 dark:bg-[#07131e]/60 backdrop-blur-sm',
+            'solid'       => 'bg-white/95 dark:bg-[#07131e]/95 backdrop-blur-none',
+            default       => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md', // 'frosted' - seamless full-viewport glass
+        };
     @endphp
     @if($siteBgVideoEnabled == '1')
     <div class="fixed inset-0 w-full h-full pointer-events-none -z-20 overflow-hidden select-none bg-white dark:bg-slate-950">
@@ -284,6 +315,8 @@
                style="opacity: {{ $opacityDecimal }};">
             <source src="{{ asset($siteBgVideoUrl) }}" type="video/mp4">
         </video>
+        <!-- Seamless Glass & Glaze Backdrop Layer attached directly to the background video container across entire viewport (0-100vh) -->
+        <div class="absolute inset-0 {{ $glazeOverlayClass }} pointer-events-none transition-all duration-300"></div>
         <!-- Contrast overlay: Clean ambient white tint in light mode, cinematic vignette in dark mode -->
         <div class="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/40 dark:from-black/30 dark:via-transparent dark:to-black/40 pointer-events-none"></div>
     </div>
@@ -360,11 +393,14 @@
                 'text_color'        => ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100],
             ], \App\Models\Setting::getJson('header_topbar') ?: []);
 
-            $topbarBgColor = $headerTopbar['bg_color'] ?? ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#050f18', 'opacity' => 95];
+            $topbarBgColor = \App\Models\Setting::getJson('topbar_bg_color') ?: ($headerTopbar['bg_color'] ?? ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#050f18', 'opacity' => 95]);
             $isCustomTopbarBg = \App\Services\SmartColorHelper::isCustom($topbarBgColor);
 
-            $topbarTextColor = $headerTopbar['text_color'] ?? ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100];
+            $topbarTextColor = \App\Models\Setting::getJson('topbar_text_color') ?: ($headerTopbar['text_color'] ?? ['mode' => 'theme', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100]);
             $isCustomTopbarText = \App\Services\SmartColorHelper::isCustom($topbarTextColor);
+
+            $topbarBoxModel = \App\Models\Setting::getJson('topbar_box_model') ?: ['padding' => ['mode' => 'axis', 'y' => '8px', 'x' => '16px']];
+            $topbarBoxCss = \App\Services\SmartBoxModelHelper::toCss($topbarBoxModel);
 
             $topbarAlignment = $headerTopbar['alignment'] ?? 'between';
             $topbarDensity = $headerTopbar['density'] ?? 'standard';
@@ -382,6 +418,9 @@
             $headerThemeToggle = \App\Models\Setting::get('header_theme_toggle', '1') == '1';
             $headerStyle = \App\Models\Setting::get('theme_header_style', 'glass');
             $headerHeight = \App\Models\Setting::get('theme_header_height', '80px');
+
+            $headerBoxModel = \App\Models\Setting::getJson('header_box_model') ?: ['padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '24px']];
+            $headerBoxCss = \App\Services\SmartBoxModelHelper::toCss($headerBoxModel);
 
             // Header Background & Text Color Engines (Theme vs Custom Light/Dark)
             $headerBgColor = \App\Models\Setting::getJson('header_bg_color', [
@@ -452,7 +491,7 @@
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         @if(!empty($headerTopbar['enabled']))
         <div class="{{ $isCustomTopbarBg ? 'smart-custom-topbar-bg' : 'bg-white/95 dark:bg-[#050f18]/95' }} {{ $isCustomTopbarText ? 'smart-custom-topbar-text' : 'text-slate-700 dark:text-slate-300' }} border-b border-slate-200/90 dark:border-slate-800 {{ $densityClass }} px-4 sm:px-8 transition-colors"
-             style="{{ $isCustomTopbarBg ? \App\Services\SmartColorHelper::cssVars($topbarBgColor, 'topbar-bg') : '' }} {{ $isCustomTopbarText ? \App\Services\SmartColorHelper::cssVars($topbarTextColor, 'topbar-text') : '' }}">
+             style="{{ $isCustomTopbarBg ? \App\Services\SmartColorHelper::cssVars($topbarBgColor, 'topbar-bg') : '' }} {{ $isCustomTopbarText ? \App\Services\SmartColorHelper::cssVars($topbarTextColor, 'topbar-text') : '' }} {{ $topbarBoxCss }}">
             <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center {{ $topbarAlignment === 'center' ? 'justify-center gap-4 text-center' : ($topbarAlignment === 'start' ? 'justify-start gap-4' : 'justify-between gap-2') }}">
                 @if(!empty($headerTopbar['show_badge'] ?? true) && !empty($headerTopbar['badge_text']))
                     <div class="flex items-center gap-3">
@@ -513,7 +552,7 @@
 
         <!-- DYNAMIC PUBLIC HEADER -->
         <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
-                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }}">
+                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }} {{ $headerBoxCss }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }};">
                 
@@ -787,8 +826,43 @@
             {{ $slot }}
         </main>
 
-        <!-- ==================== CORPORATE FOOTER (Light Mode: Clean Light Slate, Dark Mode: Shipyard Navy) ==================== -->
-        <footer class="bg-slate-100/95 dark:bg-[#040e17]/95 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 pt-16 pb-12 transition-colors duration-200">
+        <!-- ==================== CORPORATE FOOTER ==================== -->
+        @php
+            $footerBgColor = \App\Models\Setting::getJson('footer_bg_color', [
+                'mode'    => 'theme',
+                'light'   => '#f1f5f9',
+                'dark'    => '#040e17',
+                'opacity' => 95,
+            ]);
+            $isCustomFooterBg = \App\Services\SmartColorHelper::isCustom($footerBgColor);
+
+            $footerTextColor = \App\Models\Setting::getJson('footer_text_color', [
+                'mode'    => 'theme',
+                'light'   => '#334155',
+                'dark'    => '#cbd5e1',
+                'opacity' => 100,
+            ]);
+            $isCustomFooterText = \App\Services\SmartColorHelper::isCustom($footerTextColor);
+
+            $footerBoxModel = \App\Models\Setting::getJson('footer_box_model') ?: [
+                'padding' => ['mode' => 'axis', 'y' => '64px', 'x' => '24px'],
+                'border'  => ['width' => '1px', 'side' => 'top', 'style' => 'solid', 'color' => '#e2e8f0'],
+            ];
+            $footerBoxCss = \App\Services\SmartBoxModelHelper::toCss($footerBoxModel);
+
+            $footerConfig = array_merge([
+                'show_social'    => true,
+                'show_divisions' => true,
+                'show_services'  => true,
+                'show_offices'   => true,
+                'show_iso'       => true,
+                'show_login'     => true,
+                'bio'            => '',
+                'copyright'      => '',
+            ], \App\Models\Setting::getJson('footer_config') ?: []);
+        @endphp
+        <footer class="{{ $isCustomFooterBg ? 'smart-custom-footer-bg' : 'bg-slate-100/95 dark:bg-[#040e17]/95' }} {{ $isCustomFooterText ? 'smart-custom-footer-text' : 'text-slate-700 dark:text-slate-300' }} border-t border-slate-200 dark:border-slate-800 transition-colors duration-200"
+                style="{{ $isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '' }} {{ $isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '' }} {{ $footerBoxCss }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
@@ -805,10 +879,11 @@
                              class="h-10 w-auto object-contain hidden dark:block" />
                         
                         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
-                            A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.
+                            {{ !empty($footerConfig['bio']) ? $footerConfig['bio'] : 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.' }}
                         </p>
 
                         <!-- Social Media Links (Rendered Dynamically from Settings Engine) -->
+                        @if(!empty($footerConfig['show_social']))
                         <div class="flex items-center gap-2 pt-2">
                             @php
                                 $socialLinks = json_decode(\App\Models\Setting::get('social_links_data', '[]'), true) ?: [];
@@ -823,9 +898,11 @@
                                 <a href="#" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white"><x-icon name="solid:globe" class="w-3.5 h-3.5" /></a>
                             @endforelse
                         </div>
+                        @endif
                     </div>
 
                     <!-- Col 2: Business Units -->
+                    @if(!empty($footerConfig['show_divisions']))
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Business Units</h4>
                         <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
@@ -836,8 +913,10 @@
                             <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Gas Compressor Solutions</a></li>
                         </ul>
                     </div>
+                    @endif
 
                     <!-- Col 3: Technical Services -->
+                    @if(!empty($footerConfig['show_services']))
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Technical Services</h4>
                         <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
@@ -848,8 +927,10 @@
                             <li><a href="{{ route('services') }}#flying-squad" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">24/7 Port Emergency Call</a></li>
                         </ul>
                     </div>
+                    @endif
 
                     <!-- Col 4: Corporate Offices & Workshops -->
+                    @if(!empty($footerConfig['show_offices']))
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Port &amp; HQ Offices</h4>
                         <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2.5">
@@ -868,18 +949,29 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                 </div>
 
                 <!-- Bottom Copyright Strip -->
                 <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                    <p>&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}. All rights reserved. Maritime Engineering &amp; Industrial Overhauls.</p>
+                    <p>
+                        @if(!empty($footerConfig['copyright']))
+                            {{ $footerConfig['copyright'] }}
+                        @else
+                            &copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}. All rights reserved. Maritime Engineering &amp; Industrial Overhauls.
+                        @endif
+                    </p>
                     <div class="flex items-center gap-6">
+                        @if(!empty($footerConfig['show_iso']))
                         <span class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             ISO 9001:2015 &amp; DNV Certified
                         </span>
+                        @endif
+                        @if(!empty($footerConfig['show_login']))
                         <a href="{{ route('login') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Staff Login</a>
+                        @endif
                     </div>
                 </div>
 

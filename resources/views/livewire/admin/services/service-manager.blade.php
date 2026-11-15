@@ -306,11 +306,11 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Service Title (Bengali) <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span>
+                                Service Title (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             <input type="text" 
                                    wire:model="title_bn" 
-                                   placeholder="e.g. ডায়নামিক রটার ব্যালেন্সিং" 
+                                   placeholder="e.g. Dynamic Rotor Balancing (Bengali)" 
                                    class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500" />
                             @error('title_bn') <span class="text-rose-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -413,11 +413,11 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Short Summary (Bengali) <span class="text-slate-400 font-normal">(বাংলা সংক্ষিপ্ত বিবরণ)</span>
+                                Short Summary (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             <textarea wire:model="short_summary_bn" 
                                       rows="2" 
-                                      placeholder="সংক্ষিপ্ত সারসংক্ষেপ..."
+                                      placeholder="Brief summary in Bengali..."
                                       class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
                         </div>
                     </div>
@@ -436,11 +436,11 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Technical Specifications (Bengali) <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span>
+                                Technical Specifications (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
                             </label>
                             <textarea wire:model="content_bn" 
                                       rows="3" 
-                                      placeholder="বিস্তারিত কারিগরি কার্যপ্রণালী..."
+                                      placeholder="Detailed technical specifications in Bengali..."
                                       class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
                         </div>
                     </div>

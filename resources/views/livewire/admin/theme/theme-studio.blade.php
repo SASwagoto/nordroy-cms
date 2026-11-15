@@ -55,6 +55,38 @@
              headerTextLight: '{{ $headerTextColor['light'] ?? '#0f172a' }}',
              headerTextDark: '{{ $headerTextColor['dark'] ?? '#ffffff' }}',
 
+             topbarBgMode: '{{ $topbarBgColor['mode'] ?? 'theme' }}',
+             topbarBgLight: '{{ $topbarBgColor['light'] ?? '#ffffff' }}',
+             topbarBgDark: '{{ $topbarBgColor['dark'] ?? '#050f18' }}',
+             topbarBgOpacity: {{ (int) ($topbarBgColor['opacity'] ?? 95) }},
+
+             topbarTextMode: '{{ $topbarTextColor['mode'] ?? 'theme' }}',
+             topbarTextLight: '{{ $topbarTextColor['light'] ?? '#334155' }}',
+             topbarTextDark: '{{ $topbarTextColor['dark'] ?? '#cbd5e1' }}',
+
+             footerBgMode: '{{ $footerBgColor['mode'] ?? 'theme' }}',
+             footerBgLight: '{{ $footerBgColor['light'] ?? '#f1f5f9' }}',
+             footerBgDark: '{{ $footerBgColor['dark'] ?? '#040e17' }}',
+             footerBgOpacity: {{ (int) ($footerBgColor['opacity'] ?? 95) }},
+
+             footerTextMode: '{{ $footerTextColor['mode'] ?? 'theme' }}',
+             footerTextLight: '{{ $footerTextColor['light'] ?? '#334155' }}',
+             footerTextDark: '{{ $footerTextColor['dark'] ?? '#cbd5e1' }}',
+
+             getTopbarPreviewBg() {
+                 if (this.topbarBgMode === 'custom') {
+                     const hex = this.canvasDark ? (this.topbarBgDark || '#050f18') : (this.topbarBgLight || '#ffffff');
+                     const op = (this.topbarBgOpacity !== undefined ? this.topbarBgOpacity : 95) / 100;
+                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
+                 }
+                 return this.canvasDark ? 'rgba(5, 15, 24, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+             },
+             getTopbarPreviewText() {
+                 if (this.topbarTextMode === 'custom') {
+                     return this.canvasDark ? (this.topbarTextDark || '#cbd5e1') : (this.topbarTextLight || '#334155');
+                 }
+                 return this.canvasDark ? '#cbd5e1' : '#475569';
+             },
              getHeaderPreviewBg() {
                  if (this.headerBgMode === 'custom') {
                      const hex = this.canvasDark ? (this.headerBgDark || '#07131e') : (this.headerBgLight || '#ffffff');
@@ -89,6 +121,20 @@
                      return this.canvasDark ? (this.headerTextDark || '#ffffff') : (this.headerTextLight || '#0f172a');
                  }
                  return this.canvasDark ? '#cbd5e1' : '#334155';
+             },
+             getFooterPreviewBg() {
+                 if (this.footerBgMode === 'custom') {
+                     const hex = this.canvasDark ? (this.footerBgDark || '#040e17') : (this.footerBgLight || '#f1f5f9');
+                     const op = (this.footerBgOpacity !== undefined ? this.footerBgOpacity : 95) / 100;
+                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
+                 }
+                 return this.canvasDark ? 'rgba(4, 14, 23, 0.95)' : 'rgba(241, 245, 249, 0.95)';
+             },
+             getFooterPreviewText() {
+                 if (this.footerTextMode === 'custom') {
+                     return this.canvasDark ? (this.footerTextDark || '#cbd5e1') : (this.footerTextLight || '#334155');
+                 }
+                 return this.canvasDark ? '#cbd5e1' : '#475569';
              }
          }"
          @smart-color-changed.window="
@@ -101,6 +147,24 @@
                  headerTextMode = $event.detail.color.mode;
                  headerTextLight = $event.detail.color.light;
                  headerTextDark = $event.detail.color.dark;
+             } else if ($event.detail.model === 'topbarBgColor' || $event.detail.model === 'headerTopbar.bg_color') {
+                 topbarBgMode = $event.detail.color.mode; 
+                 topbarBgLight = $event.detail.color.light; 
+                 topbarBgDark = $event.detail.color.dark; 
+                 topbarBgOpacity = $event.detail.color.opacity; 
+             } else if ($event.detail.model === 'topbarTextColor' || $event.detail.model === 'headerTopbar.text_color') {
+                 topbarTextMode = $event.detail.color.mode; 
+                 topbarTextLight = $event.detail.color.light; 
+                 topbarTextDark = $event.detail.color.dark; 
+             } else if ($event.detail.model === 'footerBgColor') {
+                 footerBgMode = $event.detail.color.mode; 
+                 footerBgLight = $event.detail.color.light; 
+                 footerBgDark = $event.detail.color.dark; 
+                 footerBgOpacity = $event.detail.color.opacity; 
+             } else if ($event.detail.model === 'footerTextColor') {
+                 footerTextMode = $event.detail.color.mode; 
+                 footerTextLight = $event.detail.color.light; 
+                 footerTextDark = $event.detail.color.dark; 
              }
          "
     >
@@ -151,11 +215,15 @@
                 </button>
                 <button wire:click="setTab('header')"
                     class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 {{ $activeTab === 'header' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white' }}">
-                    Header Nav
+                    Header &amp; Topbar
+                </button>
+                <button wire:click="setTab('footer')"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 {{ $activeTab === 'footer' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white' }}">
+                    Footer Studio
                 </button>
                 <button wire:click="setTab('layout')"
                     class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 {{ $activeTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white' }}">
-                    Page Layout
+                    Layout &amp; Box Model
                 </button>
                 <button wire:click="setTab('background')"
                     class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 {{ $activeTab === 'background' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white' }}">
@@ -530,24 +598,19 @@
                                 </div>
                             </div>
 
-                            <!-- Alignment & Density Layout Controls -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Strip Alignment</label>
-                                    <select wire:model.live="headerTopbar.alignment" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                        <option value="between">Split / Between (Left: Badge &amp; Info | Right: Contact &amp; Social - Recommended)</option>
-                                        <option value="center">Centered (Center-aligned information strip)</option>
-                                        <option value="start">Left-Aligned (All items grouped on left)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Vertical Density / Height</label>
-                                    <select wire:model.live="headerTopbar.density" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                        <option value="compact">Compact (py-1 - 28px thin ribbon)</option>
-                                        <option value="standard">Standard (py-2 - 36px corporate height - Recommended)</option>
-                                        <option value="spacious">Spacious (py-3 - 44px comfortable bar)</option>
-                                    </select>
-                                </div>
+                            <!-- Alignment Layout Control -->
+                            <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Strip Alignment</label>
+                                <select wire:model.live="headerTopbar.alignment" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    <option value="between">Split / Between (Left: Badge &amp; Info | Right: Contact &amp; Social - Recommended)</option>
+                                    <option value="center">Centered (Center-aligned information strip)</option>
+                                    <option value="start">Left-Aligned (All items grouped on left)</option>
+                                </select>
+                            </div>
+
+                            <!-- Granular Topbar Box Model & Spacing Engine -->
+                            <div class="pt-2">
+                                <x-smart-box-model wire:model="topbarBoxModel" :show-margin="false" :show-width="false" label="Topbar Box Model & Spacing" />
                             </div>
 
                             <div class="pt-2 flex items-center justify-between">
@@ -559,8 +622,8 @@
 
                             <!-- Smart Color Pickers for Topbar Background & Text -->
                             <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                                <x-smart-color-picker wire:model="headerTopbar.bg_color" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
-                                <x-smart-color-picker wire:model="headerTopbar.text_color" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
+                                <x-smart-color-picker wire:model="topbarBgColor" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
+                                <x-smart-color-picker wire:model="topbarTextColor" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
                             </div>
                         @endif
                     </div>
@@ -616,6 +679,11 @@
                         <!-- Smart Color Engine for Header Text & Navigation Links -->
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
                             <x-smart-color-picker wire:model="headerTextColor" label="Header Text & Navigation Links Color" default-light="#0f172a" default-dark="#ffffff" />
+                        </div>
+
+                        <!-- Smart Box Model Engine for Header Navbar -->
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <x-smart-box-model wire:model="headerBoxModel" :show-margin="false" :show-width="false" label="Header Navbar Box Model & Spacing" />
                         </div>
                     </div>
 
@@ -733,32 +801,125 @@
                 </div>
             @endif
 
-            <!-- TAB 6: LAYOUT & SPACING -->
+            <!-- TAB 6: FOOTER CUSTOMIZER STUDIO -->
+            @if($activeTab === 'footer')
+                <div class="space-y-6">
+                    <!-- SECTION 1: FOOTER APPEARANCE & COLORS -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Footer Colors &amp; Appearance</h3>
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-400">Design System</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <x-smart-color-picker wire:model="footerBgColor" label="Footer Background Color" default-light="#f1f5f9" default-dark="#040e17" />
+                            <x-smart-color-picker wire:model="footerTextColor" label="Footer Text & Links Color" default-light="#334155" default-dark="#cbd5e1" />
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: FOOTER BOX MODEL & SPACING ENGINE -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Footer Box Model &amp; Spacing Engine</h3>
+                        <x-smart-box-model wire:model="footerBoxModel" :show-margin="false" label="Footer Internal Padding & Border Model" />
+                    </div>
+
+                    <!-- SECTION 3: FOOTER COLUMNS & WIDGET CONFIGURATION -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Footer Columns &amp; Content Modules</h3>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Company Bio / Mission Statement Override</label>
+                                <textarea wire:model.live="footerConfig.bio" rows="2" placeholder="Leave empty to use official corporate description..."
+                                          class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Copyright Strip Notice Override</label>
+                                <input type="text" wire:model.live="footerConfig.copyright" placeholder="Leave empty for dynamic: &copy; {Year} {SiteName}. All rights reserved."
+                                       class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
+                            </div>
+
+                            <!-- Column Visibility Toggles -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_social" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show Social Media Icons</span>
+                                </label>
+
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_divisions" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show Business Units Column</span>
+                                </label>
+
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_services" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show Technical Services Column</span>
+                                </label>
+
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_offices" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show Port &amp; HQ Offices Column</span>
+                                </label>
+
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_iso" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show ISO &amp; DNV Certification Badge</span>
+                                </label>
+
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" wire:model.live="footerConfig.show_login" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
+                                    <span>Show Staff Login Link</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- TAB 7: LAYOUT & UNIVERSAL BOX MODEL ENGINE -->
             @if($activeTab === 'layout')
-                <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Page Width &amp; Section Spacing</h3>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Website Content Max Width</label>
-                            <select wire:model.live="theme.theme_container_width" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                <option value="1280px">Boxed Standard (1280px)</option>
-                                <option value="1440px">Corporate Wide (1440px)</option>
-                                <option value="1536px">Ultra Wide (1536px - Recommended)</option>
-                                <option value="1680px">Studio Panoramic (1680px)</option>
-                                <option value="100%">100% Fluid Full Width</option>
-                            </select>
+                <div class="space-y-6">
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Page Width &amp; Container Architecture</h3>
+                            <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-400">Global Tokens</span>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Space Between Page Sections</label>
-                            <select wire:model.live="theme.theme_section_padding" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                                <option value="64px">Compact (64px)</option>
-                                <option value="80px">Balanced (80px)</option>
-                                <option value="96px">Generous Premium (96px - Recommended)</option>
-                                <option value="128px">Spacious Grand (128px)</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Website Content Max Width</label>
+                                <select wire:model.live="theme.theme_container_width" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    <option value="1280px">Boxed Standard (1280px)</option>
+                                    <option value="1440px">Corporate Wide (1440px)</option>
+                                    <option value="1536px">Ultra Wide (1536px - Recommended)</option>
+                                    <option value="1680px">Studio Panoramic (1680px)</option>
+                                    <option value="100%">100% Fluid Full Width</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Default Section Vertical Padding</label>
+                                <select wire:model.live="theme.theme_section_padding" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
+                                    <option value="64px">Compact (64px)</option>
+                                    <option value="80px">Balanced (80px)</option>
+                                    <option value="96px">Generous Premium (96px - Recommended)</option>
+                                    <option value="128px">Spacious Grand (128px)</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- UNIVERSAL SECTION BOX MODEL ENGINE -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Universal Section Box Model &amp; Spacing Engine</h3>
+                            <span class="text-[10px] font-mono font-bold text-slate-400">Reusable CMS Engine</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            Set fine-grained Top, Bottom, Left, and Right padding, margins, borders, elevation, and container widths. This engine is shared across all sections.
+                        </p>
+                        <x-smart-box-model wire:model="sectionBoxModel" label="Global Section Spacing & Geometry Engine" />
                     </div>
                 </div>
             @endif
@@ -920,6 +1081,7 @@
                                 };
                             @endphp
                             <div class="px-2.5 {{ $tbPad }} flex items-center {{ $tbAlign === 'center' ? 'justify-center gap-3 text-center' : ($tbAlign === 'start' ? 'justify-start gap-3' : 'justify-between') }} border-b transition-all rounded-t-xl"
+                                 :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getTopbarPreviewBg() + '; color: ' + getTopbarPreviewText()"
                                  style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: {{ $tbBg }};">
                                 @if(!empty($headerTopbar['show_badge'] ?? true))
                                     <span class="truncate font-bold text-cyan-600 dark:text-cyan-400">
@@ -1089,6 +1251,35 @@
                         <p class="text-[11px] opacity-70 mt-1" style="font-family: '{{ $theme['theme_body_font'] }}', sans-serif;">
                             Card Surface with custom shadow elevation & border treatment.
                         </p>
+                    </div>
+
+                    <!-- Mockup Footer (Real-time Live Preview) -->
+                    <div class="p-3.5 border transition-all duration-300 rounded-xl space-y-2 mt-2 text-[10px]"
+                         :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getFooterPreviewBg() + '; color: ' + getFooterPreviewText()">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-black/10 dark:border-white/10">
+                            <span class="font-extrabold uppercase tracking-wider text-[11px]" :style="'font-family: \'{{ $theme['theme_heading_font'] }}\', sans-serif;'">
+                                {{ \App\Models\Setting::get('site_name', 'NORDROY') }}
+                            </span>
+                            <span class="text-[9px] opacity-75">Corporate Footer</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 opacity-80 py-0.5 text-[9px]">
+                            <div>
+                                <span class="font-bold block">Units</span>
+                                <span>Turbo / Balancing</span>
+                            </div>
+                            <div>
+                                <span class="font-bold block">Services</span>
+                                <span>24/7 Port Flying Squads</span>
+                            </div>
+                            <div>
+                                <span class="font-bold block">Offices</span>
+                                <span>Chattogram Port</span>
+                            </div>
+                        </div>
+                        <div class="pt-1.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between opacity-60 text-[8px]">
+                            <span>&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}</span>
+                            <span>ISO 9001:2015</span>
+                        </div>
                     </div>
 
                     <!-- Token Active Values Strip -->

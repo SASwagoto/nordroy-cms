@@ -171,4 +171,123 @@ class ThemeStudioHeaderTest extends TestCase
         $response->assertSee('Vessel Portal');
         $response->assertSee('Request Instant RFQ');
     }
+
+    public function test_theme_studio_renders_footer_tab_and_box_model_controls(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(ThemeStudio::class)
+            ->set('activeTab', 'footer')
+            ->assertSee('Footer Colors & Appearance')
+            ->assertSee('Footer Background Color')
+            ->assertSee('Footer Text & Links Color')
+            ->assertSee('Footer Box Model & Spacing Engine')
+            ->assertSee('Footer Columns & Content Modules')
+            ->assertSee('Show Social Media Icons')
+            ->assertSee('Show Business Units Column')
+            ->assertSee('Show Technical Services Column');
+    }
+
+    public function test_theme_studio_saves_topbar_box_model_footer_and_section_box_model(): void
+    {
+        $customTopbarBox = [
+            'padding' => [
+                'mode' => 'axis',
+                'y'    => '10px',
+                'x'    => '20px',
+            ],
+            'border' => [
+                'enabled' => true,
+                'width'   => '2px',
+                'side'    => 'bottom',
+                'style'   => 'solid',
+                'color'   => '#0ea5e9',
+            ],
+        ];
+
+        $customFooterBg = [
+            'mode'    => 'custom',
+            'light'   => '#0f172a',
+            'dark'    => '#020617',
+            'opacity' => 95,
+        ];
+
+        $customFooterBox = [
+            'padding' => [
+                'mode' => 'axis',
+                'y'    => '72px',
+                'x'    => '32px',
+            ],
+            'border' => [
+                'enabled' => true,
+                'width'   => '1px',
+                'side'    => 'top',
+                'style'   => 'solid',
+                'color'   => '#334155',
+            ],
+        ];
+
+        $customSectionBox = [
+            'padding' => [
+                'mode' => 'axis',
+                'y'    => '112px',
+                'x'    => '32px',
+            ],
+            'width' => '1600px',
+        ];
+
+        Livewire::actingAs($this->admin)
+            ->test(ThemeStudio::class)
+            ->set('topbarBoxModel', $customTopbarBox)
+            ->set('footerBgColor', $customFooterBg)
+            ->set('footerBoxModel', $customFooterBox)
+            ->set('sectionBoxModel', $customSectionBox)
+            ->call('saveThemeTokens')
+            ->assertHasNoErrors();
+
+        $savedTopbarBox = Setting::getJson('topbar_box_model');
+        $this->assertEquals('10px', $savedTopbarBox['padding']['y']);
+        $this->assertEquals('20px', $savedTopbarBox['padding']['x']);
+
+        $savedFooterBg = Setting::getJson('footer_bg_color');
+        $this->assertEquals('custom', $savedFooterBg['mode']);
+        $this->assertEquals('#0f172a', $savedFooterBg['light']);
+
+        $savedFooterBox = Setting::getJson('footer_box_model');
+        $this->assertEquals('72px', $savedFooterBox['padding']['y']);
+
+        $savedSectionBox = Setting::getJson('section_box_model');
+        $this->assertEquals('112px', $savedSectionBox['padding']['y']);
+        $this->assertEquals('1600px', Setting::get('theme_container_width'));
+        $this->assertEquals('112px', Setting::get('theme_section_padding'));
+    }
+
+    public function test_frontend_renders_full_viewport_seamless_video_backdrop_and_footer_custom_styles(): void
+    {
+        Setting::set('site_bg_video_enabled', '1');
+        Setting::set('theme_hero_backdrop', 'frosted');
+        Setting::set('footer_bg_color', [
+            'mode'    => 'custom',
+            'light'   => '#1e293b',
+            'dark'    => '#0b131f',
+            'opacity' => 95,
+        ], 'footer', 'json');
+
+        Setting::set('footer_text_color', [
+            'mode'    => 'custom',
+            'light'   => '#ffffff',
+            'dark'    => '#e2e8f0',
+            'opacity' => 100,
+        ], 'footer', 'json');
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        // Seamless video glaze is rendered directly on video container
+        $response->assertSee('backdrop-blur-md');
+        // Footer custom colors
+        $response->assertSee('--footer-bg-light:');
+        $response->assertSee('--footer-bg-dark:');
+        $response->assertSee('--footer-text-light:');
+        $response->assertSee('--footer-text-dark:');
+        $response->assertSee('smart-custom-footer-bg');
+    }
 }

@@ -6,12 +6,7 @@
          ===================================================================== -->
     @php
         $heroBackdrop = \App\Models\Setting::get('theme_hero_backdrop', 'frosted');
-        $heroBackdropClass = match($heroBackdrop) {
-            'transparent' => 'bg-transparent backdrop-blur-none',
-            'subtle_tint' => 'bg-white/70 dark:bg-[#07131e]/70 backdrop-blur-xs',
-            'solid'       => 'bg-white dark:bg-[#07131e]',
-            default       => 'bg-white/92 dark:bg-[#07131e]/90 backdrop-blur-xs',
-        };
+        $heroBackdropClass = ($heroBackdrop === 'solid') ? 'bg-white dark:bg-[#07131e]' : 'bg-transparent';
     @endphp
     <section class="relative overflow-hidden {{ $heroBackdropClass }} text-slate-900 dark:text-white py-16 sm:py-24 lg:py-28 border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
         

@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Theme;
 
 use App\Models\Menu;
 use App\Models\Setting;
+use App\Services\SmartBoxModelHelper;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -14,7 +15,7 @@ class ThemeStudio extends Component
 {
     use WithFileUploads;
 
-    public string $activeTab = 'colors'; // 'colors', 'typography', 'buttons', 'layout', 'header', 'background'
+    public string $activeTab = 'colors'; // 'colors', 'typography', 'buttons', 'cards', 'header', 'footer', 'layout', 'background'
 
     // Media Modal State
     public ?string $modalTargetField = null;
@@ -43,9 +44,51 @@ class ThemeStudio extends Component
     public array $headerMenuItems = [];
     public array $headerCta = [];
     public array $headerTopbar = [];
+    public array $topbarBgColor = [
+        'mode'    => 'theme',
+        'light'   => '#ffffff',
+        'dark'    => '#050f18',
+        'opacity' => 95,
+    ];
+    public array $topbarTextColor = [
+        'mode'    => 'theme',
+        'light'   => '#334155',
+        'dark'    => '#cbd5e1',
+        'opacity' => 100,
+    ];
+    public array $topbarBoxModel = [];
+    public array $headerBoxModel = [];
     public bool $headerSticky = true;
     public bool $headerThemeToggle = true;
     public ?int $expandedMenuIndex = null;
+
+    // Footer Customizer State
+    public array $footerBgColor = [
+        'mode'    => 'theme',
+        'light'   => '#f1f5f9',
+        'dark'    => '#040e17',
+        'opacity' => 95,
+    ];
+    public array $footerTextColor = [
+        'mode'    => 'theme',
+        'light'   => '#334155',
+        'dark'    => '#cbd5e1',
+        'opacity' => 100,
+    ];
+    public array $footerBoxModel = [];
+    public array $footerConfig = [
+        'show_social'    => true,
+        'show_divisions' => true,
+        'show_services'  => true,
+        'show_offices'   => true,
+        'show_iso'       => true,
+        'show_login'     => true,
+        'bio'            => '',
+        'copyright'      => '',
+    ];
+
+    // Global Layout & Section Spacing Engine
+    public array $sectionBoxModel = [];
 
     // Pre-engineered Industrial Presets
     public array $presets = [
@@ -263,8 +306,62 @@ class ThemeStudio extends Component
         $this->headerMenuItems = Setting::getJson('header_menu_items') ?: $this->getDefaultMenuItems();
         $this->headerCta = array_merge($this->getDefaultHeaderCta(), Setting::getJson('header_cta') ?: []);
         $this->headerTopbar = array_merge($this->getDefaultHeaderTopbar(), Setting::getJson('header_topbar') ?: []);
+        $this->topbarBgColor = Setting::getJson('topbar_bg_color') ?: ($this->headerTopbar['bg_color'] ?? [
+            'mode'    => 'theme',
+            'light'   => '#ffffff',
+            'dark'    => '#050f18',
+            'opacity' => 95,
+        ]);
+        $this->topbarTextColor = Setting::getJson('topbar_text_color') ?: ($this->headerTopbar['text_color'] ?? [
+            'mode'    => 'theme',
+            'light'   => '#334155',
+            'dark'    => '#cbd5e1',
+            'opacity' => 100,
+        ]);
+        $this->topbarBoxModel = SmartBoxModelHelper::normalize(Setting::getJson('topbar_box_model'), [
+            'padding' => ['mode' => 'axis', 'y' => '8px', 'x' => '16px'],
+            'border'  => ['width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
+        ]);
+        $this->headerBoxModel = SmartBoxModelHelper::normalize(Setting::getJson('header_box_model'), [
+            'padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '24px'],
+            'border'  => ['width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
+        ]);
         $this->headerSticky = (bool) Setting::get('header_sticky', '1');
         $this->headerThemeToggle = (bool) Setting::get('header_theme_toggle', '1');
+
+        // Initialize Footer Customizer State
+        $this->footerBgColor = Setting::getJson('footer_bg_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#f1f5f9',
+            'dark'    => '#040e17',
+            'opacity' => 95,
+        ];
+        $this->footerTextColor = Setting::getJson('footer_text_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#334155',
+            'dark'    => '#cbd5e1',
+            'opacity' => 100,
+        ];
+        $this->footerBoxModel = SmartBoxModelHelper::normalize(Setting::getJson('footer_box_model'), [
+            'padding' => ['mode' => 'axis', 'y' => '64px', 'x' => '24px'],
+            'border'  => ['width' => '1px', 'side' => 'top', 'style' => 'solid', 'color' => '#e2e8f0'],
+        ]);
+        $this->footerConfig = array_merge([
+            'show_social'    => true,
+            'show_divisions' => true,
+            'show_services'  => true,
+            'show_offices'   => true,
+            'show_iso'       => true,
+            'show_login'     => true,
+            'bio'            => '',
+            'copyright'      => '',
+        ], Setting::getJson('footer_config') ?: []);
+
+        // Global Layout & Section Spacing Engine
+        $this->sectionBoxModel = SmartBoxModelHelper::normalize(Setting::getJson('section_box_model'), [
+            'padding' => ['mode' => 'axis', 'y' => $this->theme['theme_section_padding'] ?? '96px', 'x' => '24px'],
+            'width'   => $this->theme['theme_container_width'] ?? '1536px',
+        ]);
     }
 
     #[On('media-selected')]
@@ -528,17 +625,41 @@ class ThemeStudio extends Component
             Setting::set($key, $value, 'theme');
         }
 
-        // Save Header & Navigation Builder configuration
+        // Save Header & Topbar Navigation Builder configuration
         Setting::set('header_menu_id', (string) ($this->headerMenuId ?? ''), 'header');
         Setting::set('header_bg_color', $this->headerBgColor, 'header', 'json');
         Setting::set('header_text_color', $this->headerTextColor, 'header', 'json');
         Setting::set('header_menu_items', $this->headerMenuItems, 'header', 'json');
         Setting::set('header_cta', $this->headerCta, 'header', 'json');
+
+        $this->headerTopbar['bg_color'] = $this->topbarBgColor;
+        $this->headerTopbar['text_color'] = $this->topbarTextColor;
         Setting::set('header_topbar', $this->headerTopbar, 'header', 'json');
+        Setting::set('topbar_bg_color', $this->topbarBgColor, 'header', 'json');
+        Setting::set('topbar_text_color', $this->topbarTextColor, 'header', 'json');
+        Setting::set('topbar_box_model', $this->topbarBoxModel, 'header', 'json');
+        Setting::set('header_box_model', $this->headerBoxModel, 'header', 'json');
         Setting::set('header_sticky', $this->headerSticky ? '1' : '0', 'header');
         Setting::set('header_theme_toggle', $this->headerThemeToggle ? '1' : '0', 'header');
 
-        session()->flash('message', 'Full Corporate Design System & Header Navigation successfully published and synchronized.');
+        // Save Footer Customizer Studio configuration
+        Setting::set('footer_bg_color', $this->footerBgColor, 'footer', 'json');
+        Setting::set('footer_text_color', $this->footerTextColor, 'footer', 'json');
+        Setting::set('footer_box_model', $this->footerBoxModel, 'footer', 'json');
+        Setting::set('footer_config', $this->footerConfig, 'footer', 'json');
+
+        // Save Global Layout & Section Spacing Engine
+        Setting::set('section_box_model', $this->sectionBoxModel, 'layout', 'json');
+        if (!empty($this->sectionBoxModel['width'])) {
+            Setting::set('theme_container_width', $this->sectionBoxModel['width'], 'theme');
+            $this->theme['theme_container_width'] = $this->sectionBoxModel['width'];
+        }
+        if (!empty($this->sectionBoxModel['padding']['y'])) {
+            Setting::set('theme_section_padding', $this->sectionBoxModel['padding']['y'], 'theme');
+            $this->theme['theme_section_padding'] = $this->sectionBoxModel['padding']['y'];
+        }
+
+        session()->flash('message', 'Full Corporate Design System, Header & Footer Customizations successfully published and synchronized.');
     }
 
     public function render()
