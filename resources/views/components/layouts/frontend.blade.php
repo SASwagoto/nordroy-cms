@@ -216,6 +216,32 @@
         }
 
         /* Smart Color Engine: Dynamic Header, Topbar, Sub-Header, Footer & Section Backgrounds/Text */
+        html:not(.dark) .smart-custom-header-section-bg {
+            background: var(--header-section-bg-light) !important;
+        }
+        html.dark .smart-custom-header-section-bg {
+            background: var(--header-section-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-header-section-text {
+            color: var(--header-section-text-light) !important;
+        }
+        html.dark .smart-custom-header-section-text {
+            color: var(--header-section-text-dark) !important;
+        }
+
+        html:not(.dark) .smart-custom-footer-section-bg {
+            background: var(--footer-section-bg-light) !important;
+        }
+        html.dark .smart-custom-footer-section-bg {
+            background: var(--footer-section-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-footer-section-text {
+            color: var(--footer-section-text-light) !important;
+        }
+        html.dark .smart-custom-footer-section-text {
+            color: var(--footer-section-text-dark) !important;
+        }
+
         html:not(.dark) .smart-custom-header-bg {
             background: var(--header-bg-light) !important;
         }
@@ -600,11 +626,34 @@
 
         <!-- DYNAMIC PUBLIC HEADER -->
         @php
+            $headerSectionBoxModel = \App\Models\Setting::getJson('header_section_box_model') ?: [
+                'width' => '100%',
+                'padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '0px'],
+                'margin' => ['top' => '0px', 'bottom' => '0px', 'center' => true],
+            ];
+            $headerSectionBoxCss = \App\Services\SmartBoxModelHelper::toCss($headerSectionBoxModel);
+
+            $headerSectionBgColor = \App\Models\Setting::getJson('header_section_bg_color', [
+                'mode' => 'theme',
+                'light' => '#ffffff',
+                'dark' => '#07131e',
+                'opacity' => 100,
+            ]);
+            $isCustomHeaderSectionBg = \App\Services\SmartColorHelper::isCustom($headerSectionBgColor);
+
+            $headerSectionTextColor = \App\Models\Setting::getJson('header_section_text_color', [
+                'mode' => 'theme',
+                'light' => '#0f172a',
+                'dark' => '#ffffff',
+                'opacity' => 100,
+            ]);
+            $isCustomHeaderSectionText = \App\Services\SmartColorHelper::isCustom($headerSectionTextColor);
+
             $hWidth = $headerBoxModel['width'] ?? '1536px';
             $hWidthStyle = ($hWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$hWidth}; width: 100%;";
         @endphp
-        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 w-full {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
-                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerBorderSpan === 'full' ? $headerBorderCss : '' }}">
+        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 w-full transition-colors duration-200 {{ $isCustomHeaderSectionBg ? 'smart-custom-header-section-bg' : ($isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800')))) }} {{ $isCustomHeaderSectionText ? 'smart-custom-header-section-text' : ($isCustomHeaderText ? 'smart-custom-header-text' : '') }}"
+                style="{{ $headerSectionBoxCss }} {{ $isCustomHeaderSectionBg ? \App\Services\SmartColorHelper::cssVars($headerSectionBgColor, 'header-section-bg') : ($isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '') }} {{ $isCustomHeaderSectionText ? \App\Services\SmartColorHelper::cssVars($headerSectionTextColor, 'header-section-text') : ($isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '') }} {{ $headerBorderSpan === 'full' ? $headerBorderCss : '' }}">
             <div class="mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }}; {{ $headerBorderSpan === 'boxed' ? $headerBorderCss : '' }} {{ $headerBoxCss }} {{ $hWidthStyle }}">
                 
@@ -958,9 +1007,34 @@
             $isCustomFooterTopBg = \App\Services\SmartColorHelper::isCustom($footerTop['bg_color'] ?? []);
             $isCustomFooterTopText = \App\Services\SmartColorHelper::isCustom($footerTop['text_color'] ?? []);
             $footerTopBoxCss = \App\Services\SmartBoxModelHelper::paddingCss($footerTop['box_model'] ?? []);
+
+            // Master Outer Footer Section Box Model & Colors
+            $footerSectionBoxModel = \App\Models\Setting::getJson('footer_section_box_model') ?: [
+                'width' => '100%',
+                'padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '0px'],
+                'margin' => ['top' => '0px', 'bottom' => '0px', 'center' => true],
+                'border' => ['enabled' => true, 'width' => '1px', 'side' => 'top', 'style' => 'solid', 'color' => '#e2e8f0'],
+            ];
+            $footerSectionBoxCss = \App\Services\SmartBoxModelHelper::toCss($footerSectionBoxModel);
+
+            $footerSectionBgColor = \App\Models\Setting::getJson('footer_section_bg_color', [
+                'mode' => 'theme',
+                'light' => '#f1f5f9',
+                'dark' => '#040e17',
+                'opacity' => 95,
+            ]);
+            $isCustomFooterSectionBg = \App\Services\SmartColorHelper::isCustom($footerSectionBgColor);
+
+            $footerSectionTextColor = \App\Models\Setting::getJson('footer_section_text_color', [
+                'mode' => 'theme',
+                'light' => '#334155',
+                'dark' => '#cbd5e1',
+                'opacity' => 100,
+            ]);
+            $isCustomFooterSectionText = \App\Services\SmartColorHelper::isCustom($footerSectionTextColor);
         @endphp
-        <footer class="{{ $isCustomFooterBg ? 'smart-custom-footer-bg' : 'bg-slate-100/95 dark:bg-[#040e17]/95' }} {{ $isCustomFooterText ? 'smart-custom-footer-text' : 'text-slate-700 dark:text-slate-300' }} border-t border-slate-200 dark:border-slate-800 transition-colors duration-200"
-                style="{{ $isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '' }} {{ $isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '' }} {{ $footerBoxCss }}">
+        <footer class="w-full transition-colors duration-200 {{ $isCustomFooterSectionBg ? 'smart-custom-footer-section-bg' : ($isCustomFooterBg ? 'smart-custom-footer-bg' : 'bg-slate-100/95 dark:bg-[#040e17]/95') }} {{ $isCustomFooterSectionText ? 'smart-custom-footer-section-text' : ($isCustomFooterText ? 'smart-custom-footer-text' : 'text-slate-700 dark:text-slate-300') }} border-t border-slate-200 dark:border-slate-800"
+                style="{{ $footerSectionBoxCss }} {{ $isCustomFooterSectionBg ? \App\Services\SmartColorHelper::cssVars($footerSectionBgColor, 'footer-section-bg') : ($isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '') }} {{ $isCustomFooterSectionText ? \App\Services\SmartColorHelper::cssVars($footerSectionTextColor, 'footer-section-text') : ($isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '') }}">
             
             @if(!empty($footerTop['enabled']))
             @php
