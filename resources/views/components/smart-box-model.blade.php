@@ -114,7 +114,7 @@
             }
         }
      }"
-     class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
+     class="w-full p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
 
     <!-- Header bar -->
     <div class="flex items-center justify-between">

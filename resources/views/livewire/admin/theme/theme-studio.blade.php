@@ -46,126 +46,111 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" 
          x-data="{ 
              canvasDark: false,
-             headerBgMode: '{{ $headerBgColor['mode'] ?? 'theme' }}',
-             headerBgLight: '{{ $headerBgColor['light'] ?? '#ffffff' }}',
-             headerBgDark: '{{ $headerBgColor['dark'] ?? '#07131e' }}',
-             headerBgOpacity: {{ (int) ($headerBgColor['opacity'] ?? 100) }},
+             headerBgColorState: @js(\App\Services\SmartColorHelper::normalize($headerBgColor)),
+             headerTextColorState: @js(\App\Services\SmartColorHelper::normalize($headerTextColor, '#0f172a', '#ffffff')),
+             topbarBgColorState: @js(\App\Services\SmartColorHelper::normalize($topbarBgColor)),
+             topbarTextColorState: @js(\App\Services\SmartColorHelper::normalize($topbarTextColor, '#334155', '#cbd5e1')),
+             headerBottomBgState: @js(\App\Services\SmartColorHelper::normalize($headerBottom['bg_color'] ?? null, '#f8fafc', '#061320')),
+             headerBottomTextState: @js(\App\Services\SmartColorHelper::normalize($headerBottom['text_color'] ?? null, '#475569', '#94a3b8')),
+             footerTopBgState: @js(\App\Services\SmartColorHelper::normalize($footerTop['bg_color'] ?? null, '#003C58', '#061a28')),
+             footerTopTextState: @js(\App\Services\SmartColorHelper::normalize($footerTop['text_color'] ?? null, '#ffffff', '#f1f5f9')),
+             footerBgColorState: @js(\App\Services\SmartColorHelper::normalize($footerBgColor, '#f1f5f9', '#040e17')),
+             footerTextColorState: @js(\App\Services\SmartColorHelper::normalize($footerTextColor, '#334155', '#cbd5e1')),
 
-             headerTextMode: '{{ $headerTextColor['mode'] ?? 'theme' }}',
-             headerTextLight: '{{ $headerTextColor['light'] ?? '#0f172a' }}',
-             headerTextDark: '{{ $headerTextColor['dark'] ?? '#ffffff' }}',
+             computeSmartBg(cfg, isDark, fallbackTheme) {
+                 if (!cfg || cfg.mode !== 'custom') {
+                     return fallbackTheme;
+                 }
+                 const type = cfg.type || 'solid';
+                 if (type === 'gradient' && cfg.gradient) {
+                     const dir = cfg.gradient.direction || '135deg';
+                     const from = isDark ? (cfg.gradient.dark_from || cfg.dark || '#07131e') : (cfg.gradient.light_from || cfg.light || '#ffffff');
+                     const to = isDark ? (cfg.gradient.dark_to || '#0c1e30') : (cfg.gradient.light_to || '#f1f5f9');
+                     return `linear-gradient(${dir}, ${from}, ${to})`;
+                 }
+                 if (type === 'glass' && cfg.glass) {
+                     const op = (cfg.glass.opacity !== undefined ? cfg.glass.opacity : 80) / 100;
+                     const color = isDark ? (cfg.dark || '#07131e') : (cfg.light || '#ffffff');
+                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(color, op) : color;
+                 }
+                 const op = (cfg.opacity !== undefined ? cfg.opacity : 100) / 100;
+                 const color = isDark ? (cfg.dark || '#07131e') : (cfg.light || '#ffffff');
+                 return window.nordroyHexToRgba ? window.nordroyHexToRgba(color, op) : color;
+             },
 
-             topbarBgMode: '{{ $topbarBgColor['mode'] ?? 'theme' }}',
-             topbarBgLight: '{{ $topbarBgColor['light'] ?? '#ffffff' }}',
-             topbarBgDark: '{{ $topbarBgColor['dark'] ?? '#050f18' }}',
-             topbarBgOpacity: {{ (int) ($topbarBgColor['opacity'] ?? 95) }},
-
-             topbarTextMode: '{{ $topbarTextColor['mode'] ?? 'theme' }}',
-             topbarTextLight: '{{ $topbarTextColor['light'] ?? '#334155' }}',
-             topbarTextDark: '{{ $topbarTextColor['dark'] ?? '#cbd5e1' }}',
-
-             footerBgMode: '{{ $footerBgColor['mode'] ?? 'theme' }}',
-             footerBgLight: '{{ $footerBgColor['light'] ?? '#f1f5f9' }}',
-             footerBgDark: '{{ $footerBgColor['dark'] ?? '#040e17' }}',
-             footerBgOpacity: {{ (int) ($footerBgColor['opacity'] ?? 95) }},
-
-             footerTextMode: '{{ $footerTextColor['mode'] ?? 'theme' }}',
-             footerTextLight: '{{ $footerTextColor['light'] ?? '#334155' }}',
-             footerTextDark: '{{ $footerTextColor['dark'] ?? '#cbd5e1' }}',
+             computeSmartText(cfg, isDark, fallbackTheme) {
+                 if (!cfg || cfg.mode !== 'custom') {
+                     return fallbackTheme;
+                 }
+                 return isDark ? (cfg.dark || '#ffffff') : (cfg.light || '#0f172a');
+             },
 
              getTopbarPreviewBg() {
-                 if (this.topbarBgMode === 'custom') {
-                     const hex = this.canvasDark ? (this.topbarBgDark || '#050f18') : (this.topbarBgLight || '#ffffff');
-                     const op = (this.topbarBgOpacity !== undefined ? this.topbarBgOpacity : 95) / 100;
-                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
-                 }
-                 return this.canvasDark ? 'rgba(5, 15, 24, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+                 const fallback = this.canvasDark ? 'rgba(5, 15, 24, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+                 return this.computeSmartBg(this.topbarBgColorState, this.canvasDark, fallback);
              },
              getTopbarPreviewText() {
-                 if (this.topbarTextMode === 'custom') {
-                     return this.canvasDark ? (this.topbarTextDark || '#cbd5e1') : (this.topbarTextLight || '#334155');
-                 }
-                 return this.canvasDark ? '#cbd5e1' : '#475569';
+                 const fallback = this.canvasDark ? '#cbd5e1' : '#475569';
+                 return this.computeSmartText(this.topbarTextColorState, this.canvasDark, fallback);
              },
              getHeaderPreviewBg() {
-                 if (this.headerBgMode === 'custom') {
-                     const hex = this.canvasDark ? (this.headerBgDark || '#07131e') : (this.headerBgLight || '#ffffff');
-                     const op = (this.headerBgOpacity !== undefined ? this.headerBgOpacity : 100) / 100;
-                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
-                 }
                  const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
                  const primary = ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
-                 if (style === 'solid') {
-                     return primary;
-                 }
-                 if (style === 'transparent') {
-                     return 'transparent';
-                 }
-                 if (style === 'floating') {
-                     return this.canvasDark ? 'rgba(11, 27, 43, 0.92)' : 'rgba(255, 255, 255, 0.92)';
-                 }
-                 // Glass Frosted default
-                 return this.canvasDark ? 'rgba(7, 19, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+                 let fallback = 'rgba(255, 255, 255, 0.85)';
+                 if (style === 'solid') fallback = primary;
+                 else if (style === 'transparent') fallback = 'transparent';
+                 else if (style === 'floating') fallback = this.canvasDark ? 'rgba(11, 27, 43, 0.92)' : 'rgba(255, 255, 255, 0.92)';
+                 else fallback = this.canvasDark ? 'rgba(7, 19, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+
+                 return this.computeSmartBg(this.headerBgColorState, this.canvasDark, fallback);
              },
              getHeaderTitleColor() {
-                 if (this.headerTextMode === 'custom') {
-                     return this.canvasDark ? (this.headerTextDark || '#ffffff') : (this.headerTextLight || '#0f172a');
-                 }
-                 if (this.canvasDark) return '#ffffff';
                  const style = ($wire && $wire.theme) ? ($wire.theme.theme_header_style || 'glass') : '{{ $theme['theme_header_style'] ?? 'glass' }}';
-                 if (style === 'solid') return '#ffffff';
-                 return ($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}';
+                 const fallback = (this.canvasDark || style === 'solid') ? '#ffffff' : (($wire && $wire.theme) ? ($wire.theme.theme_primary_color || '#003C58') : '{{ $theme['theme_primary_color'] ?? '#003C58' }}');
+                 return this.computeSmartText(this.headerTextColorState, this.canvasDark, fallback);
              },
              getHeaderNavTextColor() {
-                 if (this.headerTextMode === 'custom') {
-                     return this.canvasDark ? (this.headerTextDark || '#ffffff') : (this.headerTextLight || '#0f172a');
-                 }
-                 return this.canvasDark ? '#cbd5e1' : '#334155';
+                 const fallback = this.canvasDark ? '#cbd5e1' : '#334155';
+                 return this.computeSmartText(this.headerTextColorState, this.canvasDark, fallback);
+             },
+             getHeaderBottomPreviewBg() {
+                 const fallback = this.canvasDark ? 'rgba(6, 19, 32, 0.95)' : 'rgba(248, 250, 252, 0.95)';
+                 return this.computeSmartBg(this.headerBottomBgState, this.canvasDark, fallback);
+             },
+             getHeaderBottomPreviewText() {
+                 const fallback = this.canvasDark ? '#94a3b8' : '#475569';
+                 return this.computeSmartText(this.headerBottomTextState, this.canvasDark, fallback);
+             },
+             getFooterTopPreviewBg() {
+                 const fallback = this.canvasDark ? '#061a28' : '#003C58';
+                 return this.computeSmartBg(this.footerTopBgState, this.canvasDark, fallback);
+             },
+             getFooterTopPreviewText() {
+                 const fallback = this.canvasDark ? '#f1f5f9' : '#ffffff';
+                 return this.computeSmartText(this.footerTopTextState, this.canvasDark, fallback);
              },
              getFooterPreviewBg() {
-                 if (this.footerBgMode === 'custom') {
-                     const hex = this.canvasDark ? (this.footerBgDark || '#040e17') : (this.footerBgLight || '#f1f5f9');
-                     const op = (this.footerBgOpacity !== undefined ? this.footerBgOpacity : 95) / 100;
-                     return window.nordroyHexToRgba ? window.nordroyHexToRgba(hex, op) : hex;
-                 }
-                 return this.canvasDark ? 'rgba(4, 14, 23, 0.95)' : 'rgba(241, 245, 249, 0.95)';
+                 const fallback = this.canvasDark ? 'rgba(4, 14, 23, 0.95)' : 'rgba(241, 245, 249, 0.95)';
+                 return this.computeSmartBg(this.footerBgColorState, this.canvasDark, fallback);
              },
              getFooterPreviewText() {
-                 if (this.footerTextMode === 'custom') {
-                     return this.canvasDark ? (this.footerTextDark || '#cbd5e1') : (this.footerTextLight || '#334155');
-                 }
-                 return this.canvasDark ? '#cbd5e1' : '#475569';
+                 const fallback = this.canvasDark ? '#cbd5e1' : '#475569';
+                 return this.computeSmartText(this.footerTextColorState, this.canvasDark, fallback);
              }
          }"
          @smart-color-changed.window="
-             if ($event.detail.model === 'headerBgColor') { 
-                 headerBgMode = $event.detail.color.mode; 
-                 headerBgLight = $event.detail.color.light; 
-                 headerBgDark = $event.detail.color.dark; 
-                 headerBgOpacity = $event.detail.color.opacity; 
-             } else if ($event.detail.model === 'headerTextColor') {
-                 headerTextMode = $event.detail.color.mode;
-                 headerTextLight = $event.detail.color.light;
-                 headerTextDark = $event.detail.color.dark;
-             } else if ($event.detail.model === 'topbarBgColor' || $event.detail.model === 'headerTopbar.bg_color') {
-                 topbarBgMode = $event.detail.color.mode; 
-                 topbarBgLight = $event.detail.color.light; 
-                 topbarBgDark = $event.detail.color.dark; 
-                 topbarBgOpacity = $event.detail.color.opacity; 
-             } else if ($event.detail.model === 'topbarTextColor' || $event.detail.model === 'headerTopbar.text_color') {
-                 topbarTextMode = $event.detail.color.mode; 
-                 topbarTextLight = $event.detail.color.light; 
-                 topbarTextDark = $event.detail.color.dark; 
-             } else if ($event.detail.model === 'footerBgColor') {
-                 footerBgMode = $event.detail.color.mode; 
-                 footerBgLight = $event.detail.color.light; 
-                 footerBgDark = $event.detail.color.dark; 
-                 footerBgOpacity = $event.detail.color.opacity; 
-             } else if ($event.detail.model === 'footerTextColor') {
-                 footerTextMode = $event.detail.color.mode; 
-                 footerTextLight = $event.detail.color.light; 
-                 footerTextDark = $event.detail.color.dark; 
-             }
+             const m = $event.detail.model;
+             const c = $event.detail.color;
+             if (m === 'headerBgColor') headerBgColorState = c;
+             else if (m === 'headerTextColor') headerTextColorState = c;
+             else if (m === 'topbarBgColor' || m === 'headerTopbar.bg_color') topbarBgColorState = c;
+             else if (m === 'topbarTextColor' || m === 'headerTopbar.text_color') topbarTextColorState = c;
+             else if (m === 'headerBottom.bg_color') headerBottomBgState = c;
+             else if (m === 'headerBottom.text_color') headerBottomTextState = c;
+             else if (m === 'footerTop.bg_color') footerTopBgState = c;
+             else if (m === 'footerTop.text_color') footerTopTextState = c;
+             else if (m === 'footerBgColor') footerBgColorState = c;
+             else if (m === 'footerTextColor') footerTextColorState = c;
          "
     >
         
@@ -828,6 +813,78 @@
                         @endif
                     </div>
 
+                    <!-- SECTION 5: ROW 3 - BOTTOM HEADER (SUB-HEADER ENGINE) -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                                        Row 3: Bottom Sub-Header Bar
+                                    </h3>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
+                                        Optional Secondary Row
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                                    Secondary navigation row below the main header for category tabs, emergency announcements, or quick service links.
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model.live="headerBottom.enabled" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#003C58] dark:peer-checked:bg-cyan-500"></div>
+                            </label>
+                        </div>
+
+                        @if(!empty($headerBottom['enabled']))
+                            <div class="space-y-4 pt-1">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Announcement / Ticker Text</label>
+                                        <input type="text" wire:model.live="headerBottom.text" placeholder="Authorized Marine Engineering Bulletin..."
+                                               class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Layout Alignment</label>
+                                        <select wire:model.live="headerBottom.layout" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                            <option value="between">Split Left &amp; Right</option>
+                                            <option value="center">Centered Strip</option>
+                                            <option value="start">Left-Aligned</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Sub-Header Quick Links Repeater -->
+                                <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Secondary Quick Links</span>
+                                        <button type="button" wire:click="addHeaderBottomLink" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                                            <x-icon name="solid:plus" class="w-3 h-3" />
+                                            <span>Add Link</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        @foreach($headerBottom['items'] ?? [] as $bIdx => $bItem)
+                                            <div class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                                                <input type="text" wire:model.live="headerBottom.items.{{ $bIdx }}.label" placeholder="Link Label" class="flex-1 px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                <input type="text" wire:model.live="headerBottom.items.{{ $bIdx }}.url" placeholder="URL (/services or https://...)" class="flex-1 px-2.5 py-1 text-xs font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                <button type="button" wire:click="removeHeaderBottomLink({{ $bIdx }})" class="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer">
+                                                    <x-icon name="solid:trash-can" class="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Sub-Header Background & Text Color -->
+                                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                                    <x-smart-color-picker wire:model="headerBottom.bg_color" label="Bottom Header Background Color" default-light="#f8fafc" default-dark="#061320" />
+                                    <x-smart-color-picker wire:model="headerBottom.text_color" label="Bottom Header Text Color" default-light="#475569" default-dark="#94a3b8" />
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                 </div>
             @endif
 
@@ -851,6 +908,68 @@
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Footer Box Model &amp; Spacing Engine</h3>
                         <x-smart-box-model wire:model="footerBoxModel" :show-margin="false" label="Footer Internal Padding & Border Model" />
+                    </div>
+
+                    <!-- SECTION 2.5: ROW 1 - TOP PRE-FOOTER CALLOUT BAR -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                                        Row 1: Top Pre-Footer Callout Bar
+                                    </h3>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">
+                                        Newsletter &amp; Hotline Callout
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                                    A prominent pre-footer banner above the main column grid for newsletter subscription, 24/7 port hotline, or custom call-to-action.
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" wire:model.live="footerTop.enabled" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#003C58] dark:peer-checked:bg-cyan-500"></div>
+                            </label>
+                        </div>
+
+                        @if(!empty($footerTop['enabled']))
+                            <div class="space-y-4 pt-1">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Pre-Footer Widget Type</label>
+                                        <select wire:model.live="footerTop.type" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                            <option value="newsletter_callout">✉️ Newsletter Subscription &amp; Bulletin</option>
+                                            <option value="hotline_banner">⚓ 24/7 Emergency Port Hotline Banner</option>
+                                            <option value="custom_callout">📢 Custom Callout &amp; Direct Action</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Headline</label>
+                                        <input type="text" wire:model.live="footerTop.headline" placeholder="Subscribe to Maritime Technical Bulletins"
+                                               class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Subtext / Description</label>
+                                        <input type="text" wire:model.live="footerTop.subtext" placeholder="Receive real-time turbocharger updates and port notices..."
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Action Button Text</label>
+                                        <input type="text" wire:model.live="footerTop.button_text" placeholder="Subscribe"
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                    </div>
+                                </div>
+
+                                <!-- Pre-Footer Styling -->
+                                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                                    <x-smart-color-picker wire:model="footerTop.bg_color" label="Pre-Footer Background Color" default-light="#003C58" default-dark="#061a28" />
+                                    <x-smart-color-picker wire:model="footerTop.text_color" label="Pre-Footer Text Color" default-light="#ffffff" default-dark="#f1f5f9" />
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- SECTION 3: MODULAR FOOTER GRID & WIDGET BUILDER -->
@@ -1286,6 +1405,12 @@
                             Set fine-grained Top, Bottom, Left, and Right padding, margins, borders, elevation, and container widths. This engine is shared across all sections.
                         </p>
                         <x-smart-box-model wire:model="sectionBoxModel" label="Global Section Spacing & Geometry Engine" />
+
+                        <!-- Universal Section Color Engine -->
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                            <x-smart-color-picker wire:model="sectionBgColor" label="Global Section Background Color" default-light="#ffffff" default-dark="#07131e" />
+                            <x-smart-color-picker wire:model="sectionTextColor" label="Global Section Text Color" default-light="#0f172a" default-dark="#f8fafc" />
+                        </div>
                     </div>
                 </div>
             @endif
@@ -1447,7 +1572,7 @@
                                 };
                             @endphp
                             <div class="px-2.5 {{ $tbPad }} flex items-center {{ $tbAlign === 'center' ? 'justify-center gap-3 text-center' : ($tbAlign === 'start' ? 'justify-start gap-3' : 'justify-between') }} border-b transition-all rounded-t-xl"
-                                 :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getTopbarPreviewBg() + '; color: ' + getTopbarPreviewText()"
+                                 :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getTopbarPreviewBg() + '; color: ' + getTopbarPreviewText()"
                                  style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: {{ $tbBg }};">
                                 @if(!empty($headerTopbar['show_badge'] ?? true))
                                     <span class="truncate font-bold text-cyan-600 dark:text-cyan-400">
@@ -1482,10 +1607,10 @@
                                 : (($theme['theme_header_style'] ?? 'glass') === 'glass' ? 'rgba(255,255,255,0.85)' : (($theme['theme_header_style'] ?? 'glass') === 'solid' ? ($theme['theme_primary_color'] ?? '#003C58') : 'transparent'));
                         @endphp
                         <div class="px-3.5 py-2 border flex items-center justify-between text-xs transition-all gap-2 duration-300"
-                             :style="'border-radius: {{ $theme['theme_button_radius'] ?? '12px' }}; border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getHeaderPreviewBg()"
+                             :style="'border-radius: {{ $theme['theme_button_radius'] ?? '12px' }}; border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getHeaderPreviewBg()"
                              style="
                                  border-radius: {{ $theme['theme_button_radius'] ?? '12px' }};
-                                 background-color: {{ $mockupBg }};
+                                 background: {{ $mockupBg }};
                                  border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }};
                              ">
                             <span class="font-extrabold uppercase tracking-wider text-[11px] shrink-0 transition-colors" 
@@ -1511,6 +1636,24 @@
                                 </span>
                             @endif
                         </div>
+
+                        <!-- Mockup Row 3: Bottom Header (Sub-Header) -->
+                        @if(!empty($headerBottom['enabled']))
+                            <div class="px-3 py-1.5 border flex items-center justify-between text-[9px] transition-all gap-2 duration-300"
+                                 :style="'border-radius: {{ $theme['theme_button_radius'] ?? '12px' }}; border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getHeaderBottomPreviewBg() + '; color: ' + getHeaderBottomPreviewText()">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <span class="px-1.5 py-0.5 rounded text-[7px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase">
+                                        Sub-Header
+                                    </span>
+                                    <span class="truncate font-semibold">{{ $headerBottom['text'] ?: 'Authorized Maritime Bulletin' }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    @foreach(array_slice($headerBottom['items'] ?? [], 0, 2) as $hItem)
+                                        <span class="font-bold underline text-[8px]">{{ $hItem['label'] }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                     <!-- Category Badge -->
                     <div class="flex items-center gap-2">
@@ -1619,9 +1762,23 @@
                         </p>
                     </div>
 
+                    <!-- Mockup Row 1: Top Pre-Footer Callout Bar (if enabled) -->
+                    @if(!empty($footerTop['enabled']))
+                        <div class="p-2.5 rounded-xl border transition-all text-[9px] flex items-center justify-between gap-2 mt-2"
+                             :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getFooterTopPreviewBg() + '; color: ' + getFooterTopPreviewText()">
+                            <div class="truncate">
+                                <strong class="block truncate text-[10px]">{{ $footerTop['headline'] ?: 'Subscribe to Bulletins' }}</strong>
+                                <span class="opacity-75 block truncate text-[8px]">{{ $footerTop['subtext'] ?: 'Stay informed with technical alerts' }}</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-[8px] font-bold bg-cyan-500 text-slate-950 shrink-0 shadow-2xs">
+                                {{ $footerTop['button_text'] ?: 'Subscribe' }}
+                            </span>
+                        </div>
+                    @endif
+
                     <!-- Mockup Footer (Real-time Live Preview) -->
                     <div class="p-3.5 border transition-all duration-300 rounded-xl space-y-2 mt-2 text-[10px]"
-                         :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background-color: ' + getFooterPreviewBg() + '; color: ' + getFooterPreviewText()">
+                         :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getFooterPreviewBg() + '; color: ' + getFooterPreviewText()">
                         <div class="flex items-center justify-between pb-1.5 border-b border-black/10 dark:border-white/10">
                             <span class="font-extrabold uppercase tracking-wider text-[11px]" :style="'font-family: \'{{ $theme['theme_heading_font'] }}\', sans-serif;'">
                                 {{ \App\Models\Setting::get('site_name', 'NORDROY') }}

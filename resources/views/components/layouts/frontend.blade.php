@@ -215,12 +215,12 @@
             -webkit-backdrop-filter: blur(16px);
         }
 
-        /* Smart Color Engine: Dynamic Header, Topbar & Section Backgrounds/Text */
+        /* Smart Color Engine: Dynamic Header, Topbar, Sub-Header, Footer & Section Backgrounds/Text */
         html:not(.dark) .smart-custom-header-bg {
-            background-color: var(--header-bg-light) !important;
+            background: var(--header-bg-light) !important;
         }
         html.dark .smart-custom-header-bg {
-            background-color: var(--header-bg-dark) !important;
+            background: var(--header-bg-dark) !important;
         }
         html:not(.dark) .smart-custom-header-text,
         html:not(.dark) .smart-custom-header-text nav a,
@@ -234,10 +234,10 @@
         }
 
         html:not(.dark) .smart-custom-topbar-bg {
-            background-color: var(--topbar-bg-light) !important;
+            background: var(--topbar-bg-light) !important;
         }
         html.dark .smart-custom-topbar-bg {
-            background-color: var(--topbar-bg-dark) !important;
+            background: var(--topbar-bg-dark) !important;
         }
         html:not(.dark) .smart-custom-topbar-text,
         html:not(.dark) .smart-custom-topbar-text a,
@@ -250,19 +250,49 @@
             color: var(--topbar-text-dark) !important;
         }
 
+        /* Header Row 3: Bottom Sub-Header Custom Colors */
+        html:not(.dark) .smart-custom-hb-bg {
+            background: var(--hb-bg-light) !important;
+        }
+        html.dark .smart-custom-hb-bg {
+            background: var(--hb-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-hb-text,
+        html:not(.dark) .smart-custom-hb-text a {
+            color: var(--hb-text-light) !important;
+        }
+        html.dark .smart-custom-hb-text,
+        html.dark .smart-custom-hb-text a {
+            color: var(--hb-text-dark) !important;
+        }
+
         html:not(.dark) .smart-custom-bg {
-            background-color: var(--sec-bg-light) !important;
+            background: var(--sec-bg-light) !important;
         }
         html.dark .smart-custom-bg {
-            background-color: var(--sec-bg-dark) !important;
+            background: var(--sec-bg-dark) !important;
+        }
+
+        /* Footer Row 1: Top Pre-Footer Callout Custom Colors */
+        html:not(.dark) .smart-custom-ft-bg {
+            background: var(--ft-bg-light) !important;
+        }
+        html.dark .smart-custom-ft-bg {
+            background: var(--ft-bg-dark) !important;
+        }
+        html:not(.dark) .smart-custom-ft-text {
+            color: var(--ft-text-light) !important;
+        }
+        html.dark .smart-custom-ft-text {
+            color: var(--ft-text-dark) !important;
         }
 
         /* Smart Footer Custom Colors */
         html:not(.dark) .smart-custom-footer-bg {
-            background-color: var(--footer-bg-light) !important;
+            background: var(--footer-bg-light) !important;
         }
         html.dark .smart-custom-footer-bg {
-            background-color: var(--footer-bg-dark) !important;
+            background: var(--footer-bg-dark) !important;
         }
         html:not(.dark) .smart-custom-footer-text,
         html:not(.dark) .smart-custom-footer-text a,
@@ -445,6 +475,12 @@
                 'opacity' => 100,
             ]);
             $isCustomHeaderText = \App\Services\SmartColorHelper::isCustom($headerTextColor);
+
+            // Header Row 3: Bottom Sub-Header Bar
+            $headerBottom = \App\Models\Setting::getJson('header_bottom') ?: [];
+            $isCustomHeaderBottomBg = \App\Services\SmartColorHelper::isCustom($headerBottom['bg_color'] ?? []);
+            $isCustomHeaderBottomText = \App\Services\SmartColorHelper::isCustom($headerBottom['text_color'] ?? []);
+            $headerBottomBoxCss = \App\Services\SmartBoxModelHelper::paddingCss($headerBottom['box_model'] ?? []);
 
             // Active Multi-layer Navigation Menu (from DB Menu Builder with fallback)
             $headerMenuId = \App\Models\Setting::get('header_menu_id');
@@ -684,6 +720,38 @@
                     </button>
                 </div>
             </div>
+
+            @if(!empty($headerBottom['enabled']))
+            <!-- ROW 3: BOTTOM SUB-HEADER BAR -->
+            <div class="{{ $isCustomHeaderBottomBg ? 'smart-custom-hb-bg' : 'bg-slate-50/95 dark:bg-[#061320]/95' }} {{ $isCustomHeaderBottomText ? 'smart-custom-hb-text' : 'text-slate-600 dark:text-slate-400' }} border-t border-slate-200/80 dark:border-slate-800 transition-colors"
+                 style="{{ $isCustomHeaderBottomBg ? \App\Services\SmartColorHelper::cssVars($headerBottom['bg_color'], 'hb-bg') : '' }} {{ $isCustomHeaderBottomText ? \App\Services\SmartColorHelper::cssVars($headerBottom['text_color'], 'hb-text') : '' }} {{ $headerBottomBoxCss }}">
+                <div class="max-w-[1536px] mx-auto px-4 sm:px-8 py-2 flex items-center {{ ($headerBottom['layout'] ?? 'between') === 'center' ? 'justify-center text-center gap-4' : (($headerBottom['layout'] ?? 'between') === 'start' ? 'justify-start gap-4' : 'justify-between gap-4') }} text-xs">
+                    @if(!empty($headerBottom['text']))
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase tracking-wider shrink-0">
+                                Notice
+                            </span>
+                            <span class="truncate font-medium">{{ $headerBottom['text'] }}</span>
+                        </div>
+                    @endif
+
+                    @if(!empty($headerBottom['items']) && is_array($headerBottom['items']))
+                        <div class="flex items-center gap-4 shrink-0 flex-wrap">
+                            @foreach($headerBottom['items'] as $bItem)
+                                @if(!empty($bItem['label']))
+                                    <a href="{{ $bItem['url'] ?? '#' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 font-semibold transition-colors flex items-center gap-1.5 text-[11px]">
+                                        @if(!empty($bItem['icon']))
+                                            <x-icon :name="$bItem['icon']" class="w-3.5 h-3.5 shrink-0 opacity-80" />
+                                        @endif
+                                        <span>{{ $bItem['label'] }}</span>
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
         </header>
 
         <!-- ==================== MODERN OFF-CANVAS SLIDE-OVER MOBILE DRAWER ==================== -->
@@ -870,9 +938,60 @@
             $totalCols = count($footerColumns);
             $hasColSpan2 = collect($footerColumns)->contains(fn($c) => ($c['span'] ?? 1) == 2);
             $lgGridCols = $hasColSpan2 ? min(6, $totalCols + 1) : max(1, min($totalCols, 5));
+
+            // Footer Row 1: Top Pre-Footer Callout Bar
+            $footerTop = \App\Models\Setting::getJson('footer_top') ?: [];
+            $isCustomFooterTopBg = \App\Services\SmartColorHelper::isCustom($footerTop['bg_color'] ?? []);
+            $isCustomFooterTopText = \App\Services\SmartColorHelper::isCustom($footerTop['text_color'] ?? []);
+            $footerTopBoxCss = \App\Services\SmartBoxModelHelper::paddingCss($footerTop['box_model'] ?? []);
         @endphp
         <footer class="{{ $isCustomFooterBg ? 'smart-custom-footer-bg' : 'bg-slate-100/95 dark:bg-[#040e17]/95' }} {{ $isCustomFooterText ? 'smart-custom-footer-text' : 'text-slate-700 dark:text-slate-300' }} border-t border-slate-200 dark:border-slate-800 transition-colors duration-200"
                 style="{{ $isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '' }} {{ $isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '' }} {{ $footerBoxCss }}">
+            
+            @if(!empty($footerTop['enabled']))
+            <!-- ROW 1: TOP PRE-FOOTER CALLOUT BAR -->
+            <div class="{{ $isCustomFooterTopBg ? 'smart-custom-ft-bg' : 'bg-[#003C58] dark:bg-[#061a28]' }} {{ $isCustomFooterTopText ? 'smart-custom-ft-text' : 'text-white dark:text-slate-100' }} border-b border-slate-200/30 dark:border-slate-800 transition-colors mb-8"
+                 style="{{ $isCustomFooterTopBg ? \App\Services\SmartColorHelper::cssVars($footerTop['bg_color'], 'ft-bg') : '' }} {{ $isCustomFooterTopText ? \App\Services\SmartColorHelper::cssVars($footerTop['text_color'], 'ft-text') : '' }} {{ $footerTopBoxCss }}">
+                <div class="max-w-[1536px] mx-auto px-4 sm:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-1 text-center md:text-left max-w-2xl">
+                        <h3 class="text-base sm:text-lg font-bold font-heading">
+                            {{ $footerTop['headline'] ?: 'Subscribe to Maritime Technical Bulletins' }}
+                        </h3>
+                        @if(!empty($footerTop['subtext']))
+                            <p class="text-xs opacity-80 leading-relaxed font-body">
+                                {{ $footerTop['subtext'] }}
+                            </p>
+                        @endif
+                    </div>
+
+                    @if(($footerTop['type'] ?? 'newsletter_callout') === 'newsletter_callout')
+                        <form action="#" onsubmit="event.preventDefault(); alert('Subscribed successfully!');" class="w-full md:w-auto flex items-center gap-2 max-w-md">
+                            <input type="email" placeholder="{{ $footerTop['placeholder'] ?? 'Enter your corporate email...' }}" required
+                                   class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-white/60 text-xs text-white focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 transition-colors shadow-sm cursor-pointer">
+                                {{ $footerTop['button_text'] ?: 'Subscribe' }}
+                            </button>
+                        </form>
+                    @elseif(($footerTop['type'] ?? '') === 'hotline_banner')
+                        <div class="flex items-center gap-3">
+                            <a href="tel:{{ preg_replace('/[^\d+]/', '', $footerTop['phone'] ?? '+880 1800-000000') }}"
+                               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm cursor-pointer">
+                                <x-icon name="solid:phone-volume" class="w-4 h-4" />
+                                <span>Call 24/7 Hotline: {{ $footerTop['phone'] ?? '+880 1800-000000' }}</span>
+                            </a>
+                        </div>
+                    @else
+                        <div class="flex items-center gap-3">
+                            <a href="{{ route('contact') }}"
+                               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm cursor-pointer">
+                                <span>{{ $footerTop['button_text'] ?: 'Contact Technical Team' }} &rarr;</span>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
                 <!-- Main Modular Footer Grid -->

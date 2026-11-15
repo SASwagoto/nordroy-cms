@@ -65,7 +65,11 @@ class ThemeStudio extends Component
     public bool $headerThemeToggle = true;
     public ?int $expandedMenuIndex = null;
 
+    // Row 3: Bottom Header (Sub-Header)
+    public array $headerBottom = [];
+
     // Modular Footer Customizer State (Elementor-Style Row & Column Engine)
+    public array $footerTop = [];
     public array $footerBgColor = [
         'mode'    => 'theme',
         'light'   => '#f1f5f9',
@@ -96,6 +100,18 @@ class ThemeStudio extends Component
 
     // Global Layout & Section Spacing Engine
     public array $sectionBoxModel = [];
+    public array $sectionBgColor = [
+        'mode'    => 'theme',
+        'light'   => '#ffffff',
+        'dark'    => '#07131e',
+        'opacity' => 100,
+    ];
+    public array $sectionTextColor = [
+        'mode'    => 'theme',
+        'light'   => '#0f172a',
+        'dark'    => '#f8fafc',
+        'opacity' => 100,
+    ];
 
     // Pre-engineered Industrial Presets
     public array $presets = [
@@ -338,8 +354,39 @@ class ThemeStudio extends Component
         $this->headerBorderColor = Setting::get('header_border_color', '');
         $this->headerSticky = (bool) Setting::get('header_sticky', '1');
         $this->headerThemeToggle = (bool) Setting::get('header_theme_toggle', '1');
+        $this->headerBottom = array_merge([
+            'enabled'    => false,
+            'layout'     => 'between',
+            'type'       => 'custom_links',
+            'text'       => 'Authorized Multi-Brand Turbocharger Engineering & Dynamic Balancing',
+            'items'      => [
+                ['label' => 'Technical Specs', 'url' => '/services#specs', 'icon' => 'solid:gear'],
+                ['label' => 'Port Squads 24/7', 'url' => '/services#flying-squad', 'icon' => 'solid:ship'],
+            ],
+            'bg_color'   => ['mode' => 'theme', 'light' => '#f8fafc', 'dark' => '#061320', 'opacity' => 90],
+            'text_color' => ['mode' => 'theme', 'light' => '#475569', 'dark' => '#94a3b8', 'opacity' => 100],
+            'box_model'  => [
+                'padding' => ['mode' => 'axis', 'y' => '6px', 'x' => '24px'],
+                'border'  => ['width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
+            ],
+        ], Setting::getJson('header_bottom') ?: []);
 
         // Initialize Modular Footer Customizer State
+        $this->footerTop = array_merge([
+            'enabled'     => true,
+            'type'        => 'newsletter_callout',
+            'headline'    => 'Subscribe to Maritime Technical Bulletins',
+            'subtext'     => 'Receive the latest turbocharger overhaul updates, port schedules, and OEM parts arrivals.',
+            'button_text' => 'Subscribe',
+            'placeholder' => 'Enter your corporate email...',
+            'phone'       => '+880 1800-000000',
+            'bg_color'    => ['mode' => 'theme', 'light' => '#003C58', 'dark' => '#061a28', 'opacity' => 100],
+            'text_color'  => ['mode' => 'theme', 'light' => '#ffffff', 'dark' => '#f1f5f9', 'opacity' => 100],
+            'box_model'   => [
+                'padding' => ['mode' => 'axis', 'y' => '32px', 'x' => '24px'],
+                'border'  => ['width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
+            ],
+        ], Setting::getJson('footer_top') ?: []);
         $this->footerBgColor = Setting::getJson('footer_bg_color') ?: [
             'mode'    => 'theme',
             'light'   => '#f1f5f9',
@@ -374,6 +421,18 @@ class ThemeStudio extends Component
             'padding' => ['mode' => 'axis', 'y' => $this->theme['theme_section_padding'] ?? '96px', 'x' => '24px'],
             'width'   => $this->theme['theme_container_width'] ?? '1536px',
         ]);
+        $this->sectionBgColor = Setting::getJson('section_bg_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#ffffff',
+            'dark'    => '#07131e',
+            'opacity' => 100,
+        ];
+        $this->sectionTextColor = Setting::getJson('section_text_color') ?: [
+            'mode'    => 'theme',
+            'light'   => '#0f172a',
+            'dark'    => '#f8fafc',
+            'opacity' => 100,
+        ];
     }
 
     #[On('media-selected')]
@@ -848,6 +907,25 @@ class ThemeStudio extends Component
         $this->expandedBottomColIndex = ($this->expandedBottomColIndex === $index) ? null : $index;
     }
 
+    public function addHeaderBottomLink(): void
+    {
+        if (!isset($this->headerBottom['items'])) {
+            $this->headerBottom['items'] = [];
+        }
+        $this->headerBottom['items'][] = [
+            'label' => 'New Service Link',
+            'url'   => '#',
+            'icon'  => 'solid:link',
+        ];
+    }
+
+    public function removeHeaderBottomLink(int $index): void
+    {
+        if (isset($this->headerBottom['items'][$index])) {
+            array_splice($this->headerBottom['items'], $index, 1);
+        }
+    }
+
     public function saveThemeTokens(): void
     {
         foreach ($this->theme as $key => $value) {
@@ -873,8 +951,10 @@ class ThemeStudio extends Component
         Setting::set('header_border_color', $this->headerBorderColor, 'header');
         Setting::set('header_sticky', $this->headerSticky ? '1' : '0', 'header');
         Setting::set('header_theme_toggle', $this->headerThemeToggle ? '1' : '0', 'header');
+        Setting::set('header_bottom', $this->headerBottom, 'header', 'json');
 
         // Save Modular Footer Customizer Studio configuration
+        Setting::set('footer_top', $this->footerTop, 'footer', 'json');
         Setting::set('footer_bg_color', $this->footerBgColor, 'footer', 'json');
         Setting::set('footer_text_color', $this->footerTextColor, 'footer', 'json');
         Setting::set('footer_box_model', $this->footerBoxModel, 'footer', 'json');
@@ -884,6 +964,8 @@ class ThemeStudio extends Component
 
         // Save Global Layout & Section Spacing Engine
         Setting::set('section_box_model', $this->sectionBoxModel, 'layout', 'json');
+        Setting::set('section_bg_color', $this->sectionBgColor, 'layout', 'json');
+        Setting::set('section_text_color', $this->sectionTextColor, 'layout', 'json');
         if (!empty($this->sectionBoxModel['width'])) {
             Setting::set('theme_container_width', $this->sectionBoxModel['width'], 'theme');
             $this->theme['theme_container_width'] = $this->sectionBoxModel['width'];
