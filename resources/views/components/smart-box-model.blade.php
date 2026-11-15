@@ -1,12 +1,11 @@
 @props([
-    'label' => 'Spacing, Dimensions & Box Model',
-    'help' => 'Granular control over padding, margin, border, elevation, and max-width.',
+    'label' => 'Box Model & Spacing',
+    'help' => null,
     'showPadding' => true,
-    'showMargin' => true,
+    'showMargin' => false,
     'showBorder' => true,
-    'showShadow' => true,
-    'showWidth' => true,
-    'compact' => false,
+    'showShadow' => false,
+    'showWidth' => false,
 ])
 
 @php
@@ -23,15 +22,11 @@
 
 <div wire:ignore.self
      x-data="{
-        isExpanded: false,
-        paddingMode: '{{ $p['mode'] ?? 'axis' }}',
-        pY: '{{ $p['y'] ?? '16px' }}',
-        pX: '{{ $p['x'] ?? '24px' }}',
-        pTop: '{{ $p['top'] ?? '16px' }}',
-        pBottom: '{{ $p['bottom'] ?? '16px' }}',
-        pLeft: '{{ $p['left'] ?? '24px' }}',
-        pRight: '{{ $p['right'] ?? '24px' }}',
-        pAll: '{{ $p['all'] ?? '16px' }}',
+        isLinked: {{ ($p['mode'] ?? 'axis') === 'linked' ? 'true' : 'false' }},
+        pTop: '{{ $p['top'] ?? ($p['y'] ?? '16px') }}',
+        pRight: '{{ $p['right'] ?? ($p['x'] ?? '24px') }}',
+        pBottom: '{{ $p['bottom'] ?? ($p['y'] ?? '16px') }}',
+        pLeft: '{{ $p['left'] ?? ($p['x'] ?? '24px') }}',
 
         mTop: '{{ $m['top'] ?? '0px' }}',
         mBottom: '{{ $m['bottom'] ?? '0px' }}',
@@ -46,23 +41,35 @@
         shadow: '{{ $sh ?? 'none' }}',
         width: '{{ $w ?? '1536px' }}',
 
-        setPaddingPreset(val, axis = 'y') {
-            if (axis === 'y') {
-                this.pY = val;
-                this.pTop = val;
-                this.pBottom = val;
-            } else if (axis === 'x') {
-                this.pX = val;
-                this.pLeft = val;
-                this.pRight = val;
-            } else if (axis === 'all') {
-                this.pAll = val;
-                this.pY = val;
-                this.pX = val;
-                this.pTop = val;
-                this.pBottom = val;
-                this.pLeft = val;
-                this.pRight = val;
+        updatePadding(side, value) {
+            if (this.isLinked) {
+                this.pTop = value;
+                this.pRight = value;
+                this.pBottom = value;
+                this.pLeft = value;
+            } else {
+                if (side === 'top') this.pTop = value;
+                if (side === 'right') this.pRight = value;
+                if (side === 'bottom') this.pBottom = value;
+                if (side === 'left') this.pLeft = value;
+            }
+            this.sync();
+        },
+
+        applyPreset(val) {
+            this.pTop = val;
+            this.pRight = val;
+            this.pBottom = val;
+            this.pLeft = val;
+            this.sync();
+        },
+
+        toggleLinked() {
+            this.isLinked = !this.isLinked;
+            if (this.isLinked) {
+                this.pRight = this.pTop;
+                this.pBottom = this.pTop;
+                this.pLeft = this.pTop;
             }
             this.sync();
         },
@@ -70,14 +77,14 @@
         sync() {
             const payload = {
                 padding: {
-                    mode: this.paddingMode,
+                    mode: this.isLinked ? 'linked' : 'independent',
                     top: this.pTop,
                     bottom: this.pBottom,
                     left: this.pLeft,
                     right: this.pRight,
-                    all: this.pAll,
-                    y: this.pY,
-                    x: this.pX,
+                    all: this.pTop,
+                    y: this.pTop,
+                    x: this.pLeft,
                 },
                 margin: {
                     top: this.mTop,
@@ -105,312 +112,170 @@
             if (this.$dispatch) {
                 this.$dispatch('smart-box-model-changed', { model: '{{ $wireModel }}', box: payload });
             }
-        },
-
-        get summaryText() {
-            let parts = [];
-            if (this.paddingMode === 'axis') {
-                parts.push(`Pad: ${this.pY} / ${this.pX}`);
-            } else if (this.paddingMode === 'linked') {
-                parts.push(`Pad: ${this.pAll}`);
-            } else {
-                parts.push(`Pad: T${this.pTop} R${this.pRight} B${this.pBottom} L${this.pLeft}`);
-            }
-            if (this.width) {
-                parts.push(`Max: ${this.width}`);
-            }
-            if (this.bWidth !== '0px' && this.bWidth !== '0') {
-                parts.push(`Border: ${this.bWidth}`);
-            }
-            return parts.join(' • ');
         }
      }"
-     class="w-full space-y-2">
+     class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
 
-    @if ($label)
-        <div class="flex items-center justify-between">
-            <div>
-                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">{{ $label }}</label>
-                @if($help)
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium">{{ $help }}</p>
-                @endif
-            </div>
-            <span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-cyan-100 text-cyan-800 border border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-400 dark:border-cyan-500/30" x-text="summaryText"></span>
+    <!-- Header bar -->
+    <div class="flex items-center justify-between">
+        <div>
+            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">{{ $label }}</label>
+            @if($help)
+                <p class="text-[10px] text-slate-400">{{ $help }}</p>
+            @endif
         </div>
-    @endif
+        <span class="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400" 
+              x-text="'P: ' + pTop + ' ' + pRight + ' ' + pBottom + ' ' + pLeft + (bWidth !== '0px' ? ' • B: ' + bWidth : '')">
+        </span>
+    </div>
 
-    <!-- Trigger Bar -->
-    <div @click="isExpanded = !isExpanded"
-         role="button"
-         tabindex="0"
-         @keydown.enter.prevent="isExpanded = !isExpanded"
-         @keydown.space.prevent="isExpanded = !isExpanded"
-         class="p-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs hover:border-[#003C58] dark:hover:border-cyan-400 transition-all flex items-center justify-between gap-3 cursor-pointer select-none group">
-        
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-            <div class="w-8 h-8 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/20 text-[#003C58] dark:text-cyan-400 flex items-center justify-center shrink-0">
-                <x-icon name="solid:border-all" class="w-4 h-4" />
+    @if($showPadding)
+    <!-- ELEMENTOR-STYLE 4-BOX PADDING INSPECTOR -->
+    <div class="space-y-1.5 pt-1">
+        <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 w-14 shrink-0">Padding</span>
+
+            <!-- 4 Inputs: Top, Right, Bottom, Left -->
+            <div class="grid grid-cols-4 gap-1.5 flex-1">
+                <!-- TOP -->
+                <div class="relative">
+                    <input type="text" x-model="pTop" @input.debounce.250ms="updatePadding('top', $event.target.value)"
+                           placeholder="0px"
+                           class="w-full text-center px-1 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                    <span class="block text-[8px] font-bold text-slate-400 text-center uppercase tracking-wider mt-0.5">Top</span>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="relative">
+                    <input type="text" x-model="pRight" @input.debounce.250ms="updatePadding('right', $event.target.value)"
+                           placeholder="0px"
+                           class="w-full text-center px-1 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                    <span class="block text-[8px] font-bold text-slate-400 text-center uppercase tracking-wider mt-0.5">Right</span>
+                </div>
+
+                <!-- BOTTOM -->
+                <div class="relative">
+                    <input type="text" x-model="pBottom" @input.debounce.250ms="updatePadding('bottom', $event.target.value)"
+                           placeholder="0px"
+                           class="w-full text-center px-1 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                    <span class="block text-[8px] font-bold text-slate-400 text-center uppercase tracking-wider mt-0.5">Bottom</span>
+                </div>
+
+                <!-- LEFT -->
+                <div class="relative">
+                    <input type="text" x-model="pLeft" @input.debounce.250ms="updatePadding('left', $event.target.value)"
+                           placeholder="0px"
+                           class="w-full text-center px-1 py-1 text-xs font-mono font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                    <span class="block text-[8px] font-bold text-slate-400 text-center uppercase tracking-wider mt-0.5">Left</span>
+                </div>
             </div>
 
-            <div class="min-w-0 flex-1">
-                <p class="text-xs font-extrabold text-slate-900 dark:text-white truncate group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors" 
-                   x-text="summaryText || 'Click to configure spacing'"></p>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Fine-tune padding, margins, borders &amp; container width</p>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2 shrink-0">
-            <span class="text-[11px] font-bold text-slate-500 group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors hidden sm:inline"
-                  x-text="isExpanded ? 'Collapse Engine' : 'Customize Spacing'"></span>
-            
-            <button type="button" 
-                    @click.stop="isExpanded = !isExpanded"
-                    class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 shadow-2xs"
-                    :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'">
-                <span x-text="isExpanded ? 'Done' : 'Edit'"></span>
-                <x-icon name="solid:chevron-down" class="w-3 h-3 transition-transform duration-200" ::class="isExpanded ? 'rotate-180' : ''" />
+            <!-- LINK / UNLINK BUTTON (Elementor Style) -->
+            <button type="button" @click="toggleLinked()"
+                    :title="isLinked ? 'Values are linked (click to unlink)' : 'Values are independent (click to link)'"
+                    class="p-1.5 rounded-lg border text-xs transition-all cursor-pointer shrink-0"
+                    :class="isLinked ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400' : 'bg-white text-slate-400 border-slate-300 dark:bg-slate-900 dark:border-slate-700 hover:text-slate-700'">
+                <x-icon name="solid:link" class="w-3.5 h-3.5" />
             </button>
         </div>
+
+        <!-- Quick Presets Strip -->
+        <div class="flex items-center gap-1 pl-16 overflow-x-auto no-scrollbar pt-0.5">
+            @foreach(['0px', '8px', '16px', '24px', '32px', '48px', '64px', '96px'] as $preset)
+                <button type="button" @click="applyPreset('{{ $preset }}')"
+                        class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-[#003C58] dark:hover:text-cyan-400 hover:border-[#003C58] transition-colors cursor-pointer shrink-0">
+                    {{ $preset }}
+                </button>
+            @endforeach
+        </div>
     </div>
+    @endif
 
-    <!-- Collapsible Controls HUD -->
-    <div x-show="isExpanded" 
-         x-collapse
-         class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 shadow-md space-y-4">
-        
-        @if($showPadding)
-        <!-- 1. PADDING CONTROLS -->
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs space-y-3">
-            <div class="flex items-center justify-between">
-                <label class="block text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <x-icon name="solid:arrows-to-dot" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" />
-                    <span>Internal Padding Engine</span>
-                </label>
-                
-                <!-- Padding Mode Pills -->
-                <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-300 dark:border-slate-800 text-[10px] font-bold">
-                    <button type="button" @click="paddingMode = 'axis'; sync()"
-                            :class="paddingMode === 'axis' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                            class="px-2 py-0.5 rounded cursor-pointer transition-all">
-                        Y / X Axis
-                    </button>
-                    <button type="button" @click="paddingMode = 'linked'; sync()"
-                            :class="paddingMode === 'linked' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                            class="px-2 py-0.5 rounded cursor-pointer transition-all">
-                        Linked (All)
-                    </button>
-                    <button type="button" @click="paddingMode = 'independent'; sync()"
-                            :class="paddingMode === 'independent' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'"
-                            class="px-2 py-0.5 rounded cursor-pointer transition-all">
-                        4-Side Independent
-                    </button>
-                </div>
+    @if($showMargin)
+    <!-- MARGIN ROW -->
+    <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 w-14 shrink-0">Margin</span>
+        <div class="flex items-center gap-2 flex-1">
+            <div class="flex items-center gap-1 flex-1">
+                <span class="text-[9px] font-bold text-slate-400">Top:</span>
+                <input type="text" x-model="mTop" @input.debounce.250ms="sync()" placeholder="0px"
+                       class="w-full text-center px-1.5 py-0.5 text-xs font-mono font-bold rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
             </div>
-
-            <!-- MODE A: AXIS (Y & X) -->
-            <template x-if="paddingMode === 'axis'">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Vertical Y -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Vertical Padding (Top / Bottom)</span>
-                            <span class="font-mono text-xs font-extrabold text-[#003C58] dark:text-cyan-400" x-text="pY"></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" x-model="pY" @input.debounce.250ms="pTop = pY; pBottom = pY; sync()"
-                                   placeholder="16px" 
-                                   class="w-24 px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                            <div class="flex flex-wrap gap-1">
-                                <template x-for="chip in ['0px', '8px', '16px', '24px', '32px', '48px', '64px', '96px']">
-                                    <button type="button" @click="pY = chip; pTop = chip; pBottom = chip; sync()"
-                                            :class="pY === chip ? 'bg-[#003C58] text-white font-extrabold dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'"
-                                            class="px-2 py-1 rounded text-[10px] font-mono font-semibold transition-colors cursor-pointer"
-                                            x-text="chip"></button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Horizontal X -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Horizontal Padding (Left / Right)</span>
-                            <span class="font-mono text-xs font-extrabold text-[#003C58] dark:text-cyan-400" x-text="pX"></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" x-model="pX" @input.debounce.250ms="pLeft = pX; pRight = pX; sync()"
-                                   placeholder="24px" 
-                                   class="w-24 px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                            <div class="flex flex-wrap gap-1">
-                                <template x-for="chip in ['0px', '12px', '16px', '24px', '32px', '48px']">
-                                    <button type="button" @click="pX = chip; pLeft = chip; pRight = chip; sync()"
-                                            :class="pX === chip ? 'bg-[#003C58] text-white font-extrabold dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'"
-                                            class="px-2 py-1 rounded text-[10px] font-mono font-semibold transition-colors cursor-pointer"
-                                            x-text="chip"></button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- MODE B: LINKED (ALL 4 SIDES EQUAL) -->
-            <template x-if="paddingMode === 'linked'">
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Uniform Padding (All Sides)</span>
-                        <span class="font-mono text-xs font-extrabold text-[#003C58] dark:text-cyan-400" x-text="pAll"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="text" x-model="pAll" @input.debounce.250ms="setPaddingPreset(pAll, 'all')"
-                               placeholder="16px" 
-                               class="w-28 px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                        <div class="flex flex-wrap gap-1.5">
-                            <template x-for="chip in ['0px', '8px', '12px', '16px', '24px', '32px', '48px', '64px', '80px', '96px']">
-                                <button type="button" @click="setPaddingPreset(chip, 'all')"
-                                        :class="pAll === chip ? 'bg-[#003C58] text-white font-extrabold dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'"
-                                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-colors cursor-pointer"
-                                        x-text="chip"></button>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- MODE C: 4-SIDE INDEPENDENT -->
-            <template x-if="paddingMode === 'independent'">
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Top</label>
-                        <input type="text" x-model="pTop" @input.debounce.250ms="sync()" placeholder="16px"
-                               class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Right</label>
-                        <input type="text" x-model="pRight" @input.debounce.250ms="sync()" placeholder="24px"
-                               class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Bottom</label>
-                        <input type="text" x-model="pBottom" @input.debounce.250ms="sync()" placeholder="16px"
-                               class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Left</label>
-                        <input type="text" x-model="pLeft" @input.debounce.250ms="sync()" placeholder="24px"
-                               class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                </div>
-            </template>
-        </div>
-        @endif
-
-        <!-- 2. MARGIN & WIDTH CONTROLS -->
-        @if($showMargin || $showWidth)
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs space-y-3">
-            <label class="block text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                <x-icon name="solid:maximize" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" />
-                <span>Layout Dimensions &amp; External Margins</span>
+            <div class="flex items-center gap-1 flex-1">
+                <span class="text-[9px] font-bold text-slate-400">Bottom:</span>
+                <input type="text" x-model="mBottom" @input.debounce.250ms="sync()" placeholder="0px"
+                       class="w-full text-center px-1.5 py-0.5 text-xs font-mono font-bold rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+            </div>
+            <label class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 cursor-pointer select-none">
+                <input type="checkbox" x-model="mCenter" @change="sync()" class="w-3.5 h-3.5 rounded text-[#003C58]">
+                <span>Center Auto</span>
             </label>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @if($showWidth)
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Content Max-Width</label>
-                    <select x-model="width" @change="sync()"
-                            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="1280px">Boxed Standard (1280px)</option>
-                        <option value="1440px">Corporate Wide (1440px)</option>
-                        <option value="1536px">Ultra Wide (1536px - Recommended)</option>
-                        <option value="1680px">Studio Panoramic (1680px)</option>
-                        <option value="100%">100% Full Fluid Width</option>
-                    </select>
-                </div>
-                @endif
-
-                @if($showMargin)
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Margin Top</label>
-                        <input type="text" x-model="mTop" @input.debounce.250ms="sync()" placeholder="0px"
-                               class="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Margin Bottom</label>
-                        <input type="text" x-model="mBottom" @input.debounce.250ms="sync()" placeholder="0px"
-                               class="w-full px-3 py-2 text-xs font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]" />
-                    </div>
-                </div>
-                @endif
-            </div>
         </div>
-        @endif
-
-        <!-- 3. BORDER & ELEVATION CONTROLS -->
-        @if($showBorder || $showShadow)
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-800 shadow-xs space-y-3">
-            <label class="block text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                <x-icon name="solid:square-dashed" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" />
-                <span>Borders, Radii &amp; Shadow Elevation</span>
-            </label>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                @if($showBorder)
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Border Width</label>
-                    <select x-model="bWidth" @change="sync()"
-                            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="0px">None (0px)</option>
-                        <option value="1px">Thin (1px)</option>
-                        <option value="2px">Crisp (2px)</option>
-                        <option value="3px">Bold (3px)</option>
-                        <option value="4px">Thick (4px)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Border Side</label>
-                    <select x-model="bSide" @change="sync()"
-                            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="bottom">Bottom Divider Only</option>
-                        <option value="top">Top Divider Only</option>
-                        <option value="y">Top &amp; Bottom</option>
-                        <option value="all">All 4 Sides (Boxed)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Corner Radius</label>
-                    <select x-model="bRadius" @change="sync()"
-                            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="0px">Sharp (0px)</option>
-                        <option value="6px">Subtle (6px)</option>
-                        <option value="12px">Rounded (12px)</option>
-                        <option value="16px">Curved (16px)</option>
-                        <option value="24px">Pill / Island (24px)</option>
-                    </select>
-                </div>
-                @endif
-
-                @if($showShadow)
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Shadow Elevation</label>
-                    <select x-model="shadow" @change="sync()"
-                            class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
-                        <option value="none">Flat (No Shadow)</option>
-                        <option value="2xs">Subtle 2XS</option>
-                        <option value="xs">Soft XS</option>
-                        <option value="sm">Elevated SM</option>
-                        <option value="md">Floating MD</option>
-                        <option value="lg">Prominent LG</option>
-                        <option value="xl">Deep XL</option>
-                    </select>
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
-
     </div>
+    @endif
+
+    @if($showBorder)
+    <!-- BORDER ROW -->
+    <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/60 text-xs">
+        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 w-14 shrink-0">Border</span>
+
+        <div class="flex flex-wrap items-center gap-1.5 flex-1">
+            <!-- Width -->
+            <select x-model="bWidth" @change="sync()"
+                    class="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                <option value="0px">None (0px)</option>
+                <option value="1px">1px</option>
+                <option value="2px">2px</option>
+                <option value="3px">3px</option>
+                <option value="4px">4px</option>
+            </select>
+
+            <!-- Side -->
+            <select x-model="bSide" @change="sync()"
+                    class="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                <option value="bottom">Bottom Only</option>
+                <option value="top">Top Only</option>
+                <option value="all">All Sides</option>
+                <option value="y">Top &amp; Bottom</option>
+            </select>
+
+            <!-- Style -->
+            <select x-model="bStyle" @change="sync()"
+                    class="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+            </select>
+
+            <!-- Color Swatch -->
+            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 px-1 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700">
+                <input type="color" x-model="bColor" @input="sync()" class="w-4 h-4 rounded cursor-pointer border-0 p-0 bg-transparent">
+                <input type="text" x-model="bColor" @input.debounce.250ms="sync()" class="w-14 text-[10px] font-mono uppercase bg-transparent border-0 p-0 text-slate-800 dark:text-slate-200">
+            </div>
+
+            <!-- Radius -->
+            <div class="flex items-center gap-1">
+                <span class="text-[9px] font-bold text-slate-400">Rad:</span>
+                <input type="text" x-model="bRadius" @input.debounce.250ms="sync()" placeholder="0px"
+                       class="w-12 px-1 py-0.5 text-[10px] font-mono text-center rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($showWidth)
+    <!-- MAX WIDTH ROW -->
+    <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+        <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 w-14 shrink-0">Width</span>
+        <select x-model="width" @change="sync()"
+                class="flex-1 px-2 py-0.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+            <option value="1280px">1280px (Standard)</option>
+            <option value="1440px">1440px (Wide)</option>
+            <option value="1536px">1536px (Ultra Wide - Recommended)</option>
+            <option value="1680px">1680px (Panoramic)</option>
+            <option value="100%">100% Fluid Full Width</option>
+        </select>
+    </div>
+    @endif
 
 </div>

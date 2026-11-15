@@ -58,11 +58,14 @@ class ThemeStudio extends Component
     ];
     public array $topbarBoxModel = [];
     public array $headerBoxModel = [];
+    public string $headerBorderSpan = 'full'; // 'full' or 'boxed'
+    public string $headerBorderWidth = '1px'; // '0px', '1px', '2px', '3px', '4px'
+    public string $headerBorderColor = '';
     public bool $headerSticky = true;
     public bool $headerThemeToggle = true;
     public ?int $expandedMenuIndex = null;
 
-    // Footer Customizer State
+    // Modular Footer Customizer State (Elementor-Style Row & Column Engine)
     public array $footerBgColor = [
         'mode'    => 'theme',
         'light'   => '#f1f5f9',
@@ -76,6 +79,10 @@ class ThemeStudio extends Component
         'opacity' => 100,
     ];
     public array $footerBoxModel = [];
+    public array $footerColumns = [];
+    public array $footerBottomColumns = [];
+    public ?int $expandedFooterColIndex = null;
+    public ?int $expandedBottomColIndex = null;
     public array $footerConfig = [
         'show_social'    => true,
         'show_divisions' => true,
@@ -326,10 +333,13 @@ class ThemeStudio extends Component
             'padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '24px'],
             'border'  => ['width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
         ]);
+        $this->headerBorderSpan = Setting::get('header_border_span', 'full');
+        $this->headerBorderWidth = Setting::get('header_border_width', '1px');
+        $this->headerBorderColor = Setting::get('header_border_color', '');
         $this->headerSticky = (bool) Setting::get('header_sticky', '1');
         $this->headerThemeToggle = (bool) Setting::get('header_theme_toggle', '1');
 
-        // Initialize Footer Customizer State
+        // Initialize Modular Footer Customizer State
         $this->footerBgColor = Setting::getJson('footer_bg_color') ?: [
             'mode'    => 'theme',
             'light'   => '#f1f5f9',
@@ -346,6 +356,8 @@ class ThemeStudio extends Component
             'padding' => ['mode' => 'axis', 'y' => '64px', 'x' => '24px'],
             'border'  => ['width' => '1px', 'side' => 'top', 'style' => 'solid', 'color' => '#e2e8f0'],
         ]);
+        $this->footerColumns = Setting::getJson('footer_columns') ?: $this->getDefaultFooterColumns();
+        $this->footerBottomColumns = Setting::getJson('footer_bottom_columns') ?: $this->getDefaultFooterBottomColumns();
         $this->footerConfig = array_merge([
             'show_social'    => true,
             'show_divisions' => true,
@@ -619,6 +631,223 @@ class ThemeStudio extends Component
         ];
     }
 
+    public function getDefaultFooterColumns(): array
+    {
+        return [
+            [
+                'id'       => 'col_about',
+                'title'    => 'About Nordroy',
+                'type'     => 'company_info',
+                'span'     => 2,
+                'content'  => [
+                    'show_logo'   => true,
+                    'bio'         => 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.',
+                    'show_social' => true,
+                    'show_phone'  => true,
+                ],
+            ],
+            [
+                'id'       => 'col_divisions',
+                'title'    => 'Business Units',
+                'type'     => 'dynamic_menu',
+                'span'     => 1,
+                'content'  => [
+                    'source'   => 'divisions',
+                    'menu_id'  => null,
+                ],
+            ],
+            [
+                'id'       => 'col_services',
+                'title'    => 'Technical Services',
+                'type'     => 'dynamic_menu',
+                'span'     => 1,
+                'content'  => [
+                    'source'   => 'services',
+                    'menu_id'  => null,
+                ],
+            ],
+            [
+                'id'       => 'col_contact',
+                'title'    => 'Port & HQ Offices',
+                'type'     => 'contact_offices',
+                'span'     => 1,
+                'content'  => [
+                    'port_title'     => 'Chattogram Port Workshop:',
+                    'port_address'   => 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.',
+                    'hq_title'       => 'Dhaka Corporate HQ:',
+                    'hq_address'     => 'Gulshan Industrial Area, Dhaka, Bangladesh',
+                    'show_emergency' => true,
+                ],
+            ],
+        ];
+    }
+
+    public function getDefaultFooterBottomColumns(): array
+    {
+        return [
+            [
+                'id'      => 'bot_copyright',
+                'type'    => 'copyright',
+                'content' => [
+                    'text' => '© {year} {site_name}. All rights reserved. Maritime Engineering & Industrial Overhauls.',
+                ],
+            ],
+            [
+                'id'      => 'bot_badges',
+                'type'    => 'badges_menu',
+                'content' => [
+                    'show_iso'     => true,
+                    'iso_text'     => 'ISO 9001:2015 & DNV Certified',
+                    'show_login'   => true,
+                    'login_text'   => 'Staff Login',
+                    'menu_id'      => null,
+                    'menu_layout'  => 'horizontal',
+                ],
+            ],
+        ];
+    }
+
+    public function setFooterLayoutPreset(int $numCols): void
+    {
+        $current = $this->footerColumns;
+        $diff = $numCols - count($current);
+
+        if ($diff > 0) {
+            for ($i = 0; $i < $diff; $i++) {
+                $this->addFooterColumn();
+            }
+        } elseif ($diff < 0) {
+            $this->footerColumns = array_slice($current, 0, $numCols);
+        }
+    }
+
+    public function addFooterColumn(): void
+    {
+        $id = 'col_' . uniqid();
+        $this->footerColumns[] = [
+            'id'      => $id,
+            'title'   => 'New Column ' . (count($this->footerColumns) + 1),
+            'type'    => 'static_list',
+            'span'    => 1,
+            'content' => [
+                'items' => [
+                    ['text' => 'Home', 'url' => '/'],
+                    ['text' => 'About Us', 'url' => '/about'],
+                    ['text' => 'Contact Support', 'url' => '/contact'],
+                ],
+            ],
+        ];
+        $this->expandedFooterColIndex = count($this->footerColumns) - 1;
+    }
+
+    public function removeFooterColumn(int $index): void
+    {
+        if (isset($this->footerColumns[$index])) {
+            array_splice($this->footerColumns, $index, 1);
+            if ($this->expandedFooterColIndex === $index) {
+                $this->expandedFooterColIndex = null;
+            } elseif ($this->expandedFooterColIndex > $index) {
+                $this->expandedFooterColIndex--;
+            }
+        }
+    }
+
+    public function moveFooterColumn(int $index, string $dir): void
+    {
+        $target = ($dir === 'left' || $dir === 'up') ? $index - 1 : $index + 1;
+        if ($target >= 0 && $target < count($this->footerColumns)) {
+            $tmp = $this->footerColumns[$index];
+            $this->footerColumns[$index] = $this->footerColumns[$target];
+            $this->footerColumns[$target] = $tmp;
+            $this->expandedFooterColIndex = $target;
+        }
+    }
+
+    public function toggleFooterCol(int $index): void
+    {
+        $this->expandedFooterColIndex = ($this->expandedFooterColIndex === $index) ? null : $index;
+    }
+
+    public function addStaticListItem(int $colIndex): void
+    {
+        if (!isset($this->footerColumns[$colIndex]['content']['items'])) {
+            $this->footerColumns[$colIndex]['content']['items'] = [];
+        }
+        $this->footerColumns[$colIndex]['content']['items'][] = [
+            'text' => 'New Link Item',
+            'url'  => '#',
+        ];
+    }
+
+    public function removeStaticListItem(int $colIndex, int $itemIndex): void
+    {
+        if (isset($this->footerColumns[$colIndex]['content']['items'][$itemIndex])) {
+            array_splice($this->footerColumns[$colIndex]['content']['items'], $itemIndex, 1);
+        }
+    }
+
+    public function setFooterBottomPreset(int $numCols): void
+    {
+        if ($numCols === 1) {
+            $this->footerBottomColumns = [
+                [
+                    'id'      => 'bot_copyright',
+                    'type'    => 'copyright',
+                    'content' => ['text' => '© {year} {site_name}. All rights reserved.'],
+                ],
+            ];
+        } elseif ($numCols === 2) {
+            $this->footerBottomColumns = $this->getDefaultFooterBottomColumns();
+        } elseif ($numCols === 3) {
+            $this->footerBottomColumns = [
+                [
+                    'id'      => 'bot_copyright',
+                    'type'    => 'copyright',
+                    'content' => ['text' => '© {year} {site_name}. All rights reserved.'],
+                ],
+                [
+                    'id'      => 'bot_menu',
+                    'type'    => 'menu',
+                    'content' => ['menu_layout' => 'horizontal', 'menu_id' => null],
+                ],
+                [
+                    'id'      => 'bot_badges',
+                    'type'    => 'badges',
+                    'content' => ['iso_text' => 'ISO 9001:2015 & DNV Certified'],
+                ],
+            ];
+        }
+    }
+
+    public function addFooterBottomColumn(): void
+    {
+        $this->footerBottomColumns[] = [
+            'id'      => 'bot_' . uniqid(),
+            'type'    => 'custom_text',
+            'content' => [
+                'text' => 'Custom text / credits here',
+            ],
+        ];
+        $this->expandedBottomColIndex = count($this->footerBottomColumns) - 1;
+    }
+
+    public function removeFooterBottomColumn(int $index): void
+    {
+        if (isset($this->footerBottomColumns[$index])) {
+            array_splice($this->footerBottomColumns, $index, 1);
+            if ($this->expandedBottomColIndex === $index) {
+                $this->expandedBottomColIndex = null;
+            } elseif ($this->expandedBottomColIndex > $index) {
+                $this->expandedBottomColIndex--;
+            }
+        }
+    }
+
+    public function toggleBottomCol(int $index): void
+    {
+        $this->expandedBottomColIndex = ($this->expandedBottomColIndex === $index) ? null : $index;
+    }
+
     public function saveThemeTokens(): void
     {
         foreach ($this->theme as $key => $value) {
@@ -639,13 +868,18 @@ class ThemeStudio extends Component
         Setting::set('topbar_text_color', $this->topbarTextColor, 'header', 'json');
         Setting::set('topbar_box_model', $this->topbarBoxModel, 'header', 'json');
         Setting::set('header_box_model', $this->headerBoxModel, 'header', 'json');
+        Setting::set('header_border_span', $this->headerBorderSpan, 'header');
+        Setting::set('header_border_width', $this->headerBorderWidth, 'header');
+        Setting::set('header_border_color', $this->headerBorderColor, 'header');
         Setting::set('header_sticky', $this->headerSticky ? '1' : '0', 'header');
         Setting::set('header_theme_toggle', $this->headerThemeToggle ? '1' : '0', 'header');
 
-        // Save Footer Customizer Studio configuration
+        // Save Modular Footer Customizer Studio configuration
         Setting::set('footer_bg_color', $this->footerBgColor, 'footer', 'json');
         Setting::set('footer_text_color', $this->footerTextColor, 'footer', 'json');
         Setting::set('footer_box_model', $this->footerBoxModel, 'footer', 'json');
+        Setting::set('footer_columns', $this->footerColumns, 'footer', 'json');
+        Setting::set('footer_bottom_columns', $this->footerBottomColumns, 'footer', 'json');
         Setting::set('footer_config', $this->footerConfig, 'footer', 'json');
 
         // Save Global Layout & Section Spacing Engine

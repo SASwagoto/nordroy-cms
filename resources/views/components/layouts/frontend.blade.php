@@ -420,7 +420,14 @@
             $headerHeight = \App\Models\Setting::get('theme_header_height', '80px');
 
             $headerBoxModel = \App\Models\Setting::getJson('header_box_model') ?: ['padding' => ['mode' => 'axis', 'y' => '0px', 'x' => '24px']];
-            $headerBoxCss = \App\Services\SmartBoxModelHelper::toCss($headerBoxModel);
+            $headerBoxCss = \App\Services\SmartBoxModelHelper::paddingCss($headerBoxModel);
+
+            $headerBorderSpan = \App\Models\Setting::get('header_border_span', 'full');
+            $headerBorderWidth = \App\Models\Setting::get('header_border_width', '1px');
+            $headerBorderColor = \App\Models\Setting::get('header_border_color', '');
+            $headerBorderCss = ($headerBorderWidth !== '0px' && $headerBorderWidth !== '0')
+                ? "border-bottom: {$headerBorderWidth} solid " . ($headerBorderColor ?: 'rgba(226, 232, 240, 0.8)') . ';'
+                : 'border-bottom: none;';
 
             // Header Background & Text Color Engines (Theme vs Custom Light/Dark)
             $headerBgColor = \App\Models\Setting::getJson('header_bg_color', [
@@ -551,10 +558,10 @@
         @endif
 
         <!-- DYNAMIC PUBLIC HEADER -->
-        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
-                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerStyle !== 'floating' ? 'border-bottom-width: 1px;' : '' }} {{ $headerBoxCss }}">
+        <header class="{{ $headerSticky ? 'sticky top-0' : 'relative' }} z-40 w-full {{ $isCustomHeaderBg ? 'smart-custom-header-bg' : ($headerStyle === 'solid' ? 'bg-white dark:bg-[#07131e]' : ($headerStyle === 'transparent' ? 'bg-transparent' : ($headerStyle === 'floating' ? 'glass-nav my-3 max-w-[1536px] mx-auto rounded-2xl shadow-lg border border-slate-200/90 dark:border-slate-800' : 'glass-nav border-b border-slate-200/90 dark:border-slate-800'))) }} {{ $isCustomHeaderText ? 'smart-custom-header-text' : '' }} transition-colors duration-200"
+                style="{{ $isCustomHeaderBg ? \App\Services\SmartColorHelper::cssVars($headerBgColor, 'header-bg') : '' }} {{ $isCustomHeaderText ? \App\Services\SmartColorHelper::cssVars($headerTextColor, 'header-text') : '' }} {{ $headerBorderSpan === 'full' ? $headerBorderCss : '' }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
-                 style="height: {{ $headerHeight ?: '80px' }};">
+                 style="height: {{ $headerHeight ?: '80px' }}; {{ $headerBorderSpan === 'boxed' ? $headerBorderCss : '' }} {{ $headerBoxCss }}">
                 
                 <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
@@ -850,129 +857,268 @@
             ];
             $footerBoxCss = \App\Services\SmartBoxModelHelper::toCss($footerBoxModel);
 
-            $footerConfig = array_merge([
-                'show_social'    => true,
-                'show_divisions' => true,
-                'show_services'  => true,
-                'show_offices'   => true,
-                'show_iso'       => true,
-                'show_login'     => true,
-                'bio'            => '',
-                'copyright'      => '',
-            ], \App\Models\Setting::getJson('footer_config') ?: []);
+            $footerColumns = \App\Models\Setting::getJson('footer_columns');
+            if (empty($footerColumns) || !is_array($footerColumns)) {
+                $footerColumns = (new \App\Livewire\Admin\Theme\ThemeStudio())->getDefaultFooterColumns();
+            }
+
+            $footerBottomColumns = \App\Models\Setting::getJson('footer_bottom_columns');
+            if (empty($footerBottomColumns) || !is_array($footerBottomColumns)) {
+                $footerBottomColumns = (new \App\Livewire\Admin\Theme\ThemeStudio())->getDefaultFooterBottomColumns();
+            }
+
+            $totalCols = count($footerColumns);
+            $hasColSpan2 = collect($footerColumns)->contains(fn($c) => ($c['span'] ?? 1) == 2);
+            $lgGridCols = $hasColSpan2 ? min(6, $totalCols + 1) : max(1, min($totalCols, 5));
         @endphp
         <footer class="{{ $isCustomFooterBg ? 'smart-custom-footer-bg' : 'bg-slate-100/95 dark:bg-[#040e17]/95' }} {{ $isCustomFooterText ? 'smart-custom-footer-text' : 'text-slate-700 dark:text-slate-300' }} border-t border-slate-200 dark:border-slate-800 transition-colors duration-200"
                 style="{{ $isCustomFooterBg ? \App\Services\SmartColorHelper::cssVars($footerBgColor, 'footer-bg') : '' }} {{ $isCustomFooterText ? \App\Services\SmartColorHelper::cssVars($footerTextColor, 'footer-text') : '' }} {{ $footerBoxCss }}">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
-                    
-                    <!-- Col 1: Brand Info & Mission (2 cols on lg) -->
-                    <div class="lg:col-span-2 space-y-4">
-                        <!-- Light Mode Logo: Visible in Light Mode, hidden in Dark Mode -->
-                        <img src="{{ asset($siteLogoLight) }}" 
-                             alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                             class="h-10 w-auto object-contain dark:hidden" />
-                        <!-- Dark Mode Logo: Visible in Dark Mode, hidden in Light Mode -->
-                        <img src="{{ asset($siteLogoDark) }}" 
-                             alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                             class="h-10 w-auto object-contain hidden dark:block" />
-                        
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
-                            {{ !empty($footerConfig['bio']) ? $footerConfig['bio'] : 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.' }}
-                        </p>
+                <!-- Main Modular Footer Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ $lgGridCols }} gap-8 lg:gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
+                    @foreach($footerColumns as $col)
+                        @php
+                            $colSpan = ($col['span'] ?? 1) == 2 ? 'lg:col-span-2' : 'lg:col-span-1';
+                            $widgetType = $col['type'] ?? 'static_list';
+                            $colTitle = $col['title'] ?? '';
+                            $content = $col['content'] ?? [];
+                        @endphp
+                        <div class="{{ $colSpan }} space-y-4">
+                            @if(!empty($colTitle) && $widgetType !== 'company_info')
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">
+                                    {{ $colTitle }}
+                                </h4>
+                            @endif
 
-                        <!-- Social Media Links (Rendered Dynamically from Settings Engine) -->
-                        @if(!empty($footerConfig['show_social']))
-                        <div class="flex items-center gap-2 pt-2">
-                            @php
-                                $socialLinks = json_decode(\App\Models\Setting::get('social_links_data', '[]'), true) ?: [];
-                            @endphp
-                            @forelse($socialLinks as $link)
-                                <a href="{{ $link['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" 
-                                   title="{{ $link['platform'] ?? 'Social Link' }}"
-                                   class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#003C58] dark:hover:text-cyan-400 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                                    <x-icon :name="$link['icon'] ?? 'solid:globe'" class="w-3.5 h-3.5" />
-                                </a>
-                            @empty
-                                <a href="#" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white"><x-icon name="solid:globe" class="w-3.5 h-3.5" /></a>
-                            @endforelse
+                            @if($widgetType === 'company_info')
+                                @if(!empty($content['show_logo']))
+                                    <!-- Light Mode Logo -->
+                                    <img src="{{ asset($siteLogoLight) }}" 
+                                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
+                                         class="h-10 w-auto object-contain dark:hidden" />
+                                    <!-- Dark Mode Logo -->
+                                    <img src="{{ asset($siteLogoDark) }}" 
+                                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
+                                         class="h-10 w-auto object-contain hidden dark:block" />
+                                @endif
+                                
+                                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
+                                    {{ !empty($content['bio']) ? $content['bio'] : 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.' }}
+                                </p>
+
+                                @if(!empty($content['show_social']))
+                                    <div class="flex items-center gap-2 pt-2">
+                                        @php
+                                            $socialLinks = json_decode(\App\Models\Setting::get('social_links_data', '[]'), true) ?: [];
+                                        @endphp
+                                        @forelse($socialLinks as $link)
+                                            <a href="{{ $link['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" 
+                                               title="{{ $link['platform'] ?? 'Social Link' }}"
+                                               class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#003C58] dark:hover:text-cyan-400 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                                                <x-icon :name="$link['icon'] ?? 'solid:globe'" class="w-3.5 h-3.5" />
+                                            </a>
+                                        @empty
+                                            <a href="#" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white"><x-icon name="solid:globe" class="w-3.5 h-3.5" /></a>
+                                        @endforelse
+                                    </div>
+                                @endif
+
+                                @if(!empty($content['show_phone']))
+                                    <div class="pt-2 text-xs">
+                                        <span class="text-slate-500">24/7 Support: </span>
+                                        <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="font-bold text-[#003C58] dark:text-cyan-400">
+                                            {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                        </a>
+                                    </div>
+                                @endif
+
+                            @elseif($widgetType === 'dynamic_menu')
+                                @php
+                                    $source = $content['source'] ?? 'divisions';
+                                @endphp
+                                @if($source === 'divisions')
+                                    <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                        <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Marine Turbochargers</a></li>
+                                        <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Captive Power Generation</a></li>
+                                        <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Spare Parts Distribution</a></li>
+                                        <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Non-Destructive Testing (NDT)</a></li>
+                                        <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Gas Compressor Solutions</a></li>
+                                    </ul>
+                                @elseif($source === 'services')
+                                    <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                        <li><a href="{{ route('services') }}#balancing" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Dynamic Rotor Balancing</a></li>
+                                        <li><a href="{{ route('services') }}#overhaul" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blading &amp; Welding</a></li>
+                                        <li><a href="{{ route('services') }}#cartridge" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Cartridge Reconditioning</a></li>
+                                        <li><a href="{{ route('services') }}#ultrasonic" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Ultrasonic Chemical Cleaning</a></li>
+                                        <li><a href="{{ route('services') }}#flying-squad" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">24/7 Port Emergency Call</a></li>
+                                    </ul>
+                                @elseif($source === 'custom_menu')
+                                    @php
+                                        $mId = $content['menu_id'] ?? null;
+                                        $mItems = [];
+                                        if ($mId) {
+                                            $mMenu = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($mId);
+                                            $mItems = $mMenu ? $mMenu->items : [];
+                                        }
+                                    @endphp
+                                    <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                        @forelse($mItems as $mi)
+                                            <li>
+                                                <a href="{{ $mi->url ?: '#' }}" target="{{ $mi->target ?: '_self' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">
+                                                    {{ $mi->title }}
+                                                </a>
+                                            </li>
+                                        @empty
+                                            <li class="text-slate-400 italic">No menu items configured</li>
+                                        @endforelse
+                                    </ul>
+                                @endif
+
+                            @elseif($widgetType === 'static_list')
+                                @php
+                                    $items = $content['items'] ?? [];
+                                @endphp
+                                <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                    @forelse($items as $sItem)
+                                        <li>
+                                            <a href="{{ $sItem['url'] ?? '#' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">
+                                                {{ $sItem['text'] ?? 'Link' }}
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li class="text-slate-400 italic">No links configured</li>
+                                    @endforelse
+                                </ul>
+
+                            @elseif($widgetType === 'newsletter')
+                                <div class="space-y-3">
+                                    @if(!empty($content['description']))
+                                        <p class="text-xs text-slate-600 dark:text-slate-400">{{ $content['description'] }}</p>
+                                    @endif
+                                    <form action="#" onsubmit="event.preventDefault(); alert('Subscribed successfully!');" class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input type="email" placeholder="{{ $content['placeholder'] ?? 'Your email address...' }}" required
+                                                   class="w-full px-3 py-2 text-xs rounded-l-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                                            <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-[#003C58] hover:bg-[#00283b] dark:bg-cyan-500 dark:text-slate-950 rounded-r-lg transition-colors shrink-0">
+                                                {{ $content['button_text'] ?? 'Subscribe' }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            @elseif($widgetType === 'google_map')
+                                @php
+                                    $embedUrl = $content['embed_url'] ?? 'https://maps.google.com/maps?q=Chattogram%20Port&t=&z=13&ie=UTF8&iwloc=&output=embed';
+                                    $mapHeight = $content['height'] ?? '160px';
+                                @endphp
+                                <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xs">
+                                    <iframe src="{{ $embedUrl }}" width="100%" height="{{ $mapHeight }}" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+
+                            @elseif($widgetType === 'contact_offices')
+                                <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2.5">
+                                    @if(!empty($content['port_address']))
+                                        <div>
+                                            <p class="font-bold text-slate-800 dark:text-slate-200">{{ $content['port_title'] ?? 'Port Workshop:' }}</p>
+                                            <p>{{ $content['port_address'] }}</p>
+                                        </div>
+                                    @endif
+                                    @if(!empty($content['hq_address']))
+                                        <div>
+                                            <p class="font-bold text-slate-800 dark:text-slate-200">{{ $content['hq_title'] ?? 'Dhaka Corporate HQ:' }}</p>
+                                            <p>{{ $content['hq_address'] }}</p>
+                                        </div>
+                                    @endif
+                                    @if(!empty($content['show_emergency']))
+                                        <div class="pt-1">
+                                            <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="text-[#003C58] dark:text-cyan-400 font-bold block">
+                                                Emergency: {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+
+                            @elseif($widgetType === 'custom_html')
+                                <div class="text-xs text-slate-600 dark:text-slate-400">
+                                    {!! $content['html'] ?? '' !!}
+                                </div>
+                            @endif
                         </div>
-                        @endif
-                    </div>
-
-                    <!-- Col 2: Business Units -->
-                    @if(!empty($footerConfig['show_divisions']))
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Business Units</h4>
-                        <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Marine Turbochargers</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Captive Power Generation</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Spare Parts Distribution</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Non-Destructive Testing (NDT)</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Gas Compressor Solutions</a></li>
-                        </ul>
-                    </div>
-                    @endif
-
-                    <!-- Col 3: Technical Services -->
-                    @if(!empty($footerConfig['show_services']))
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Technical Services</h4>
-                        <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                            <li><a href="{{ route('services') }}#balancing" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Dynamic Rotor Balancing</a></li>
-                            <li><a href="{{ route('services') }}#overhaul" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blading &amp; Welding</a></li>
-                            <li><a href="{{ route('services') }}#cartridge" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Cartridge Reconditioning</a></li>
-                            <li><a href="{{ route('services') }}#ultrasonic" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Ultrasonic Chemical Cleaning</a></li>
-                            <li><a href="{{ route('services') }}#flying-squad" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">24/7 Port Emergency Call</a></li>
-                        </ul>
-                    </div>
-                    @endif
-
-                    <!-- Col 4: Corporate Offices & Workshops -->
-                    @if(!empty($footerConfig['show_offices']))
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Port &amp; HQ Offices</h4>
-                        <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2.5">
-                            <div>
-                                <p class="font-bold text-slate-800 dark:text-slate-200">Chattogram Port Workshop:</p>
-                                <p>Near Marine Academy Jetty, Chattogram Port, Bangladesh.</p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-800 dark:text-slate-200">Dhaka Corporate HQ:</p>
-                                <p>{{ \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh') }}</p>
-                            </div>
-                            <div class="pt-1">
-                                <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="text-[#003C58] dark:text-cyan-400 font-bold block">
-                                    Emergency: {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
+                    @endforeach
                 </div>
 
-                <!-- Bottom Copyright Strip -->
+                <!-- Sub-Footer / Bottom Strip -->
                 <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                    <p>
-                        @if(!empty($footerConfig['copyright']))
-                            {{ $footerConfig['copyright'] }}
-                        @else
-                            &copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}. All rights reserved. Maritime Engineering &amp; Industrial Overhauls.
-                        @endif
-                    </p>
-                    <div class="flex items-center gap-6">
-                        @if(!empty($footerConfig['show_iso']))
-                        <span class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            ISO 9001:2015 &amp; DNV Certified
-                        </span>
-                        @endif
-                        @if(!empty($footerConfig['show_login']))
-                        <a href="{{ route('login') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Staff Login</a>
-                        @endif
-                    </div>
+                    @foreach($footerBottomColumns as $bCol)
+                        @php
+                            $bType = $bCol['type'] ?? 'copyright';
+                            $bContent = $bCol['content'] ?? [];
+                        @endphp
+                        <div>
+                            @if($bType === 'copyright')
+                                @php
+                                    $copyText = $bContent['text'] ?? '© {year} {site_name}. All rights reserved.';
+                                    $copyText = str_replace(
+                                        ['{year}', '{site_name}'],
+                                        [date('Y'), \App\Models\Setting::get('site_name', 'Nordroy CMS')],
+                                        $copyText
+                                    );
+                                @endphp
+                                <p>{{ $copyText }}</p>
+
+                            @elseif($bType === 'badges' || $bType === 'badges_menu')
+                                <div class="flex items-center gap-6">
+                                    @if(!empty($bContent['show_iso']) || !empty($bContent['iso_text']))
+                                        <span class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            {{ $bContent['iso_text'] ?? 'ISO 9001:2015 & DNV Certified' }}
+                                        </span>
+                                    @endif
+                                    @if(!empty($bContent['show_login']))
+                                        <a href="{{ route('login') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                                            {{ $bContent['login_text'] ?? 'Staff Login' }}
+                                        </a>
+                                    @endif
+                                </div>
+
+                            @elseif($bType === 'menu')
+                                @php
+                                    $bMenuId = $bContent['menu_id'] ?? null;
+                                    $bMenuItems = [];
+                                    if ($bMenuId) {
+                                        $m = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($bMenuId);
+                                        $bMenuItems = $m ? $m->items : [];
+                                    }
+                                    $isHoriz = ($bContent['menu_layout'] ?? 'horizontal') === 'horizontal';
+                                @endphp
+                                <div class="flex {{ $isHoriz ? 'flex-row items-center gap-4' : 'flex-col gap-1.5' }}">
+                                    @foreach($bMenuItems as $bm)
+                                        <a href="{{ $bm->url ?: '#' }}" target="{{ $bm->target ?: '_self' }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                                            {{ $bm->title }}
+                                        </a>
+                                    @endforeach
+                                </div>
+
+                            @elseif($bType === 'social')
+                                @php
+                                    $socialLinks = json_decode(\App\Models\Setting::get('social_links_data', '[]'), true) ?: [];
+                                @endphp
+                                <div class="flex items-center gap-2">
+                                    @foreach($socialLinks as $link)
+                                        <a href="{{ $link['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" 
+                                           title="{{ $link['platform'] ?? 'Social Link' }}"
+                                           class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
+                                            <x-icon :name="$link['icon'] ?? 'solid:globe'" class="w-3 h-3" />
+                                        </a>
+                                    @endforeach
+                                </div>
+
+                            @elseif($bType === 'custom_text')
+                                <div>{!! $bContent['text'] ?? '' !!}</div>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
 
             </div>

@@ -53,6 +53,38 @@ class SmartBoxModelHelper
     }
 
     /**
+     * Generate inline CSS styles specifically for padding.
+     */
+    public static function paddingCss(mixed $config): string
+    {
+        $cfg = static::normalize($config);
+        $styles = [];
+
+        $p = $cfg['padding'] ?? [];
+        $pMode = $p['mode'] ?? 'axis';
+
+        if ($pMode === 'linked') {
+            $val = !empty($p['all']) ? $p['all'] : '16px';
+            $styles[] = "padding: {$val};";
+        } elseif ($pMode === 'axis') {
+            $y = !empty($p['y']) ? $p['y'] : ($p['top'] ?? '16px');
+            $x = !empty($p['x']) ? $p['x'] : ($p['left'] ?? '24px');
+            $styles[] = "padding-top: {$y};";
+            $styles[] = "padding-bottom: {$y};";
+            $styles[] = "padding-left: {$x};";
+            $styles[] = "padding-right: {$x};";
+        } else {
+            $t = !empty($p['top']) ? $p['top'] : '0px';
+            $r = !empty($p['right']) ? $p['right'] : '0px';
+            $b = !empty($p['bottom']) ? $p['bottom'] : '0px';
+            $l = !empty($p['left']) ? $p['left'] : '0px';
+            $styles[] = "padding: {$t} {$r} {$b} {$l};";
+        }
+
+        return implode(' ', $styles);
+    }
+
+    /**
      * Generate inline CSS styles from box model configuration.
      */
     public static function toCss(mixed $config): string

@@ -685,6 +685,36 @@
                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
                             <x-smart-box-model wire:model="headerBoxModel" :show-margin="false" :show-width="false" label="Header Navbar Box Model & Spacing" />
                         </div>
+
+                        <!-- Header Bottom Border Controls (Full-Width vs Boxed) -->
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Bottom Border Width</label>
+                                <select wire:model.live="headerBorderWidth" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                    <option value="0px">None (0px)</option>
+                                    <option value="1px">1px (Thin - Standard)</option>
+                                    <option value="2px">2px (Medium Accent)</option>
+                                    <option value="3px">3px (Bold Accent)</option>
+                                    <option value="4px">4px (Heavy)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Bottom Border Span</label>
+                                <select wire:model.live="headerBorderSpan" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                    <option value="full">Full Viewport Width (100% - Recommended)</option>
+                                    <option value="boxed">Boxed (Contained to Content)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Custom Border Color</label>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="color" wire:model.live="headerBorderColor" class="w-8 h-8 rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer">
+                                    <input type="text" wire:model.live="headerBorderColor" placeholder="Default: Theme" class="w-full px-2 py-1.5 text-xs font-mono font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- SECTION 3: NAVIGATION MENU SELECTION -->
@@ -823,55 +853,391 @@
                         <x-smart-box-model wire:model="footerBoxModel" :show-margin="false" label="Footer Internal Padding & Border Model" />
                     </div>
 
-                    <!-- SECTION 3: FOOTER COLUMNS & WIDGET CONFIGURATION -->
-                    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">Footer Columns &amp; Content Modules</h3>
+                    <!-- SECTION 3: MODULAR FOOTER GRID & WIDGET BUILDER -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Footer Columns &amp; Content Modules</h3>
+                                <p class="text-[11px] text-slate-400">Add, arrange, and configure modular columns with dynamic or static widgets.</p>
+                            </div>
 
+                            <!-- Fast Layout Presets & Add Column -->
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Presets:</span>
+                                @foreach([1, 2, 3, 4, 5] as $presetCount)
+                                    <button type="button" 
+                                            wire:click="setFooterLayoutPreset({{ $presetCount }})"
+                                            title="Set {{ $presetCount }} Columns"
+                                            class="px-2 py-0.5 text-[10px] font-bold rounded-md border transition-all cursor-pointer {{ count($footerColumns) === $presetCount ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-400' }}">
+                                        {{ $presetCount }} Col{{ $presetCount > 1 ? 's' : '' }}
+                                    </button>
+                                @endforeach
+
+                                <button type="button" 
+                                        wire:click="addFooterColumn"
+                                        class="ml-2 px-2.5 py-1 text-xs font-extrabold rounded-lg bg-[#003C58] hover:bg-[#002b3f] text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all flex items-center gap-1 shadow-2xs cursor-pointer">
+                                    <x-icon name="solid:plus" class="w-3 h-3" />
+                                    <span>Add Column</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Columns List Repeater -->
                         <div class="space-y-3">
+                            @forelse($footerColumns as $index => $col)
+                                <div class="rounded-xl border transition-all duration-150 {{ $expandedFooterColIndex === $index ? 'border-[#003C58] dark:border-cyan-500 shadow-sm bg-white dark:bg-slate-900' : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40' }}">
+                                    <!-- Compact Column Header Bar -->
+                                    <div class="p-2.5 flex flex-wrap items-center justify-between gap-2">
+                                        <!-- Left: Order & Index Badge & Title -->
+                                        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                                            <!-- Move buttons -->
+                                            <div class="inline-flex items-center rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 shadow-2xs">
+                                                <button type="button" 
+                                                        wire:click="moveFooterColumn({{ $index }}, 'left')" 
+                                                        title="Move Left"
+                                                        {{ $index === 0 ? 'disabled' : '' }}
+                                                        class="p-1 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                                    <x-icon name="solid:chevron-left" class="w-3 h-3" />
+                                                </button>
+                                                <button type="button" 
+                                                        wire:click="moveFooterColumn({{ $index }}, 'right')" 
+                                                        title="Move Right"
+                                                        {{ $index === count($footerColumns) - 1 ? 'disabled' : '' }}
+                                                        class="p-1 border-l border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                                    <x-icon name="solid:chevron-right" class="w-3 h-3" />
+                                                </button>
+                                            </div>
+
+                                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                                Col #{{ $index + 1 }}
+                                            </span>
+
+                                            <!-- Title Input -->
+                                            <input type="text" 
+                                                   wire:model.live="footerColumns.{{ $index }}.title" 
+                                                   placeholder="Column Title (e.g. About Us)" 
+                                                   class="px-2 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white flex-1 min-w-[120px] focus:ring-1 focus:ring-[#003C58]">
+
+                                            <!-- Summary Indicator Badge -->
+                                            <span class="text-[10px] font-medium text-slate-400 hidden sm:inline-block">
+                                                @if(($col['type'] ?? '') === 'company_info')
+                                                    Show Social Media Icons
+                                                @elseif(($col['type'] ?? '') === 'dynamic_menu' && ($col['content']['source'] ?? '') === 'divisions')
+                                                    Show Business Units Column
+                                                @elseif(($col['type'] ?? '') === 'dynamic_menu' && ($col['content']['source'] ?? '') === 'services')
+                                                    Show Technical Services Column
+                                                @endif
+                                            </span>
+                                        </div>
+
+                                        <!-- Right: Span, Widget Type, Edit Toggle, Delete -->
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <!-- Column Span -->
+                                            <select wire:model.live="footerColumns.{{ $index }}.span" 
+                                                    title="Column Width Span"
+                                                    class="px-2 py-1 text-[11px] font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer">
+                                                <option value="1">1 Span (Normal)</option>
+                                                <option value="2">2 Spans (Wide)</option>
+                                            </select>
+
+                                            <!-- Widget Type Select -->
+                                            <select wire:model.live="footerColumns.{{ $index }}.type" 
+                                                    class="px-2 py-1 text-[11px] font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[#003C58] dark:text-cyan-400 cursor-pointer">
+                                                <option value="company_info">🏢 Company Info &amp; Bio</option>
+                                                <option value="dynamic_menu">📑 Dynamic Navigation Menu</option>
+                                                <option value="static_list">🔗 Custom Links List</option>
+                                                <option value="newsletter">✉️ Newsletter Subscription</option>
+                                                <option value="google_map">📍 Google Maps Embed</option>
+                                                <option value="contact_offices">⚓ Port &amp; HQ Offices</option>
+                                                <option value="custom_html">💻 Custom HTML / Code</option>
+                                            </select>
+
+                                            <!-- Toggle Accordion Details -->
+                                            <button type="button" 
+                                                    wire:click="toggleFooterCol({{ $index }})" 
+                                                    title="{{ $expandedFooterColIndex === $index ? 'Collapse Settings' : 'Expand Settings' }}"
+                                                    class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
+                                                <x-icon name="{{ $expandedFooterColIndex === $index ? 'solid:chevron-up' : 'solid:chevron-down' }}" class="w-3.5 h-3.5" />
+                                            </button>
+
+                                            <!-- Delete Button -->
+                                            <button type="button" 
+                                                    wire:click="removeFooterColumn({{ $index }})" 
+                                                    title="Delete Column"
+                                                    class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer">
+                                                <x-icon name="solid:trash-can" class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Expanded Card Body with Type-Specific Settings -->
+                                    @if($expandedFooterColIndex === $index)
+                                        <div class="p-3.5 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 space-y-3">
+                                            @php
+                                                $cType = $col['type'] ?? 'company_info';
+                                            @endphp
+
+                                            @if($cType === 'company_info')
+                                                <!-- Company Info Widget Settings -->
+                                                <div class="space-y-2.5">
+                                                    <div class="flex items-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                            <input type="checkbox" wire:model.live="footerColumns.{{ $index }}.content.show_logo" value="1" class="rounded text-[#003C58] focus:ring-0">
+                                                            <span>Show Brand Logo</span>
+                                                        </label>
+                                                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                            <input type="checkbox" wire:model.live="footerColumns.{{ $index }}.content.show_social" value="1" class="rounded text-[#003C58] focus:ring-0">
+                                                            <span>Show Social Media Icons</span>
+                                                        </label>
+                                                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                            <input type="checkbox" wire:model.live="footerColumns.{{ $index }}.content.show_phone" value="1" class="rounded text-[#003C58] focus:ring-0">
+                                                            <span>Show 24/7 Hotline</span>
+                                                        </label>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Company Description / Bio Override</label>
+                                                        <textarea wire:model.live="footerColumns.{{ $index }}.content.bio" rows="2" placeholder="Leave empty for corporate default bio..."
+                                                                  class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-1 focus:ring-[#003C58]"></textarea>
+                                                    </div>
+                                                </div>
+
+                                            @elseif($cType === 'dynamic_menu')
+                                                <!-- Dynamic Menu Widget Settings -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Menu Data Source</label>
+                                                        <select wire:model.live="footerColumns.{{ $index }}.content.source" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                            <option value="divisions">Show Business Units Column (Database)</option>
+                                                            <option value="services">Show Technical Services Column (Database)</option>
+                                                            <option value="custom_menu">Navigation Menu Builder Tree</option>
+                                                        </select>
+                                                    </div>
+                                                    @if(($col['content']['source'] ?? '') === 'custom_menu')
+                                                        <div>
+                                                            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Select Menu</label>
+                                                            <select wire:model.live="footerColumns.{{ $index }}.content.menu_id" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                                <option value="">-- Choose a Navigation Menu --</option>
+                                                                @foreach($availableMenus as $menu)
+                                                                    <option value="{{ $menu->id }}">{{ $menu->name }} ({{ $menu->items_count }} items)</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                            @elseif($cType === 'static_list')
+                                                <!-- Static Links List Repeater -->
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Custom Links Repeater</span>
+                                                        <button type="button" wire:click="addStaticListItem({{ $index }})" 
+                                                                class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                                                            <x-icon name="solid:plus" class="w-2.5 h-2.5" />
+                                                            <span>Add Link</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                                                        @foreach($col['content']['items'] ?? [] as $itemIndex => $item)
+                                                            <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                                                                <input type="text" 
+                                                                       wire:model.live="footerColumns.{{ $index }}.content.items.{{ $itemIndex }}.text" 
+                                                                       placeholder="Link Text" 
+                                                                       class="flex-1 px-2 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
+                                                                <input type="text" 
+                                                                       wire:model.live="footerColumns.{{ $index }}.content.items.{{ $itemIndex }}.url" 
+                                                                       placeholder="URL (/about or https://...)" 
+                                                                       class="flex-1 px-2 py-1 text-xs font-mono rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white">
+                                                                <button type="button" wire:click="removeStaticListItem({{ $index }}, {{ $itemIndex }})" class="p-1 text-rose-500 hover:text-rose-700 cursor-pointer">
+                                                                    <x-icon name="solid:xmark" class="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                            @elseif($cType === 'newsletter')
+                                                <!-- Newsletter Widget Settings -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                                                    <div class="sm:col-span-3">
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Short Description</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.description" placeholder="Subscribe for marine engineering updates &amp; overhauls..." 
+                                                               class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    </div>
+                                                    <div class="sm:col-span-2">
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Input Placeholder</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.placeholder" placeholder="Enter corporate email..." 
+                                                               class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Button Text</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.button_text" placeholder="Subscribe" 
+                                                               class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    </div>
+                                                </div>
+
+                                            @elseif($cType === 'google_map')
+                                                <!-- Google Map Widget Settings -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                                                    <div class="sm:col-span-2">
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Map Embed URL (Iframe src)</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.embed_url" placeholder="https://maps.google.com/maps?q=..." 
+                                                               class="w-full px-2.5 py-1.5 font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Map Height</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.height" placeholder="160px" 
+                                                               class="w-full px-2.5 py-1.5 font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    </div>
+                                                </div>
+
+                                            @elseif($cType === 'contact_offices')
+                                                <!-- Contact Offices Widget Settings -->
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Port Office Title &amp; Address</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.port_title" placeholder="Chattogram Port Workshop:" class="w-full mb-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                        <textarea wire:model.live="footerColumns.{{ $index }}.content.port_address" rows="2" placeholder="Port workshop address..." class="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white"></textarea>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Corporate HQ Title &amp; Address</label>
+                                                        <input type="text" wire:model.live="footerColumns.{{ $index }}.content.hq_title" placeholder="Dhaka Corporate HQ:" class="w-full mb-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                        <textarea wire:model.live="footerColumns.{{ $index }}.content.hq_address" rows="2" placeholder="HQ office address..." class="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white"></textarea>
+                                                    </div>
+                                                    <div class="sm:col-span-2 pt-1">
+                                                        <label class="inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-slate-700 dark:text-slate-300">
+                                                            <input type="checkbox" wire:model.live="footerColumns.{{ $index }}.content.show_emergency" value="1" class="rounded text-[#003C58] focus:ring-0">
+                                                            <span>Show Emergency Phone Hotline from Global Settings</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            @elseif($cType === 'custom_html')
+                                                <!-- Custom HTML Widget Settings -->
+                                                <div>
+                                                    <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Raw HTML / Markdown Content</label>
+                                                    <textarea wire:model.live="footerColumns.{{ $index }}.content.html" rows="4" placeholder="<div class='custom-widget'>...</div>"
+                                                              class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:ring-1 focus:ring-[#003C58]"></textarea>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="p-6 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-400">
+                                    <p class="text-xs">No footer columns configured yet. Click "Add Column" or select a preset above.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: SUB-FOOTER / COPYRIGHT STRIP ENGINE -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
                             <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Company Bio / Mission Statement Override</label>
-                                <textarea wire:model.live="footerConfig.bio" rows="2" placeholder="Leave empty to use official corporate description..."
-                                          class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]"></textarea>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">Sub-Footer &amp; Copyright Bar Architecture</h3>
+                                <p class="text-[11px] text-slate-400">Configure bottom strip elements (copyright, inline menu, accreditation badges, social links).</p>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Copyright Strip Notice Override</label>
-                                <input type="text" wire:model.live="footerConfig.copyright" placeholder="Leave empty for dynamic: &copy; {Year} {SiteName}. All rights reserved."
-                                       class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] focus:border-[#003C58]">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Presets:</span>
+                                <button type="button" wire:click="setFooterBottomPreset(1)" class="px-2 py-0.5 text-[10px] font-bold rounded-md border transition-all cursor-pointer {{ count($footerBottomColumns) === 1 ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' }}">1 Col (Center)</button>
+                                <button type="button" wire:click="setFooterBottomPreset(2)" class="px-2 py-0.5 text-[10px] font-bold rounded-md border transition-all cursor-pointer {{ count($footerBottomColumns) === 2 ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' }}">2 Cols (Split)</button>
+                                <button type="button" wire:click="setFooterBottomPreset(3)" class="px-2 py-0.5 text-[10px] font-bold rounded-md border transition-all cursor-pointer {{ count($footerBottomColumns) === 3 ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' }}">3 Cols</button>
+
+                                <button type="button" wire:click="addFooterBottomColumn" class="ml-2 px-2.5 py-1 text-xs font-extrabold rounded-lg bg-[#003C58] hover:bg-[#002b3f] text-white dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all flex items-center gap-1 shadow-2xs cursor-pointer">
+                                    <x-icon name="solid:plus" class="w-3 h-3" />
+                                    <span>Add Item</span>
+                                </button>
                             </div>
+                        </div>
 
-                            <!-- Column Visibility Toggles -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_social" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show Social Media Icons</span>
-                                </label>
+                        <!-- Sub-Footer Items List -->
+                        <div class="space-y-3">
+                            @foreach($footerBottomColumns as $bIndex => $bCol)
+                                <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 space-y-2.5">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                                Zone #{{ $bIndex + 1 }}
+                                            </span>
 
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_divisions" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show Business Units Column</span>
-                                </label>
+                                            <!-- Widget Type Select -->
+                                            <select wire:model.live="footerBottomColumns.{{ $bIndex }}.type" 
+                                                    class="px-2 py-1 text-[11px] font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[#003C58] dark:text-cyan-400 cursor-pointer">
+                                                <option value="copyright">© Copyright Notice</option>
+                                                <option value="badges">🛡️ Certification Badges &amp; Login</option>
+                                                <option value="menu">📑 Navigation Menu (Inline/Stacked)</option>
+                                                <option value="social">🌐 Social Media Icons</option>
+                                                <option value="custom_text">📝 Custom Text / Links</option>
+                                            </select>
+                                        </div>
 
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_services" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show Technical Services Column</span>
-                                </label>
+                                        <button type="button" wire:click="removeFooterBottomColumn({{ $bIndex }})" class="p-1 text-rose-500 hover:text-rose-700 cursor-pointer">
+                                            <x-icon name="solid:trash-can" class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
 
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_offices" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show Port &amp; HQ Offices Column</span>
-                                </label>
+                                    <!-- Config for Sub-Footer Item -->
+                                    @php
+                                        $botType = $bCol['type'] ?? 'copyright';
+                                    @endphp
 
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_iso" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show ISO &amp; DNV Certification Badge</span>
-                                </label>
+                                    @if($botType === 'copyright')
+                                        <div class="text-xs">
+                                            <input type="text" 
+                                                   wire:model.live="footerBottomColumns.{{ $bIndex }}.content.text" 
+                                                   placeholder="© {year} {site_name}. All rights reserved." 
+                                                   class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                            <span class="text-[10px] text-slate-400 mt-0.5 block">Supported tokens: <code class="font-mono">{year}</code>, <code class="font-mono">{site_name}</code></span>
+                                        </div>
 
-                                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    <input type="checkbox" wire:model.live="footerConfig.show_login" value="1" class="w-4 h-4 rounded text-[#003C58] focus:ring-0">
-                                    <span>Show Staff Login Link</span>
-                                </label>
-                            </div>
+                                    @elseif($botType === 'badges' || $botType === 'badges_menu')
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Accreditation Badge Text</label>
+                                                <input type="text" wire:model.live="footerBottomColumns.{{ $bIndex }}.content.iso_text" placeholder="ISO 9001:2015 &amp; DNV Certified" 
+                                                       class="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                            </div>
+                                            <div class="flex items-center gap-3 pt-4">
+                                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-slate-700 dark:text-slate-300 font-semibold">
+                                                    <input type="checkbox" wire:model.live="footerBottomColumns.{{ $bIndex }}.content.show_login" value="1" class="rounded text-[#003C58] focus:ring-0">
+                                                    <span>Show Staff Login Link</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    @elseif($botType === 'menu')
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Select Menu</label>
+                                                <select wire:model.live="footerBottomColumns.{{ $bIndex }}.content.menu_id" class="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    <option value="">-- Choose Menu --</option>
+                                                    @foreach($availableMenus as $menu)
+                                                        <option value="{{ $menu->id }}">{{ $menu->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Layout Orientation</label>
+                                                <select wire:model.live="footerBottomColumns.{{ $bIndex }}.content.menu_layout" class="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                                    <option value="horizontal">Horizontal Inline (Side-by-side)</option>
+                                                    <option value="vertical">Vertical Stacked</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    @elseif($botType === 'social')
+                                        <p class="text-[11px] text-slate-500 italic">Pulls active social media links configured in Global Settings.</p>
+
+                                    @elseif($botType === 'custom_text')
+                                        <div class="text-xs">
+                                            <input type="text" wire:model.live="footerBottomColumns.{{ $bIndex }}.content.text" placeholder="Custom credit text or HTML..." 
+                                                   class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -1262,19 +1628,13 @@
                             </span>
                             <span class="text-[9px] opacity-75">Corporate Footer</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 opacity-80 py-0.5 text-[9px]">
-                            <div>
-                                <span class="font-bold block">Units</span>
-                                <span>Turbo / Balancing</span>
-                            </div>
-                            <div>
-                                <span class="font-bold block">Services</span>
-                                <span>24/7 Port Flying Squads</span>
-                            </div>
-                            <div>
-                                <span class="font-bold block">Offices</span>
-                                <span>Chattogram Port</span>
-                            </div>
+                        <div class="grid grid-cols-{{ max(1, min(count($footerColumns), 4)) }} gap-2 opacity-80 py-0.5 text-[9px]">
+                            @foreach(array_slice($footerColumns, 0, 4) as $col)
+                                <div>
+                                    <span class="font-bold block truncate">{{ $col['title'] ?: 'Column' }}</span>
+                                    <span class="text-[8px] opacity-70 truncate block">{{ ucfirst(str_replace('_', ' ', $col['type'])) }}</span>
+                                </div>
+                            @endforeach
                         </div>
                         <div class="pt-1.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between opacity-60 text-[8px]">
                             <span>&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}</span>
