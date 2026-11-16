@@ -1142,6 +1142,106 @@ class PageBuilder extends Component
         }
     }
 
+    // ==================== BODY SECTION CONTENT HELPERS ====================
+    public function getActiveSectionType(): string
+    {
+        $idx = $this->findSectionIndex($this->selectedSectionId);
+        return $idx !== null ? ($this->sections[$idx]['section_type'] ?? 'grid') : 'grid';
+    }
+
+    public function addContentItem(): void
+    {
+        $type = $this->getActiveSectionType();
+        if (!isset($this->currentSectionContent['items'])) {
+            $this->currentSectionContent['items'] = [];
+        }
+
+        switch ($type) {
+            case 'faq':
+                $this->currentSectionContent['items'][] = [
+                    'q'   => 'New Question Title?',
+                    'a'   => 'Enter the detailed answer or explanation here.',
+                    'tag' => 'Support',
+                ];
+                break;
+            case 'stats':
+                $this->currentSectionContent['items'][] = [
+                    'number' => '100+',
+                    'label'  => 'New Metric',
+                    'detail' => 'Operating performance metric',
+                    'icon'   => 'activity',
+                ];
+                break;
+            case 'testimonials':
+                $this->currentSectionContent['items'][] = [
+                    'quote'   => 'Outstanding turbocharger overhaul and emergency port service.',
+                    'client'  => 'Superintendent Engineer',
+                    'company' => 'Ocean Freight Lines Ltd.',
+                    'rating'  => 5,
+                    'avatar'  => '',
+                ];
+                break;
+            case 'list':
+                $this->currentSectionContent['items'][] = [
+                    'step'  => str_pad((string)(count($this->currentSectionContent['items']) + 1), 2, '0', STR_PAD_LEFT),
+                    'title' => 'New Feature / Step Milestone',
+                    'desc'  => 'Detailed technical standard, procedure or class requirement.',
+                    'icon'  => 'shield-check',
+                ];
+                break;
+            case 'slider':
+                $this->currentSectionContent['items'][] = [
+                    'headline'   => 'New Dynamic Slide',
+                    'subtitle'   => 'High-impact slide description and value proposition.',
+                    'badge'      => 'Featured',
+                    'image'      => '',
+                    'cta1_text'  => 'Explore More',
+                    'cta1_url'   => '/services',
+                    'cta2_text'  => 'Contact Duty Desk',
+                    'cta2_url'   => '/#inquiry',
+                ];
+                break;
+            case 'grid':
+            default:
+                $this->currentSectionContent['items'][] = [
+                    'title'     => 'New Service / Showcase Item',
+                    'desc'      => 'Comprehensive engineering scope, genuine OEM parts, and testing.',
+                    'badge'     => 'Certified',
+                    'image'     => '',
+                    'link'      => '/services',
+                    'link_text' => 'Read Full Details',
+                ];
+                break;
+        }
+
+        $this->flushActiveSectionBuffer();
+    }
+
+    public function removeContentItem(int $index): void
+    {
+        if (isset($this->currentSectionContent['items'][$index])) {
+            array_splice($this->currentSectionContent['items'], $index, 1);
+            $this->flushActiveSectionBuffer();
+        }
+    }
+
+    public function addBannerBullet(): void
+    {
+        if (!isset($this->currentSectionContent['bullet_points'])) {
+            $this->currentSectionContent['bullet_points'] = [];
+        }
+        $this->currentSectionContent['bullet_points'][] = 'Certified multi-plane dynamic balancing up to 100,000 RPM';
+        $this->flushActiveSectionBuffer();
+    }
+
+    public function removeBannerBullet(int $index): void
+    {
+        if (isset($this->currentSectionContent['bullet_points'][$index])) {
+            array_splice($this->currentSectionContent['bullet_points'], $index, 1);
+            $this->flushActiveSectionBuffer();
+        }
+    }
+
     // ==================== SAVE & PERSIST ALL ====================
     public function save(): void
     {
