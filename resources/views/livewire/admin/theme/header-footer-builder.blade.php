@@ -75,6 +75,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
          x-data="{
              canvasDark: false,
+             headerSubTab: $wire.entangle('headerSubTab').live,
+             footerSubTab: $wire.entangle('footerSubTab').live,
 
              // Live Reactive Color States
              hSecBg: @js(\App\Services\SmartColorHelper::normalize($headerSectionBgColor, '#ffffff', '#07131e')),
@@ -192,18 +194,24 @@
                 <!-- Inspector Sub-Tabs: Layout | Styling | Content -->
                 <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold shadow-2xs">
                     <button type="button" 
+                            @click="headerSubTab = 'layout'"
                             wire:click="setHeaderSubTab('layout')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="headerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         📐 Layout &amp; Box Model
                     </button>
                     <button type="button" 
+                            @click="headerSubTab = 'style'"
                             wire:click="setHeaderSubTab('style')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="headerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         🎨 Colors &amp; Styling
                     </button>
                     <button type="button" 
+                            @click="headerSubTab = 'content'"
                             wire:click="setHeaderSubTab('content')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="headerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         ⚙️ Content &amp; Options
                     </button>
                 </div>
@@ -226,18 +234,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.headerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="headerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="headerSectionBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Master Header Section Box Model & Spacing" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.headerSubTab === 'style'" class="space-y-4">
+                        <div x-show="headerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="headerSectionBgColor" :allow-glass="true" label="Master Header Section Background" default-light="#ffffff" default-dark="#07131e" />
                             <x-smart-color-picker wire:model="headerSectionTextColor" :allow-glass="false" label="Master Header Section Text Color" default-light="#0f172a" default-dark="#ffffff" />
                         </div>
 
                         <!-- SubTab 3: Content & Behavior -->
-                        <div x-show="$wire.headerSubTab === 'content'" class="space-y-4">
+                        <div x-show="headerSubTab === 'content'" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">Header Navbar Appearance Preset</label>
@@ -296,18 +304,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.headerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="headerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="topbarBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Topbar Layout & Box Model (Independent Row 1)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.headerSubTab === 'style'" class="space-y-4">
+                        <div x-show="headerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="topbarBgColor" :allow-glass="true" label="Topbar Background Color" default-light="#ffffff" default-dark="#050f18" />
                             <x-smart-color-picker wire:model="topbarTextColor" :allow-glass="false" label="Topbar Text & Icons Color" default-light="#334155" default-dark="#cbd5e1" />
                         </div>
 
                         <!-- SubTab 3: Content -->
-                        <div x-show="$wire.headerSubTab === 'content'" class="space-y-4">
+                        <div x-show="headerSubTab === 'content'" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Emergency Badge Text</label>
@@ -376,18 +384,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.headerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="headerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="headerBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Header Navbar Layout & Box Model (Independent Row 2)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.headerSubTab === 'style'" class="space-y-4">
+                        <div x-show="headerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="headerBgColor" :allow-glass="true" label="Header Background Color" default-light="#ffffff" default-dark="#07131e" />
                             <x-smart-color-picker wire:model="headerTextColor" :allow-glass="false" label="Header Text & Navigation Links Color" default-light="#0f172a" default-dark="#ffffff" />
                         </div>
 
                         <!-- SubTab 3: Content -->
-                        <div x-show="$wire.headerSubTab === 'content'" class="space-y-4">
+                        <div x-show="headerSubTab === 'content'" class="space-y-4">
                             <!-- Navigation Menu Tree Picker -->
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between">
@@ -451,18 +459,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.headerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="headerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="headerBottom.box_model" :show-width="true" :show-margin="true" :show-border="true" label="Sub-Header Layout & Box Model (Independent Row 3)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.headerSubTab === 'style'" class="space-y-4">
+                        <div x-show="headerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="headerBottom.bg_color" :allow-glass="true" label="Sub-Header Background Color" default-light="#f8fafc" default-dark="#061320" />
                             <x-smart-color-picker wire:model="headerBottom.text_color" :allow-glass="false" label="Sub-Header Text Color" default-light="#475569" default-dark="#94a3b8" />
                         </div>
 
                         <!-- SubTab 3: Content -->
-                        <div x-show="$wire.headerSubTab === 'content'" class="space-y-4">
+                        <div x-show="headerSubTab === 'content'" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Announcement / Bulletin Text</label>
@@ -554,18 +562,24 @@
                 <!-- Inspector Sub-Tabs: Layout | Styling | Content -->
                 <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold shadow-2xs">
                     <button type="button" 
+                            @click="footerSubTab = 'layout'"
                             wire:click="setFooterSubTab('layout')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="footerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         📐 Layout &amp; Box Model
                     </button>
                     <button type="button" 
+                            @click="footerSubTab = 'style'"
                             wire:click="setFooterSubTab('style')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="footerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         🎨 Colors &amp; Styling
                     </button>
                     <button type="button" 
+                            @click="footerSubTab = 'content'"
                             wire:click="setFooterSubTab('content')"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                            :class="footerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         ⚙️ Content &amp; Columns
                     </button>
                 </div>
@@ -588,22 +602,23 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.footerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="footerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="footerSectionBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Master Footer Section Box Model & Spacing" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.footerSubTab === 'style'" class="space-y-4">
+                        <div x-show="footerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="footerSectionBgColor" :allow-glass="true" label="Master Footer Section Background" default-light="#f1f5f9" default-dark="#040e17" />
                             <x-smart-color-picker wire:model="footerSectionTextColor" :allow-glass="false" label="Master Footer Section Text Color" default-light="#334155" default-dark="#cbd5e1" />
                         </div>
 
                         <!-- SubTab 3: Content / Options -->
-                        <div x-show="$wire.footerSubTab === 'content'" class="space-y-3">
+                        <div x-show="footerSubTab === 'content'" class="space-y-3">
                             <p class="text-xs text-slate-600 dark:text-slate-400">
                                 Master section controls the outermost boundaries of the website footer. Use Row 1 for Pre-Footer Callout, Row 2 for Columns Grid, and Row 3 for Copyright Strip.
                             </p>
                         </div>
+                    </div>
                     </div>
 
                 <!-- 1. ACTIVE: ROW 1 PRE-FOOTER CALLOUT -->
@@ -625,18 +640,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.footerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="footerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="footerTop.box_model" :show-width="true" :show-margin="true" :show-border="true" label="Pre-Footer Layout & Box Model (Independent Row 1)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.footerSubTab === 'style'" class="space-y-4">
+                        <div x-show="footerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="footerTop.bg_color" :allow-glass="true" label="Pre-Footer Background Color" default-light="#003C58" default-dark="#061a28" />
                             <x-smart-color-picker wire:model="footerTop.text_color" :allow-glass="false" label="Pre-Footer Text Color" default-light="#ffffff" default-dark="#f1f5f9" />
                         </div>
 
                         <!-- SubTab 3: Content -->
-                        <div x-show="$wire.footerSubTab === 'content'" class="space-y-4">
+                        <div x-show="footerSubTab === 'content'" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Callout Widget Type</label>
@@ -686,18 +701,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.footerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="footerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="footerBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Main Footer Layout & Box Model (Independent Row 2)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.footerSubTab === 'style'" class="space-y-4">
+                        <div x-show="footerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="footerBgColor" :allow-glass="true" label="Main Footer Background Color" default-light="#f1f5f9" default-dark="#040e17" />
                             <x-smart-color-picker wire:model="footerTextColor" :allow-glass="false" label="Main Footer Text Color" default-light="#334155" default-dark="#cbd5e1" />
                         </div>
 
                         <!-- SubTab 3: Content / Columns -->
-                        <div x-show="$wire.footerSubTab === 'content'" class="space-y-4">
+                        <div x-show="footerSubTab === 'content'" class="space-y-4">
                             <!-- Presets & Add Column -->
                             <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                                 <div class="flex items-center gap-1.5 flex-wrap">
@@ -822,18 +837,18 @@
                         </div>
 
                         <!-- SubTab 1: Layout -->
-                        <div x-show="$wire.footerSubTab === 'layout'" class="space-y-4">
+                        <div x-show="footerSubTab === 'layout'" class="space-y-4">
                             <x-smart-box-model wire:model="footerBottomBoxModel" :show-width="true" :show-margin="true" :show-border="true" label="Sub-Footer Layout & Box Model (Independent Row 3)" />
                         </div>
 
                         <!-- SubTab 2: Style -->
-                        <div x-show="$wire.footerSubTab === 'style'" class="space-y-4">
+                        <div x-show="footerSubTab === 'style'" class="space-y-4">
                             <x-smart-color-picker wire:model="footerBottomBgColor" :allow-glass="true" label="Sub-Footer Background Color" default-light="#ffffff" default-dark="#02070c" />
                             <x-smart-color-picker wire:model="footerBottomTextColor" :allow-glass="false" label="Sub-Footer Text Color" default-light="#64748b" default-dark="#94a3b8" />
                         </div>
 
                         <!-- SubTab 3: Content -->
-                        <div x-show="$wire.footerSubTab === 'content'" class="space-y-4">
+                        <div x-show="footerSubTab === 'content'" class="space-y-4">
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                                 <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
                                     <input type="checkbox" wire:model.live="footerConfig.show_iso" class="w-3.5 h-3.5 rounded text-[#003C58]">

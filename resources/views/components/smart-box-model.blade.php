@@ -247,27 +247,67 @@
                 <option value="dotted">Dotted</option>
             </select>
 
-            <!-- Modern Inline Border Color with Instant Native Picker -->
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:border-[#003C58] dark:hover:border-cyan-500 transition-colors">
-                <label class="relative w-5 h-5 rounded-md border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0 shadow-2xs ring-1 ring-black/5" title="Click to pick border color">
-                    <input type="color" 
-                           x-model="bColor" 
-                           @input="sync()" 
-                           class="absolute -inset-3 w-12 h-12 opacity-0 cursor-pointer">
-                    <span class="block w-full h-full" 
-                          :style="'background-color: ' + (bColor || '#e2e8f0')"></span>
-                </label>
-                <input type="text" 
-                       x-model="bColor" 
-                       @input.debounce.200ms="sync()" 
-                       placeholder="#e2e8f0"
-                       class="w-20 px-1 py-0 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-0 p-0">
+            <!-- Modern Color Swatch Dropdown Popover -->
+            <div class="relative" x-data="{ openColorPicker: false }">
                 <button type="button" 
-                        @click="bColor = 'transparent'; sync()" 
-                        class="px-1.5 py-0.5 text-[10px] font-bold rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                        title="Reset to Transparent">
-                    Clear
+                        @click="openColorPicker = !openColorPicker" 
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:border-[#003C58] dark:hover:border-cyan-500 transition-all cursor-pointer">
+                    <span class="w-4 h-4 rounded-md border border-slate-300 dark:border-slate-600 shadow-2xs shrink-0"
+                          :class="bColor === 'transparent' ? 'bg-[repeating-linear-gradient(45deg,#cbd5e1,#cbd5e1_2px,#ffffff_2px,#ffffff_4px)]' : ''"
+                          :style="bColor !== 'transparent' ? 'background-color: ' + (bColor || '#e2e8f0') : ''"></span>
+                    <span class="text-[11px] font-mono font-bold uppercase text-slate-700 dark:text-slate-300"
+                          x-text="bColor === 'transparent' ? 'None' : (bColor || '#E2E8F0')"></span>
+                    <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
+
+                <!-- Color Swatch Popover -->
+                <div x-show="openColorPicker" 
+                     @click.outside="openColorPicker = false"
+                     x-transition
+                     style="display: none;"
+                     class="absolute z-50 mt-1 w-64 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl space-y-3">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                        <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Border Color</span>
+                        <button type="button" 
+                                @click="bColor = 'transparent'; sync(); openColorPicker = false" 
+                                class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer">
+                            Clear (None)
+                        </button>
+                    </div>
+
+                    <!-- Presets -->
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Color Presets</span>
+                        <div class="grid grid-cols-6 gap-1.5">
+                            <template x-for="c in ['#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b', '#334155', '#0f172a', '#003C58', '#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']" :key="c">
+                                <button type="button" 
+                                        @click="bColor = c; sync(); openColorPicker = false" 
+                                        :style="'background-color: ' + c"
+                                        class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs hover:scale-110 active:scale-95 transition-transform cursor-pointer relative"
+                                        :title="c">
+                                    <span x-show="bColor && bColor.toLowerCase() === c.toLowerCase()" class="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold drop-shadow">✓</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Direct Hex & Native Color Eye-dropper -->
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                        <label class="relative w-8 h-8 rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0 shadow-2xs" title="Open Custom Color Picker">
+                            <input type="color" 
+                                   x-model="bColor" 
+                                   @input="sync()" 
+                                   class="absolute -inset-2 w-12 h-12 opacity-0 cursor-pointer">
+                            <span class="block w-full h-full" 
+                                  :style="'background-color: ' + (bColor || '#e2e8f0')"></span>
+                        </label>
+                        <input type="text" 
+                               x-model="bColor" 
+                               @input.debounce.200ms="sync()" 
+                               placeholder="#e2e8f0"
+                               class="flex-1 px-2.5 py-1 text-xs font-mono font-bold uppercase rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
+                    </div>
+                </div>
             </div>
 
             <!-- Radius -->
