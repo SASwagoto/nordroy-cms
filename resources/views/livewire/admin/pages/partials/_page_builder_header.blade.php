@@ -104,11 +104,11 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white">Row 1: Top Emergency &amp; Information Strip</h3>
-                    <p class="text-xs text-slate-500">Contact hotlines, emergency dispatch badge, and social handles.</p>
+                    <p class="text-xs text-slate-500">Multi-column strip with dynamic contact hotlines, social handles, and custom announcements.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Enable Topbar</span>
-                    <input type="checkbox" wire:model="headerTopbar.enabled" class="rounded border-slate-300 text-[#003C58] focus:ring-[#003C58] h-4 w-4">
+                    <input type="checkbox" wire:model.live="headerTopbar.enabled" class="rounded border-slate-300 text-[#003C58] focus:ring-[#003C58] h-4 w-4">
                 </div>
             </div>
 
@@ -120,18 +120,111 @@
                     <x-smart-color-picker wire:model="topbarTextColor" label="Topbar Row Text Color" :allowGradient="false" :allowGlass="false" />
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Emergency Badge Text</label>
-                        <input type="text" wire:model="headerTopbar.badge_text" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                <!-- Number of Columns Selector -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                            <x-icon name="solid:table-columns" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" />
+                            <span>Topbar Column Grid &amp; Content Items (sherazipos12 Architecture)</span>
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <label class="text-[11px] font-semibold text-slate-500">Columns:</label>
+                            <select wire:model.live="headerTopbar.columns_count" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                <option value="1">1 Column</option>
+                                <option value="2">2 Columns (Left &amp; Right)</option>
+                                <option value="3">3 Columns</option>
+                                <option value="4">4 Columns</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duty Desk Phone</label>
-                        <input type="text" wire:model="headerTopbar.phone" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Duty Desk Email</label>
-                        <input type="text" wire:model="headerTopbar.email" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+
+                    <!-- Column Editors -->
+                    @php
+                        $colsCount = (int)($headerTopbar['columns_count'] ?? 2);
+                    @endphp
+                    <div class="grid grid-cols-1 {{ $colsCount >= 2 ? 'md:grid-cols-2' : '' }} gap-4">
+                        @for ($c = 1; $c <= $colsCount; $c++)
+                            @php
+                                $colKey = 'col' . $c;
+                                $colData = $headerTopbar[$colKey] ?? ['alignment' => ($c === 1 ? 'start' : 'end'), 'items' => []];
+                                $items = $colData['items'] ?? [];
+                            @endphp
+                            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-3">
+                                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 text-[9px] font-mono font-bold rounded bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400">COLUMN {{ $c }}</span>
+                                        <select wire:model.live="headerTopbar.{{ $colKey }}.alignment" class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 dark:bg-slate-800 border-0 text-slate-700 dark:text-slate-300">
+                                            <option value="start">Align Left</option>
+                                            <option value="center">Align Center</option>
+                                            <option value="end">Align Right</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" wire:click="addTopbarItem('{{ $colKey }}')"
+                                            class="px-2 py-1 rounded-lg text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58]/20 transition-colors flex items-center gap-1">
+                                        <x-icon name="solid:circle-plus" class="w-3 h-3" />
+                                        <span>Add Item</span>
+                                    </button>
+                                </div>
+
+                                <!-- Items in this column -->
+                                <div class="space-y-2.5">
+                                    @forelse ($items as $itIdx => $it)
+                                        <div wire:key="tb-{{ $colKey }}-{{ $itIdx }}" class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="text-[10px] font-bold text-slate-400">#{{ $itIdx + 1 }}</span>
+                                                    <select wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.type" class="px-2 py-0.5 text-[10px] font-bold rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                                        <option value="custom">Custom Text &amp; Link</option>
+                                                        <option value="dynamic_phone">⚡ Phone Hotline</option>
+                                                        <option value="dynamic_email">⚡ Email Address</option>
+                                                        <option value="dynamic_address">⚡ Workshop / Port Address</option>
+                                                        <option value="dynamic_socials">⚡ Social Media Icons</option>
+                                                    </select>
+                                                </div>
+                                                <button type="button" wire:click="removeTopbarItem('{{ $colKey }}', {{ $itIdx }})" class="text-rose-500 hover:text-rose-600">
+                                                    <x-icon name="solid:trash-can" class="w-3 h-3" />
+                                                </button>
+                                            </div>
+
+                                            @if (($it['type'] ?? 'custom') === 'custom')
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <div>
+                                                        <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">Display Text</label>
+                                                        <input type="text" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.text" placeholder="Text..." class="w-full px-2 py-1 text-xs rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">Target Link / URL</label>
+                                                        <input type="text" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.url" placeholder="https://..." class="w-full px-2 py-1 text-xs rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                                    </div>
+                                                </div>
+                                            @elseif (($it['type'] ?? '') === 'dynamic_phone')
+                                                <div>
+                                                    <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">Phone Number</label>
+                                                    <input type="text" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.text" placeholder="+880 1819 000000" class="w-full px-2 py-1 text-xs rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                                </div>
+                                            @elseif (($it['type'] ?? '') === 'dynamic_email')
+                                                <div>
+                                                    <label class="block text-[9px] font-semibold text-slate-400 mb-0.5">Email Address</label>
+                                                    <input type="text" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.text" placeholder="duty@nordroy.com" class="w-full px-2 py-1 text-xs rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                                </div>
+                                            @endif
+
+                                            <div class="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-700/60">
+                                                <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-500">
+                                                    <input type="checkbox" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.show_icon" class="rounded text-[#003C58] h-3 w-3">
+                                                    <span>Show Icon</span>
+                                                </label>
+                                                <input type="text" wire:model.live="headerTopbar.{{ $colKey }}.items.{{ $itIdx }}.icon" placeholder="solid:phone" class="w-28 px-2 py-0.5 text-[10px] font-mono rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="p-3 text-center rounded-lg bg-slate-50 dark:bg-slate-800/40 text-slate-400 text-xs">
+                                            No items in this column. Click "Add Item" above.
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        @endfor
                     </div>
                 </div>
             @endif

@@ -147,10 +147,30 @@ class PageBuilder extends Component
 
         $this->headerTopbar = array_merge([
             'enabled'           => true,
-            'alignment'         => 'between',
-            'density'           => 'standard',
+            'columns_count'     => 2,
+            'col1'              => [
+                'alignment' => 'start',
+                'items' => [
+                    ['type' => 'dynamic_phone', 'text' => '+880 1819 000000', 'is_link' => true, 'show_icon' => true, 'icon' => 'solid:phone'],
+                    ['type' => 'custom', 'text' => '24/7 Emergency Port Squads', 'is_link' => false, 'show_icon' => true, 'icon' => 'solid:bolt'],
+                ],
+            ],
+            'col2'              => [
+                'alignment' => 'end',
+                'items' => [
+                    ['type' => 'dynamic_email', 'text' => 'duty@nordroy.com', 'is_link' => true, 'show_icon' => true, 'icon' => 'solid:envelope'],
+                    ['type' => 'dynamic_socials', 'text' => 'Social Handles', 'is_link' => false, 'show_icon' => true, 'icon' => 'solid:share-nodes'],
+                ],
+            ],
+            'col3'              => [
+                'alignment' => 'center',
+                'items' => [],
+            ],
+            'col4'              => [
+                'alignment' => 'end',
+                'items' => [],
+            ],
             'badge_text'        => '24/7 Port Call & Emergency Squads',
-            'badge_icon'        => 'solid:bolt',
             'phone'             => '+880 1819 000000',
             'email'             => 'duty@nordroy.com',
             'show_social_links' => true,
@@ -261,6 +281,13 @@ class PageBuilder extends Component
 
         $this->footerTop = array_merge([
             'enabled'   => true,
+            'columns_count' => 4,
+            'features' => [
+                ['title' => '24/7 Flying Squads', 'subtitle' => 'Outer Anchorage Boarding', 'icon' => 'solid:bolt', 'url' => '/#inquiry'],
+                ['title' => 'ISO 1940 Grade G1.0', 'subtitle' => 'Aerospace Tolerance Balancing', 'icon' => 'solid:shield-halved', 'url' => '/services'],
+                ['title' => '32h Port Turnaround', 'subtitle' => 'Zero Demurrage Guaranteed', 'icon' => 'solid:clock', 'url' => '/about'],
+                ['title' => '100% Genuine Spares', 'subtitle' => 'Bonded Warehouse Stock', 'icon' => 'solid:box-archive', 'url' => '/services'],
+            ],
             'title'     => 'Immediate Marine Vessel Engineering Support',
             'subtitle'  => 'Certified flying squads available for 24/7 port calls & emergency voyages across all Bangladesh maritime terminals.',
             'cta_text'  => 'Contact Port Squad',
@@ -971,6 +998,55 @@ class PageBuilder extends Component
     }
 
     // ==================== HEADER BUILDER METHODS ====================
+    // ==================== HEADER TOPBAR METHODS ====================
+    public function addTopbarItem(string $col): void
+    {
+        if (!isset($this->headerTopbar[$col])) {
+            $this->headerTopbar[$col] = ['alignment' => 'start', 'items' => []];
+        }
+        if (!isset($this->headerTopbar[$col]['items'])) {
+            $this->headerTopbar[$col]['items'] = [];
+        }
+        $this->headerTopbar[$col]['items'][] = [
+            'type'      => 'custom',
+            'text'      => 'New Topbar Item',
+            'url'       => '#',
+            'is_link'   => true,
+            'show_icon' => true,
+            'icon'      => 'solid:circle-info',
+        ];
+    }
+
+    public function removeTopbarItem(string $col, int $itemIndex): void
+    {
+        if (isset($this->headerTopbar[$col]['items'][$itemIndex])) {
+            array_splice($this->headerTopbar[$col]['items'], $itemIndex, 1);
+        }
+    }
+
+    // ==================== FOOTER PRE-FOOTER METHODS ====================
+    public function addFooterTopFeature(): void
+    {
+        if (!isset($this->footerTop['features'])) {
+            $this->footerTop['features'] = [];
+        }
+        if (count($this->footerTop['features']) < 4) {
+            $this->footerTop['features'][] = [
+                'title'     => 'New Marine Capability',
+                'subtitle'  => 'Available 24/7 port side',
+                'icon'      => 'solid:bolt',
+                'url'       => '/services',
+            ];
+        }
+    }
+
+    public function removeFooterTopFeature(int $index): void
+    {
+        if (isset($this->footerTop['features'][$index])) {
+            array_splice($this->footerTop['features'], $index, 1);
+        }
+    }
+
     public function selectHeaderRow(string $row): void
     {
         $this->activeHeaderRow = $row;
