@@ -13,6 +13,8 @@ class HeaderFooterBuilder extends Component
     public string $activeMode = 'header'; // 'header' or 'footer'
     public string $activeHeaderRow = 'section'; // 'section', 'row1', 'row2', 'row3'
     public string $activeFooterRow = 'section'; // 'section', 'row1', 'row2', 'row3'
+    public string $headerSubTab = 'layout'; // 'layout', 'style', 'content'
+    public string $footerSubTab = 'layout'; // 'layout', 'style', 'content'
 
     // ==================== MASTER WRAPPER: HEADER SECTION ====================
     public array $headerSectionBoxModel = [];
@@ -288,6 +290,16 @@ class HeaderFooterBuilder extends Component
     public function selectFooterRow(string $row): void
     {
         $this->activeFooterRow = $row;
+    }
+
+    public function setHeaderSubTab(string $tab): void
+    {
+        $this->headerSubTab = $tab;
+    }
+
+    public function setFooterSubTab(string $tab): void
+    {
+        $this->footerSubTab = $tab;
     }
 
     public function addHeaderBottomLink(): void

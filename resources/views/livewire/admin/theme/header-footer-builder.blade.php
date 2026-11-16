@@ -53,15 +53,13 @@
     <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md shadow-2xs">
         <button type="button" 
                 wire:click="$set('activeMode', 'header')"
-                class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                :class="'{{ $activeMode }}' === 'header' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
+                class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer {{ $activeMode === 'header' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
             <x-icon name="solid:compass-drafting" class="w-4 h-4" />
             <span>Header Builder (3 Rows)</span>
         </button>
         <button type="button" 
                 wire:click="$set('activeMode', 'footer')"
-                class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                :class="'{{ $activeMode }}' === 'footer' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
+                class="flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer {{ $activeMode === 'footer' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
             <x-icon name="solid:layer-group" class="w-4 h-4" />
             <span>Footer Builder (3 Rows)</span>
         </button>
@@ -71,8 +69,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
          x-data="{
              canvasDark: false,
-             headerSubTab: 'layout',
-             footerSubTab: 'layout',
+             headerSubTab: @entangle('headerSubTab'),
+             footerSubTab: @entangle('footerSubTab'),
 
              // Live Reactive Color States
              hSecBg: @js(\App\Services\SmartColorHelper::normalize($headerSectionBgColor, '#ffffff', '#07131e')),
@@ -148,8 +146,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button type="button" 
                             wire:click="selectHeaderRow('section')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeHeaderRow }}' === 'section' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeHeaderRow === 'section' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:layer-group" class="w-3.5 h-3.5" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Wrapper</span>
@@ -159,8 +156,7 @@
 
                     <button type="button" 
                             wire:click="selectHeaderRow('row1')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeHeaderRow }}' === 'row1' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeHeaderRow === 'row1' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:bolt" class="w-3.5 h-3.5 text-amber-400" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 1</span>
@@ -170,8 +166,7 @@
 
                     <button type="button" 
                             wire:click="selectHeaderRow('row2')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeHeaderRow }}' === 'row2' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeHeaderRow === 'row2' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:compass-drafting" class="w-3.5 h-3.5" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 2</span>
@@ -181,8 +176,7 @@
 
                     <button type="button" 
                             wire:click="selectHeaderRow('row3')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeHeaderRow }}' === 'row3' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeHeaderRow === 'row3' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:bullhorn" class="w-3.5 h-3.5" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 3</span>
@@ -193,18 +187,24 @@
 
                 <!-- Inspector Sub-Tabs: Layout | Styling | Content -->
                 <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold shadow-2xs">
-                    <button type="button" @click="headerSubTab = 'layout'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="headerSubTab = 'layout'"
+                            wire:click="setHeaderSubTab('layout')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="headerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         📐 Layout &amp; Box Model
                     </button>
-                    <button type="button" @click="headerSubTab = 'style'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="headerSubTab = 'style'"
+                            wire:click="setHeaderSubTab('style')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="headerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         🎨 Colors &amp; Styling
                     </button>
-                    <button type="button" @click="headerSubTab = 'content'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="headerSubTab = 'content'"
+                            wire:click="setHeaderSubTab('content')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $headerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="headerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         ⚙️ Content &amp; Options
                     </button>
@@ -514,8 +514,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button type="button" 
                             wire:click="selectFooterRow('section')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeFooterRow }}' === 'section' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeFooterRow === 'section' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:layer-group" class="w-3.5 h-3.5" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Wrapper</span>
@@ -525,8 +524,7 @@
 
                     <button type="button" 
                             wire:click="selectFooterRow('row1')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeFooterRow }}' === 'row1' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeFooterRow === 'row1' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:envelope" class="w-3.5 h-3.5 text-cyan-400" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 1</span>
@@ -536,8 +534,7 @@
 
                     <button type="button" 
                             wire:click="selectFooterRow('row2')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeFooterRow }}' === 'row2' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeFooterRow === 'row2' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:table-columns" class="w-3.5 h-3.5" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 2</span>
@@ -547,8 +544,7 @@
 
                     <button type="button" 
                             wire:click="selectFooterRow('row3')"
-                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs"
-                            :class="'{{ $activeFooterRow }}' === 'row3' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'">
+                            class="p-3 rounded-xl border text-left transition-all cursor-pointer shadow-2xs {{ $activeFooterRow === 'row3' ? 'bg-[#003C58] text-white border-[#003C58] dark:bg-cyan-500 dark:text-slate-950 dark:border-cyan-400 ring-2 ring-[#003C58]/20 shadow-md' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300' }}">
                         <div class="flex items-center gap-1.5 mb-1">
                             <x-icon name="solid:shield-halved" class="w-3.5 h-3.5 text-emerald-400" />
                             <span class="text-[10px] uppercase font-bold tracking-wider opacity-75">Row 3</span>
@@ -559,18 +555,24 @@
 
                 <!-- Inspector Sub-Tabs: Layout | Styling | Content -->
                 <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold shadow-2xs">
-                    <button type="button" @click="footerSubTab = 'layout'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="footerSubTab = 'layout'"
+                            wire:click="setFooterSubTab('layout')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="footerSubTab === 'layout' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         📐 Layout &amp; Box Model
                     </button>
-                    <button type="button" @click="footerSubTab = 'style'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="footerSubTab = 'style'"
+                            wire:click="setFooterSubTab('style')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="footerSubTab === 'style' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         🎨 Colors &amp; Styling
                     </button>
-                    <button type="button" @click="footerSubTab = 'content'"
-                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer"
+                    <button type="button" 
+                            @click="footerSubTab = 'content'"
+                            wire:click="setFooterSubTab('content')"
+                            class="flex-1 py-1.5 px-3 rounded-lg transition-all text-center cursor-pointer {{ $footerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}"
                             :class="footerSubTab === 'content' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'">
                         ⚙️ Content &amp; Columns
                     </button>
