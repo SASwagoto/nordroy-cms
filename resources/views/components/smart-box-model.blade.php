@@ -37,7 +37,6 @@
         bStyle: '{{ $b['style'] ?? 'solid' }}',
         bRadius: '{{ $b['radius'] ?? '0px' }}',
         bColor: '{{ $b['color'] ?? '#e2e8f0' }}',
-        openColorPicker: false,
 
         shadow: '{{ $sh ?? 'none' }}',
         width: '{{ $w ?? '1536px' }}',
@@ -248,87 +247,27 @@
                 <option value="dotted">Dotted</option>
             </select>
 
-            <!-- Modern Border Color Trigger & Popover -->
-            <div class="relative inline-block" @click.outside="openColorPicker = false">
-                <button type="button" 
-                        @click="openColorPicker = !openColorPicker"
-                        class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600 transition-all cursor-pointer shadow-2xs group"
-                        title="Choose Border Color">
-                    <span class="w-3.5 h-3.5 rounded-sm border border-black/10 dark:border-white/10 shrink-0 shadow-2xs"
+            <!-- Modern Inline Border Color with Instant Native Picker -->
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:border-[#003C58] dark:hover:border-cyan-500 transition-colors">
+                <label class="relative w-5 h-5 rounded-md border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0 shadow-2xs ring-1 ring-black/5" title="Click to pick border color">
+                    <input type="color" 
+                           x-model="bColor" 
+                           @input="sync()" 
+                           class="absolute -inset-3 w-12 h-12 opacity-0 cursor-pointer">
+                    <span class="block w-full h-full" 
                           :style="'background-color: ' + (bColor || '#e2e8f0')"></span>
-                    <span class="text-[10px] font-mono font-bold uppercase text-slate-700 dark:text-slate-300"
-                          x-text="bColor || '#e2e8f0'"></span>
-                    <x-icon name="solid:palette" class="w-3 h-3 text-slate-400 group-hover:text-cyan-500 transition-colors shrink-0" />
+                </label>
+                <input type="text" 
+                       x-model="bColor" 
+                       @input.debounce.200ms="sync()" 
+                       placeholder="#e2e8f0"
+                       class="w-20 px-1 py-0 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-0 p-0">
+                <button type="button" 
+                        @click="bColor = 'transparent'; sync()" 
+                        class="px-1.5 py-0.5 text-[10px] font-bold rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                        title="Reset to Transparent">
+                    Clear
                 </button>
-
-                <!-- Floating Elegant Color Palette Popover -->
-                <div x-show="openColorPicker" 
-                     x-transition:enter="transition ease-out duration-150"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-100"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
-                     x-cloak
-                     class="absolute left-0 bottom-full mb-1.5 z-50 w-64 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl space-y-2.5">
-                    
-                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Border Color</span>
-                        <button type="button" @click="bColor = 'transparent'; sync(); openColorPicker = false"
-                                class="text-[10px] font-bold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer">
-                            Clear
-                        </button>
-                    </div>
-
-                    <!-- Curated Preset Palette Swatches -->
-                    <div class="grid grid-cols-8 gap-1.5">
-                        @foreach([
-                            '#ffffff' => 'White',
-                            '#f1f5f9' => 'Slate 100',
-                            '#e2e8f0' => 'Slate 200',
-                            '#cbd5e1' => 'Slate 300',
-                            '#94a3b8' => 'Slate 400',
-                            '#64748b' => 'Slate 500',
-                            '#334155' => 'Slate 700',
-                            '#1e293b' => 'Slate 800',
-                            '#0f172a' => 'Slate 900',
-                            '#003C58' => 'Navy Brand',
-                            '#06b6d4' => 'Cyan',
-                            '#0284c7' => 'Sky Blue',
-                            '#10b981' => 'Emerald',
-                            '#f59e0b' => 'Amber',
-                            '#ef4444' => 'Rose',
-                            'transparent' => 'Transparent',
-                        ] as $cHex => $cName)
-                            <button type="button"
-                                    @click="bColor = '{{ $cHex }}'; sync()"
-                                    title="{{ $cName }} ({{ $cHex }})"
-                                    class="w-6 h-6 rounded-md border border-slate-300 dark:border-slate-600 transition-all hover:scale-110 cursor-pointer relative shadow-2xs {{ $cHex === 'transparent' ? 'bg-[linear-gradient(45deg,#cbd5e1_25%,transparent_25%),linear-gradient(-45deg,#cbd5e1_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#cbd5e1_75%),linear-gradient(-45deg,transparent_75%,#cbd5e1_75%)] bg-[size:6px_6px]' : '' }}"
-                                    style="background-color: {{ $cHex === 'transparent' ? 'transparent' : $cHex }};"
-                                    :class="bColor === '{{ $cHex }}' ? 'ring-2 ring-cyan-500 scale-105' : ''">
-                            </button>
-                        @endforeach
-                    </div>
-
-                    <!-- Custom Hex Input & Swatch Bar -->
-                    <div class="flex items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                        <div class="relative w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 shadow-2xs">
-                            <input type="color" 
-                                   x-model="bColor" 
-                                   @input="sync()"
-                                   class="absolute -inset-2 w-12 h-12 opacity-0 cursor-pointer">
-                            <div class="w-full h-full rounded-lg"
-                                 :style="'background-color: ' + (bColor || '#e2e8f0')"></div>
-                        </div>
-                        <div class="flex-1 relative">
-                            <input type="text" 
-                                   x-model="bColor" 
-                                   @input.debounce.250ms="sync()" 
-                                   placeholder="#e2e8f0"
-                                   class="w-full px-2 py-0.5 text-xs font-mono font-bold uppercase rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Radius -->

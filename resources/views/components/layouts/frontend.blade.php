@@ -511,11 +511,15 @@
             // Active Multi-layer Navigation Menu (from DB Menu Builder with fallback)
             $headerMenuId = \App\Models\Setting::get('header_menu_id');
             $activeMenu = null;
-            if ($headerMenuId) {
-                $activeMenu = \App\Models\Menu::with(['items.children.children'])->find($headerMenuId);
-            }
-            if (!$activeMenu) {
-                $activeMenu = \App\Models\Menu::with(['items.children.children'])->where('location', 'primary')->first();
+            if (\Illuminate\Support\Facades\Schema::hasTable('menus')) {
+                try {
+                    if ($headerMenuId) {
+                        $activeMenu = \App\Models\Menu::with(['items.children.children'])->find($headerMenuId);
+                    }
+                    if (!$activeMenu) {
+                        $activeMenu = \App\Models\Menu::with(['items.children.children'])->where('location', 'primary')->first();
+                    }
+                } catch (\Throwable $e) {}
             }
 
             $navTree = [];
@@ -657,16 +661,37 @@
             <div class="mx-auto px-4 sm:px-8 flex items-center justify-between"
                  style="height: {{ $headerHeight ?: '80px' }}; {{ $headerBorderSpan === 'boxed' ? $headerBorderCss : '' }} {{ $headerBoxCss }} {{ $hWidthStyle }}">
                 
-                <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
+                <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing + Customizer Settings) -->
+                @php
+                    $logoType = \App\Models\Setting::get('header_logo_type', 'site_default');
+                    $customLogoLight = \App\Models\Setting::get('header_custom_logo');
+                    $customLogoDark = \App\Models\Setting::get('header_custom_logo_dark') ?: $customLogoLight;
+                    $showBrandTitle = (bool) \App\Models\Setting::get('header_show_title', true);
+                    $showBrandTagline = (bool) \App\Models\Setting::get('header_show_tagline', false);
+                    $brandLogoHeight = \App\Models\Setting::get('header_logo_height', '40px');
+
+                    $activeLogoLight = ($logoType === 'custom' && $customLogoLight) ? $customLogoLight : $siteLogoLight;
+                    $activeLogoDark = ($logoType === 'custom' && $customLogoDark) ? $customLogoDark : $siteLogoDark;
+                @endphp
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-                    <!-- Light Mode Logo: Visible in Light Mode, hidden in Dark Mode -->
-                    <img src="{{ asset($siteLogoLight) }}" 
-                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                         class="h-10 w-auto object-contain dark:hidden group-hover:scale-102 transition-transform duration-200" />
-                    <!-- Dark Mode Logo: Visible in Dark Mode, hidden in Light Mode -->
-                    <img src="{{ asset($siteLogoDark) }}" 
-                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                         class="h-10 w-auto object-contain hidden dark:block group-hover:scale-102 transition-transform duration-200" />
+                    @if($logoType !== 'text_only')
+                        <img src="{{ asset($activeLogoLight) }}" 
+                             alt="{{ $siteName }}" 
+                             class="w-auto object-contain dark:hidden group-hover:scale-102 transition-transform duration-200" 
+                             style="height: {{ $brandLogoHeight }};" />
+                        <img src="{{ asset($activeLogoDark) }}" 
+                             alt="{{ $siteName }}" 
+                             class="w-auto object-contain hidden dark:block group-hover:scale-102 transition-transform duration-200" 
+                             style="height: {{ $brandLogoHeight }};" />
+                    @endif
+                    @if($showBrandTitle || $logoType === 'text_only')
+                        <div class="flex flex-col">
+                            <span class="font-heading font-extrabold text-sm sm:text-base text-slate-900 dark:text-white tracking-tight leading-tight">{{ $siteName }}</span>
+                            @if($showBrandTagline)
+                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-normal leading-tight">{{ $siteTagline }}</span>
+                            @endif
+                        </div>
+                    @endif
                 </a>
 
                 <!-- DESKTOP MULTI-LAYER DYNAMIC NAVIGATION LINKS WITH SUBMENUS -->
@@ -784,33 +809,66 @@
                 $hbWidth = ($headerBottom['box_model'] ?? [])['width'] ?? '1536px';
                 $hbWidthStyle = ($hbWidth === '100%') ? 'width: 100%; max-width: 100%;' : "max-width: {$hbWidth}; width: 100%;";
             @endphp
-            <!-- ROW 3: BOTTOM SUB-HEADER BAR -->
+            <!-- ROW 3: BOTTOM SUB-HEADER BAR (Notice / Quick Links / 24/7 Hotline) -->
             <div class="{{ $isCustomHeaderBottomBg ? 'smart-custom-hb-bg' : 'bg-slate-50/95 dark:bg-[#061320]/95' }} {{ $isCustomHeaderBottomText ? 'smart-custom-hb-text' : 'text-slate-600 dark:text-slate-400' }} border-t border-slate-200/80 dark:border-slate-800 transition-colors"
                  style="{{ $isCustomHeaderBottomBg ? \App\Services\SmartColorHelper::cssVars($headerBottom['bg_color'], 'hb-bg') : '' }} {{ $isCustomHeaderBottomText ? \App\Services\SmartColorHelper::cssVars($headerBottom['text_color'], 'hb-text') : '' }} {{ $headerBottomBoxCss }}">
                 <div class="mx-auto px-4 sm:px-8 py-2 flex items-center {{ ($headerBottom['layout'] ?? 'between') === 'center' ? 'justify-center text-center gap-4' : (($headerBottom['layout'] ?? 'between') === 'start' ? 'justify-start gap-4' : 'justify-between gap-4') }} text-xs"
                      style="{{ $hbWidthStyle }}">
-                    @if(!empty($headerBottom['text']))
+                    
+                    @if(($headerBottom['type'] ?? '') === 'emergency')
+                        <!-- 24/7 Port Hotline Bar -->
                         <div class="flex items-center gap-2 truncate">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase tracking-wider shrink-0">
-                                Notice
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 uppercase tracking-wider shrink-0">
+                                24/7 Port Hotline
                             </span>
-                            <span class="truncate font-medium">{{ $headerBottom['text'] }}</span>
+                            <span class="truncate font-semibold">{{ $headerBottom['notice_text'] ?? $headerBottom['text'] ?? 'Duty Engineers available 24/7 for emergency port dispatch & anchorage attendance' }}</span>
                         </div>
-                    @endif
-
-                    @if(!empty($headerBottom['items']) && is_array($headerBottom['items']))
+                        <div class="flex items-center gap-3 shrink-0">
+                            <a href="tel:{{ $headerBottom['emergency_phone'] ?? '+8801819318488' }}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] shadow-xs transition-colors">
+                                <x-icon name="solid:phone-volume" class="w-3 h-3" />
+                                <span>Call {{ $headerBottom['emergency_phone'] ?? '+880 1819-318488' }}</span>
+                            </a>
+                        </div>
+                    @elseif(($headerBottom['type'] ?? '') === 'quick_links' || !empty($headerBottom['quick_links']))
+                        <!-- Quick Links Navigation Strip -->
+                        @if(!empty($headerBottom['notice_text'] ?? $headerBottom['text'] ?? ''))
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase tracking-wider shrink-0">
+                                    {{ $headerBottom['badge_text'] ?? 'Direct' }}
+                                </span>
+                                <span class="truncate font-medium">{{ $headerBottom['notice_text'] ?? $headerBottom['text'] }}</span>
+                            </div>
+                        @endif
                         <div class="flex items-center gap-4 shrink-0 flex-wrap">
-                            @foreach($headerBottom['items'] as $bItem)
+                            @foreach(($headerBottom['quick_links'] ?? $headerBottom['items'] ?? []) as $bItem)
                                 @if(!empty($bItem['label']))
                                     <a href="{{ $bItem['url'] ?? '#' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 font-semibold transition-colors flex items-center gap-1.5 text-[11px]">
                                         @if(!empty($bItem['icon']))
                                             <x-icon :name="$bItem['icon']" class="w-3.5 h-3.5 shrink-0 opacity-80" />
                                         @endif
                                         <span>{{ $bItem['label'] }}</span>
+                                        @if(!empty($bItem['badge']))
+                                            <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">{{ $bItem['badge'] }}</span>
+                                        @endif
                                     </a>
                                 @endif
                             @endforeach
                         </div>
+                    @else
+                        <!-- Standard Notice Ticker -->
+                        @if(!empty($headerBottom['notice_text'] ?? $headerBottom['text'] ?? ''))
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase tracking-wider shrink-0">
+                                    {{ $headerBottom['badge_text'] ?? 'Notice' }}
+                                </span>
+                                <span class="truncate font-medium">{{ $headerBottom['notice_text'] ?? $headerBottom['text'] }}</span>
+                            </div>
+                        @endif
+                        @if(!empty($headerBottom['link_url']))
+                            <a href="{{ $headerBottom['link_url'] }}" class="text-[11px] font-bold text-[#003C58] dark:text-cyan-400 hover:underline shrink-0">
+                                {{ $headerBottom['link_text'] ?? 'Learn More &rarr;' }}
+                            </a>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -1173,9 +1231,11 @@
                                     @php
                                         $mId = $content['menu_id'] ?? null;
                                         $mItems = [];
-                                        if ($mId) {
-                                            $mMenu = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($mId);
-                                            $mItems = $mMenu ? $mMenu->items : [];
+                                        if ($mId && \Illuminate\Support\Facades\Schema::hasTable('menus')) {
+                                            try {
+                                                $mMenu = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($mId);
+                                                $mItems = $mMenu ? $mMenu->items : [];
+                                            } catch (\Throwable $e) {}
                                         }
                                     @endphp
                                     <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
@@ -1309,9 +1369,11 @@
                                 @php
                                     $bMenuId = $bContent['menu_id'] ?? null;
                                     $bMenuItems = [];
-                                    if ($bMenuId) {
-                                        $m = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($bMenuId);
-                                        $bMenuItems = $m ? $m->items : [];
+                                    if ($bMenuId && \Illuminate\Support\Facades\Schema::hasTable('menus')) {
+                                        try {
+                                            $m = \App\Models\Menu::with(['items' => fn($q) => $q->whereNull('parent_id')->orderBy('order')])->find($bMenuId);
+                                            $bMenuItems = $m ? $m->items : [];
+                                        } catch (\Throwable $e) {}
                                     }
                                     $isHoriz = ($bContent['menu_layout'] ?? 'horizontal') === 'horizontal';
                                 @endphp

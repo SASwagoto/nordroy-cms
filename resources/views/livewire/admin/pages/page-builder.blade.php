@@ -321,4 +321,8 @@
             </div>
         </div>
     @endif
+
+    <!-- Universal Media Library & Icon Picker Modals -->
+    <x-media-picker-modal />
+    <x-icon-picker-modal />
 </div>

@@ -21,7 +21,7 @@ class PageBuilder extends Component
     public string $activeFooterRow = 'section'; // 'section', 'row1', 'row2', 'row3'
     public string $headerSubTab = 'layout'; // 'layout', 'style', 'content'
     public string $footerSubTab = 'layout'; // 'layout', 'style', 'content'
-    public string $activeSectionTab = 'layout'; // 'layout', 'content'
+    public string $activeSectionTab = 'content'; // 'content', 'title', 'layout'
 
     // Page Context
     public ?int $pageId = null;
@@ -66,6 +66,14 @@ class PageBuilder extends Component
     public ?int $headerMenuId = null;
     public array $headerCta = [];
 
+    // Header Row 2: Brand & Logo Controls (Matching sherazipos12)
+    public string $headerLogoType = 'site'; // 'site' | 'custom'
+    public ?string $headerCustomLogo = null;
+    public ?string $headerCustomLogoDark = null;
+    public bool $headerShowTitle = false;
+    public bool $headerShowTagline = false;
+    public string $headerLogoHeight = '44px';
+
     // ==================== HEADER ROW 3: BOTTOM SUB-HEADER ====================
     public array $headerBottom = [];
 
@@ -96,6 +104,13 @@ class PageBuilder extends Component
     public array $currentSectionLayout = [];
     public array $currentSectionTitleSettings = [];
     public array $currentSectionContent = [];
+
+    // ==================== MEDIA & ICON MODAL INTEGRATION ====================
+    public $uploads = [];
+    public string $uploadFolder = 'sections';
+    public $modalUploadedFile = null;
+    public ?string $modalTargetField = null;
+    public ?int $modalTargetIndex = null;
 
     public function mount(?string $section = null): void
     {
@@ -237,12 +252,30 @@ class PageBuilder extends Component
             'custom_color' => '#003C58',
         ], Setting::getJson('header_cta'));
 
+        // Logo & Brand Identity Settings
+        $this->headerLogoType = Setting::get('header_logo_type', 'site');
+        $this->headerCustomLogo = Setting::get('header_custom_logo');
+        $this->headerCustomLogoDark = Setting::get('header_custom_logo_dark');
+        $this->headerShowTitle = (bool) Setting::get('header_show_title', '0');
+        $this->headerShowTagline = (bool) Setting::get('header_show_tagline', '0');
+        $this->headerLogoHeight = Setting::get('header_logo_height', '44px');
+
         $this->headerBottom = array_merge([
-            'enabled'   => false,
-            'density'   => 'compact',
-            'alignment' => 'start',
-            'show_all_divisions' => true,
+            'enabled'     => false,
+            'type'        => 'notice', // 'notice', 'quick_links', 'emergency'
+            'density'     => 'compact',
+            'alignment'   => 'between',
+            'badge_text'  => 'Official Advisory',
             'ticker_text' => 'Direct Drydock & Berth Support: Chittagong Anchorage • Mongla Port • Payra Port',
+            'ticker_link' => '/services',
+            'quick_links' => [
+                ['icon' => 'solid:anchor', 'label' => 'Overhaul Services', 'url' => '/services', 'badge' => '24/7'],
+                ['icon' => 'solid:gear', 'label' => 'Genuine Spare Parts', 'url' => '/#parts', 'badge' => 'OEM'],
+                ['icon' => 'solid:bolt', 'label' => 'Emergency Flying Squad', 'url' => '/#rfq', 'badge' => 'Instant'],
+            ],
+            'emergency_phone' => Setting::get('site_emergency_phone', Setting::get('site_phone', '+880 1819 000000')),
+            'emergency_subtext' => '45-Min Emergency Response Squad to Anchorage Berth',
+            'emergency_btn_text' => 'Call 24/7 Duty Desk',
             'bg_color'  => ['mode' => 'theme', 'type' => 'solid', 'light' => '#f8fafc', 'dark' => '#0a1926', 'opacity' => 100],
             'text_color'=> ['mode' => 'theme', 'type' => 'solid', 'light' => '#334155', 'dark' => '#cbd5e1', 'opacity' => 100],
             'box_model' => [
@@ -252,7 +285,7 @@ class PageBuilder extends Component
                 'border'  => ['enabled' => true, 'width' => '1px', 'side' => 'bottom', 'style' => 'solid', 'color' => '#e2e8f0'],
                 'shadow'  => 'none',
             ],
-        ], Setting::getJson('header_bottom'));
+        ], Setting::getJson('header_bottom') ?: []);
     }
 
     protected function loadFooterSettings(): void
@@ -363,6 +396,7 @@ class PageBuilder extends Component
         $this->heroEnabled = isset($heroData['enabled']) ? (bool)$heroData['enabled'] : true;
         $this->heroTitle = $heroData['title'] ?? 'Hero Banner (Fixed)';
         $this->heroLayout = array_merge([
+            'hero_style'  => 'split', // 'split' | 'slider' | 'video' | 'minimal'
             'width'       => 'container-fluid',
             'bg_type'     => 'video',
             'bg_color'    => '#001e2e',
@@ -380,19 +414,20 @@ class PageBuilder extends Component
             'bg_video_overlay' => true,
             'bg_video_overlay_color' => '#001e2e',
             'bg_video_overlay_opacity' => '0.75',
-            'bg_image_url'=> '',
+            'bg_image_url'=> 'assets/images/gallery/gallery-vessel.jpg',
             'glass_blur'  => '12px',
             'glass_opacity'=> 80,
         ], $heroData['layout'] ?? []);
 
         $this->heroSlides = Setting::getJson('hero_banner_slides') ?: [
             [
-                'headline'   => 'Marine Turbocharger Overhaul & High-Speed Dynamic Balancing',
-                'subtitle'   => 'Class-certified 24/7 flying squads with calibrated Schenck dynamic balancing up to 100,000 RPM. Zero port demurrage guarantee.',
-                'badge'      => 'DNV & ISO 9001:2015 Class A Certified',
+                'image_url'  => 'assets/images/gallery/gallery-vessel.jpg',
+                'headline'   => 'Precision Turbocharger Overhauls & Marine Propulsion Support',
+                'subtitle'   => 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics.',
+                'badge'      => 'Authorized Multi-Brand Turbocharger Engineering',
                 'badge_icon' => 'shield-check',
-                'cta1'       => ['text' => 'Request Emergency Dispatch', 'url' => '/#inquiry', 'variant' => 'primary', 'icon' => 'bolt'],
-                'cta2'       => ['text' => 'Technical Capabilities', 'url' => '/services', 'variant' => 'outline', 'icon' => 'compass'],
+                'cta1'       => ['text' => 'Explore Overhaul Services', 'url' => '/services', 'variant' => 'primary', 'icon' => 'bolt'],
+                'cta2'       => ['text' => 'Request Instant RFQ', 'url' => '/#rfq', 'variant' => 'outline', 'icon' => 'compass'],
             ]
         ];
 
@@ -875,6 +910,40 @@ class PageBuilder extends Component
         }
     }
 
+    public function reorderSections(array $orderedIds): void
+    {
+        if (empty($orderedIds)) {
+            return;
+        }
+
+        $sectionsById = [];
+        foreach ($this->sections as $sec) {
+            $sectionsById[(string)$sec['id']] = $sec;
+        }
+
+        $newSections = [];
+        $order = 10;
+        foreach ($orderedIds as $id) {
+            $idStr = (string)$id;
+            if (isset($sectionsById[$idStr])) {
+                $s = $sectionsById[$idStr];
+                $s['order'] = $order;
+                $newSections[] = $s;
+                $order += 10;
+                unset($sectionsById[$idStr]);
+            }
+        }
+
+        // Append remaining in case some were not in drag list
+        foreach ($sectionsById as $s) {
+            $s['order'] = $order;
+            $newSections[] = $s;
+            $order += 10;
+        }
+
+        $this->sections = $newSections;
+    }
+
     public function deleteSection(string $id): void
     {
         $idx = $this->findSectionIndex($id);
@@ -1186,11 +1255,12 @@ class PageBuilder extends Component
     public function addHeroSlide(): void
     {
         $this->heroSlides[] = [
+            'image_url'  => 'assets/images/gallery/gallery-vessel.jpg',
             'headline'   => 'Precision Overhauls & Class Certified Engineering',
             'subtitle'   => 'Zero port demurrage turnaround backed by calibrated Schenck rotor balancing.',
             'badge'      => 'DNV Certified',
             'badge_icon' => 'shield-check',
-            'cta1'       => ['text' => 'Request Service', 'url' => '/#inquiry', 'variant' => 'primary', 'icon' => 'bolt'],
+            'cta1'       => ['text' => 'Request Service', 'url' => '/#rfq', 'variant' => 'primary', 'icon' => 'bolt'],
             'cta2'       => ['text' => 'Learn More', 'url' => '/services', 'variant' => 'outline', 'icon' => 'compass'],
         ];
     }
@@ -1216,6 +1286,192 @@ class PageBuilder extends Component
         if (isset($this->heroOverlayCards[$index])) {
             array_splice($this->heroOverlayCards, $index, 1);
         }
+    }
+
+    // ==================== HEADER ROW 1 & 3 HELPERS ====================
+    public function syncTopbarItemWithSiteSettings(int $colIndex, int $itemIndex, string $sourceKey): void
+    {
+        $colKey = "col{$colIndex}";
+        if (!isset($this->headerTopbar[$colKey]['items'][$itemIndex])) {
+            return;
+        }
+
+        $item = &$this->headerTopbar[$colKey]['items'][$itemIndex];
+        switch ($sourceKey) {
+            case 'site_phone':
+                $phone = Setting::get('site_phone', '+880 1819 000000');
+                $item['type'] = 'dynamic_phone';
+                $item['text'] = $phone;
+                $item['icon'] = 'solid:phone-volume';
+                $item['is_link'] = true;
+                $item['url'] = 'tel:' . preg_replace('/[^\d+]/', '', $phone);
+                break;
+            case 'site_email':
+                $email = Setting::get('site_email', 'duty@nordroy.com');
+                $item['type'] = 'dynamic_email';
+                $item['text'] = $email;
+                $item['icon'] = 'solid:envelope';
+                $item['is_link'] = true;
+                $item['url'] = 'mailto:' . $email;
+                break;
+            case 'site_emergency':
+                $hotline = Setting::get('site_emergency_phone', Setting::get('site_phone', '+880 1800 000000'));
+                $item['type'] = 'dynamic_phone';
+                $item['text'] = '24/7 Port SOS: ' . $hotline;
+                $item['icon'] = 'solid:bolt';
+                $item['is_link'] = true;
+                $item['url'] = 'tel:' . preg_replace('/[^\d+]/', '', $hotline);
+                break;
+            case 'site_hours':
+                $hours = Setting::get('site_working_hours', '24/7/365 Emergency Flying Squads');
+                $item['type'] = 'custom';
+                $item['text'] = $hours;
+                $item['icon'] = 'solid:clock';
+                $item['is_link'] = false;
+                break;
+            case 'site_address':
+                $addr = Setting::get('site_address', 'Chattogram Port Marine Workshop');
+                $item['type'] = 'custom';
+                $item['text'] = $addr;
+                $item['icon'] = 'solid:location-dot';
+                $item['is_link'] = false;
+                break;
+        }
+    }
+
+    public function addRow3QuickLink(): void
+    {
+        if (!isset($this->headerBottom['quick_links']) || !is_array($this->headerBottom['quick_links'])) {
+            $this->headerBottom['quick_links'] = [];
+        }
+
+        $this->headerBottom['quick_links'][] = [
+            'icon'  => 'solid:chevron-right',
+            'label' => 'New Quick Link',
+            'url'   => '/services',
+            'badge' => '',
+        ];
+    }
+
+    public function removeRow3QuickLink(int $index): void
+    {
+        if (isset($this->headerBottom['quick_links'][$index])) {
+            array_splice($this->headerBottom['quick_links'], $index, 1);
+        }
+    }
+
+    // ==================== MEDIA & ICON MODAL DISPATCH HANDLERS ====================
+    public function selectAsset(int $assetId, string $assetUrl, ?string $targetField = null, ?int $targetIndex = null): void
+    {
+        if ($targetField) {
+            if ($targetIndex !== null) {
+                data_set($this, "{$targetField}.{$targetIndex}.image_id", $assetId);
+                data_set($this, "{$targetField}.{$targetIndex}.image_url", $assetUrl);
+                data_set($this, "{$targetField}.{$targetIndex}.image", $assetUrl);
+            } else {
+                data_set($this, "{$targetField}_id", $assetId);
+                data_set($this, $targetField, $assetUrl);
+                if (str_ends_with($targetField, '_url')) {
+                    $baseProp = substr($targetField, 0, -4);
+                    data_set($this, $baseProp, $assetUrl);
+                }
+            }
+        }
+        $this->dispatch('close-media-modal');
+    }
+
+    public function removeAsset(string $targetField, ?int $targetIndex = null): void
+    {
+        if ($targetIndex !== null) {
+            data_set($this, "{$targetField}.{$targetIndex}.image_id", null);
+            data_set($this, "{$targetField}.{$targetIndex}.image_url", null);
+            data_set($this, "{$targetField}.{$targetIndex}.image", null);
+        } else {
+            data_set($this, "{$targetField}_id", null);
+            data_set($this, $targetField, null);
+        }
+    }
+
+    public function uploadFiles(?string $targetField = null, ?int $targetIndex = null): void
+    {
+        if (empty($this->uploads) || !is_array($this->uploads)) {
+            return;
+        }
+
+        $service = app(\App\Services\MediaStorageService::class);
+        $lastAsset = null;
+        foreach ($this->uploads as $file) {
+            try {
+                $folder = $this->uploadFolder ?: 'sections';
+                $lastAsset = $service->storeUploadedFile($file, $folder, auth()->id());
+                if ($lastAsset) {
+                    $this->dispatch('media-asset-uploaded', [
+                        'id'        => $lastAsset->id,
+                        'file_name' => $lastAsset->file_name,
+                        'url'       => $lastAsset->url,
+                        'is_image'  => in_array(strtolower(pathinfo($lastAsset->file_name, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp','svg','gif','ico']),
+                    ]);
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        $this->uploads = [];
+
+        if ($lastAsset && $targetField) {
+            $this->selectAsset($lastAsset->id, $lastAsset->url, $targetField, $targetIndex);
+        } else {
+            $this->dispatch('close-media-modal');
+        }
+    }
+
+    public function processUploads(?string $targetField = null, ?int $targetIndex = null): void
+    {
+        $this->uploadFiles($targetField, $targetIndex);
+    }
+
+    public function selectIconAsset(string $targetField, ?int $targetIndex, string $iconId, ?string $targetTypeField = null): void
+    {
+        if ($targetIndex !== null) {
+            data_set($this, "{$targetField}.{$targetIndex}.icon", $iconId);
+        } else {
+            data_set($this, $targetField, $iconId);
+        }
+        $this->dispatch('close-icon-picker');
+    }
+
+    public function uploadCustomIcon(?string $targetField = null, ?int $targetIndex = null, ?string $targetTypeField = null, ?string $customTitle = null): void
+    {
+        if (!$this->modalUploadedFile) {
+            return;
+        }
+
+        try {
+            $ext = strtolower($this->modalUploadedFile->getClientOriginalExtension());
+            $cleanFileName = 'icon-' . uniqid() . '.' . $ext;
+            $path = $this->modalUploadedFile->storeAs('custom-icons', $cleanFileName, 'public');
+            $publicUrl = asset('storage/' . $path);
+
+            $custom = \App\Models\CustomIcon::create([
+                'name'       => $customTitle ?: pathinfo($this->modalUploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
+                'icon_path'  => $path,
+                'is_raw_svg' => false,
+                'category'   => 'custom',
+            ]);
+
+            $this->dispatch('custom-icon-saved', [
+                'iconId'   => $custom->id,
+                'iconPath' => $path,
+                'iconName' => $custom->name,
+                'iconUrl'  => $publicUrl,
+                'isRawSvg' => false,
+            ]);
+
+            if ($targetField) {
+                $this->selectIconAsset($targetField, $targetIndex, $path, $targetTypeField);
+            }
+        } catch (\Throwable $e) {}
+
+        $this->modalUploadedFile = null;
     }
 
     // ==================== BODY SECTION CONTENT HELPERS ====================
@@ -1281,11 +1537,14 @@ class PageBuilder extends Component
             default:
                 $this->currentSectionContent['items'][] = [
                     'title'     => 'New Service / Showcase Item',
+                    'subtitle'  => 'OEM Spec / ISO 9001:2015',
                     'desc'      => 'Comprehensive engineering scope, genuine OEM parts, and testing.',
                     'badge'     => 'Certified',
                     'image'     => '',
+                    'icon'      => 'wrench',
                     'link'      => '/services',
                     'link_text' => 'Read Full Details',
+                    'align'     => 'left',
                 ];
                 break;
         }
@@ -1348,6 +1607,13 @@ class PageBuilder extends Component
         Setting::set('header_border_color', $this->headerBorderColor, 'header');
         Setting::set('header_menu_id', (string) ($this->headerMenuId ?: ''), 'header');
         Setting::set('header_cta', $this->headerCta, 'header', 'json');
+
+        Setting::set('header_logo_type', $this->headerLogoType, 'header');
+        Setting::set('header_custom_logo', $this->headerCustomLogo ?: '', 'header');
+        Setting::set('header_custom_logo_dark', $this->headerCustomLogoDark ?: '', 'header');
+        Setting::set('header_show_title', $this->headerShowTitle ? '1' : '0', 'header');
+        Setting::set('header_show_tagline', $this->headerShowTagline ? '1' : '0', 'header');
+        Setting::set('header_logo_height', $this->headerLogoHeight, 'header');
 
         Setting::set('header_bottom', $this->headerBottom, 'header', 'json');
 
