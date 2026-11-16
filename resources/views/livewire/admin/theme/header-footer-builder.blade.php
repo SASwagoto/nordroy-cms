@@ -16,7 +16,13 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.builder') }}" wire:navigate
+               class="px-3.5 py-2 text-xs font-bold rounded-xl border border-cyan-500/30 bg-cyan-50/50 dark:bg-cyan-950/30 text-[#003C58] dark:text-cyan-300 hover:bg-cyan-100 dark:hover:bg-cyan-900/40 transition-colors flex items-center gap-1.5 shadow-2xs">
+                <x-icon name="solid:cubes" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                <span>Page Sections CMS &rarr;</span>
+            </a>
+
             <a href="{{ route('admin.theme') }}" wire:navigate
                class="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                 &larr; Design System Tokens

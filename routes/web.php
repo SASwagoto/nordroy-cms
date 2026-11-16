@@ -4,6 +4,7 @@ use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
+use App\Livewire\Admin\Pages\PageBuilder;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
 use App\Livewire\Admin\Theme\HeaderFooterBuilder;
@@ -232,6 +233,11 @@ Route::middleware([
     Route::get('/header-footer', HeaderFooterBuilder::class)
         ->middleware('permission:theme.manage')
         ->name('header-footer');
+
+    // Storefront Customizer & Homepage Sections CMS
+    Route::get('/builder', PageBuilder::class)
+        ->middleware('permission:theme.manage')
+        ->name('builder');
 
     // Navigation Menus Builder
     Route::get('/menus', MenuManager::class)
