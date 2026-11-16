@@ -943,11 +943,11 @@
                                     <div class="p-2.5 rounded-xl border transition-all text-[9px] flex items-center justify-between gap-2"
                                          :style="'background: ' + computeSmartBg(ftBg, canvasDark, (canvasDark ? '#061a28' : '#003C58')) + '; color: ' + computeSmartText(ftText, canvasDark, (canvasDark ? '#f1f5f9' : '#ffffff')) + '; border-color: ' + (canvasDark ? '#1e293b' : '#e2e8f0')">
                                         <div class="truncate">
-                                            <strong class="block truncate text-[10px]">{{ $footerTop['headline'] ?: 'Subscribe to Bulletins' }}</strong>
-                                            <span class="opacity-75 block truncate text-[8px]">{{ $footerTop['subtext'] ?: 'Real-time turbocharger updates.' }}</span>
+                                            <strong class="block truncate text-[10px]">{{ ($footerTop['headline'] ?? '') ?: 'Subscribe to Bulletins' }}</strong>
+                                            <span class="opacity-75 block truncate text-[8px]">{{ ($footerTop['subtext'] ?? '') ?: 'Real-time turbocharger updates.' }}</span>
                                         </div>
                                         <span class="px-2 py-0.5 rounded text-[8px] font-bold bg-cyan-500 text-slate-950 shrink-0 shadow-2xs">
-                                            {{ $footerTop['button_text'] ?: 'Subscribe' }}
+                                            {{ ($footerTop['button_text'] ?? '') ?: 'Subscribe' }}
                                         </span>
                                     </div>
                                 @endif

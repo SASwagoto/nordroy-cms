@@ -1610,18 +1610,18 @@
                                  style="border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: {{ $tbBg }};">
                                 @if(!empty($headerTopbar['show_badge'] ?? true))
                                     <span class="truncate font-bold text-cyan-600 dark:text-cyan-400">
-                                        {{ $headerTopbar['badge_text'] ?: '24/7 Emergency' }}
+                                        {{ ($headerTopbar['badge_text'] ?? '') ?: '24/7 Emergency' }}
                                     </span>
                                 @endif
                                 <div class="flex items-center gap-2 font-mono opacity-80 text-[8px]">
                                     @if(!empty($headerTopbar['show_phone'] ?? true))
                                         <span class="hidden sm:inline">
-                                            {{ $headerTopbar['phone'] ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                            {{ ($headerTopbar['phone'] ?? '') ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
                                         </span>
                                     @endif
                                     @if(!empty($headerTopbar['show_custom_link']) && !empty($headerTopbar['custom_link_text']))
                                         <span class="text-cyan-600 dark:text-cyan-400 font-bold underline">
-                                            {{ $headerTopbar['custom_link_text'] }}
+                                            {{ $headerTopbar['custom_link_text'] ?? '' }}
                                         </span>
                                     @endif
                                     @if(!empty($headerTopbar['show_social'] ?? true))
@@ -1679,7 +1679,7 @@
                                     <span class="px-1.5 py-0.5 rounded text-[7px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 uppercase">
                                         Sub-Header
                                     </span>
-                                    <span class="truncate font-semibold">{{ $headerBottom['text'] ?: 'Authorized Maritime Bulletin' }}</span>
+                                    <span class="truncate font-semibold">{{ ($headerBottom['text'] ?? '') ?: 'Authorized Maritime Bulletin' }}</span>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
                                     @foreach(array_slice($headerBottom['items'] ?? [], 0, 2) as $hItem)
@@ -1801,11 +1801,11 @@
                         <div class="p-2.5 rounded-xl border transition-all text-[9px] flex items-center justify-between gap-2 mt-2"
                              :style="'border-color: {{ $theme['theme_border_color'] ?? '#e2e8f0' }}; background: ' + getFooterTopPreviewBg() + '; color: ' + getFooterTopPreviewText()">
                             <div class="truncate">
-                                <strong class="block truncate text-[10px]">{{ $footerTop['headline'] ?: 'Subscribe to Bulletins' }}</strong>
-                                <span class="opacity-75 block truncate text-[8px]">{{ $footerTop['subtext'] ?: 'Stay informed with technical alerts' }}</span>
+                                <strong class="block truncate text-[10px]">{{ ($footerTop['headline'] ?? '') ?: 'Subscribe to Bulletins' }}</strong>
+                                <span class="opacity-75 block truncate text-[8px]">{{ ($footerTop['subtext'] ?? '') ?: 'Stay informed with technical alerts' }}</span>
                             </div>
                             <span class="px-2 py-0.5 rounded-md text-[8px] font-bold bg-cyan-500 text-slate-950 shrink-0 shadow-2xs">
-                                {{ $footerTop['button_text'] ?: 'Subscribe' }}
+                                {{ ($footerTop['button_text'] ?? '') ?: 'Subscribe' }}
                             </span>
                         </div>
                     @endif

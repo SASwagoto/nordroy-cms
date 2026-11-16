@@ -511,27 +511,26 @@
                                     $query = \App\Models\Service::query()->where('is_active', true);
                                     if ($filterScope === 'featured') $query->where('is_featured', true);
                                     $items = $query->take($limit)->get()->map(fn($s) => [
-                                        'title'    => $s->title,
+                                        'title'    => $s->display_title ?: (is_array($s->title) ? ($s->title['en'] ?? '') : (string)$s->title),
                                         'subtitle' => 'ISO 9001:2015 Workshop Scope',
-                                        'desc'     => $s->short_summary,
+                                        'desc'     => $s->display_summary ?: (is_array($s->short_summary) ? ($s->short_summary['en'] ?? '') : (string)$s->short_summary),
                                         'badge'    => $s->is_featured ? 'Featured Capability' : 'Authorized Scope',
                                         'image'    => $s->featuredImage?->url ?? '',
                                         'icon'     => $s->icon ?: 'solid:wrench',
-                                        'link'     => route('services.show', $s->slug),
+                                        'link'     => route('service.details', $s->slug),
                                         'link_text'=> 'View Overhaul Details',
                                     ])->toArray();
                                 } elseif ($targetModel === 'products' && \Illuminate\Support\Facades\Schema::hasTable('products')) {
                                     $query = \App\Models\Product::query()->where('is_active', true);
-                                    if ($filterScope === 'featured') $query->where('is_featured', true);
                                     $items = $query->take($limit)->get()->map(fn($p) => [
-                                        'title'    => $p->title,
+                                        'title'    => $p->display_title ?: (is_array($p->title) ? ($p->title['en'] ?? '') : (string)$p->title),
                                         'subtitle' => 'Part No: ' . ($p->part_number ?: 'OEM-STANDARD'),
-                                        'desc'     => 'Genuine calibrated replacement turbocharger rotor and dynamic assembly.',
-                                        'badge'    => 'Ready Stock',
-                                        'image'    => $p->featuredImage?->url ?? '',
+                                        'desc'     => $p->summary ?: 'Genuine calibrated replacement turbocharger rotor and dynamic assembly.',
+                                        'badge'    => $p->stock_status ?: 'In Stock',
+                                        'image'    => $p->image_url,
                                         'icon'     => 'solid:gear',
-                                        'link'     => route('contact') . '#rfq',
-                                        'link_text'=> 'Request Quote',
+                                        'link'     => route('product.details', $p->slug),
+                                        'link_text'=> 'View Technical Specs',
                                     ])->toArray();
                                 } elseif ($targetModel === 'divisions' && \Illuminate\Support\Facades\Schema::hasTable('business_units')) {
                                     $items = \App\Models\BusinessUnit::query()->take($limit)->get()->map(fn($u) => [

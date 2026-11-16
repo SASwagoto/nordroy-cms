@@ -33,11 +33,23 @@
                             {{ sprintf('%02d', $index + 1) }} &bull; {{ strtoupper(str_replace('-', ' ', explode('-', $service->slug)[0] ?? 'OVERHAUL')) }}
                         </span>
                         <h2 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">
-                            {{ $service->display_title }}
+                            <a href="{{ route('service.details', $service->slug) }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">
+                                {{ $service->display_title }}
+                            </a>
                         </h2>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                             {{ $service->display_content ?: $service->display_summary }}
                         </p>
+                        <div class="pt-2 flex items-center gap-3">
+                            <a href="{{ route('service.details', $service->slug) }}" 
+                               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:bg-[#024a6d] shadow-sm transition-all">
+                                <span>Technical Procedure &amp; Scope &rarr;</span>
+                            </a>
+                            <a href="{{ route('contact') }}#rfq" 
+                               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                                <span>Request Quotation</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="lg:col-span-4 flex justify-center">
                         @if ($service->featuredImage)

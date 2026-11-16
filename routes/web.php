@@ -5,6 +5,7 @@ use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
 use App\Livewire\Admin\Pages\PageBuilder;
+use App\Livewire\Admin\Products\ProductManager;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
 use App\Livewire\Admin\Theme\HeaderFooterBuilder;
@@ -30,6 +31,46 @@ Route::get('/about', function () {
 Route::get('/services', function () {
     return view('pages.services');
 })->name('services');
+
+Route::get('/services/{slug}', function (string $slug) {
+    $service = \App\Models\Service::with('featuredImage')
+        ->where('slug', $slug)
+        ->firstOrFail();
+
+    $relatedServices = \App\Models\Service::where('id', '!=', $service->id)
+        ->where('is_active', true)
+        ->take(4)
+        ->get();
+
+    return view('pages.service-details', [
+        'service'         => $service,
+        'relatedServices' => $relatedServices,
+    ]);
+})->name('service.details');
+
+Route::get('/products', function () {
+    return view('pages.products');
+})->name('products');
+
+Route::get('/spare-parts', function () {
+    return redirect()->route('products');
+});
+
+Route::get('/products/{slug}', function (string $slug) {
+    $product = \App\Models\Product::with(['featuredImage', 'brochure'])
+        ->where('slug', $slug)
+        ->firstOrFail();
+
+    $relatedProducts = \App\Models\Product::where('id', '!=', $product->id)
+        ->where('is_active', true)
+        ->take(4)
+        ->get();
+
+    return view('pages.product-details', [
+        'product'         => $product,
+        'relatedProducts' => $relatedProducts,
+    ]);
+})->name('product.details');
 
 Route::get('/projects', function () {
     return view('pages.projects');
@@ -253,6 +294,11 @@ Route::middleware([
     Route::get('/services', ServiceManager::class)
         ->middleware('permission:services.view')
         ->name('services');
+
+    // Marine Spare Parts & Industrial Products
+    Route::get('/products', ProductManager::class)
+        ->middleware('permission:products.view')
+        ->name('products');
 
     // Ultra-Fast Cached JSON Endpoint for Icon Picker (Zero Page Bloat)
     Route::get('/api/icons-manifest', function () {

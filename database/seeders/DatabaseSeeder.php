@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleAndAdminSeeder::class,
             SettingSeeder::class,
             ServiceSeeder::class,
+            ProductSeeder::class,
             EnquirySeeder::class,
         ]);
     }

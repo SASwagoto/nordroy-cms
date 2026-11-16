@@ -596,10 +596,10 @@
                         </a>
                     @endif
                     @if(!empty($headerTopbar['show_custom_link']) && !empty($headerTopbar['custom_link_text']))
-                        <a href="{{ $headerTopbar['custom_link_url'] ?: '#' }}" 
+                        <a href="{{ ($headerTopbar['custom_link_url'] ?? '') ?: '#' }}" 
                            @if(!empty($headerTopbar['custom_link_blank'])) target="_blank" rel="noopener noreferrer" @endif
                            class="hover:text-[#003C58] dark:hover:text-cyan-400 font-bold transition-colors inline-flex items-center gap-1">
-                            <span>{{ $headerTopbar['custom_link_text'] }}</span>
+                            <span>{{ $headerTopbar['custom_link_text'] ?? '' }}</span>
                             @if(!empty($headerTopbar['custom_link_blank']))
                                 <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                             @endif
@@ -1106,7 +1106,7 @@
                      style="{{ $ftWidthStyle }}">
                     <div class="space-y-1 text-center md:text-left max-w-2xl">
                         <h3 class="text-base sm:text-lg font-bold font-heading">
-                            {{ $footerTop['headline'] ?: 'Subscribe to Maritime Technical Bulletins' }}
+                            {{ ($footerTop['headline'] ?? '') ?: 'Subscribe to Maritime Technical Bulletins' }}
                         </h3>
                         @if(!empty($footerTop['subtext']))
                             <p class="text-xs opacity-80 leading-relaxed font-body">
@@ -1120,7 +1120,7 @@
                             <input type="email" placeholder="{{ $footerTop['placeholder'] ?? 'Enter your corporate email...' }}" required
                                    class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-white/60 text-xs text-white focus:outline-none focus:ring-2 focus:ring-cyan-400">
                             <button type="submit" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shrink-0 transition-colors shadow-sm cursor-pointer">
-                                {{ $footerTop['button_text'] ?: 'Subscribe' }}
+                                {{ ($footerTop['button_text'] ?? '') ?: 'Subscribe' }}
                             </button>
                         </form>
                     @elseif(($footerTop['type'] ?? '') === 'hotline_banner')
@@ -1135,7 +1135,7 @@
                         <div class="flex items-center gap-3">
                             <a href="{{ route('contact') }}"
                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm cursor-pointer">
-                                <span>{{ $footerTop['button_text'] ?: 'Contact Technical Team' }} &rarr;</span>
+                                <span>{{ ($footerTop['button_text'] ?? '') ?: 'Contact Technical Team' }} &rarr;</span>
                             </a>
                         </div>
                     @endif
