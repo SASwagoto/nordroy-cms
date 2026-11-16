@@ -815,18 +815,8 @@
                     <!-- Base Text Color with direct modern color picker -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Base Text Color</label>
-                        <div class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs">
-                            <label class="relative w-6 h-6 rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0" title="Click to pick text color">
-                                <input type="color" wire:model.live="currentSectionLayout.text_color" class="absolute -inset-2 w-10 h-10 opacity-0 cursor-pointer">
-                                <span class="block w-full h-full" style="background-color: {{ $currentSectionLayout['text_color'] ?? '#0f172a' }}"></span>
-                            </label>
-                            <input type="text" wire:model.live="currentSectionLayout.text_color" placeholder="#0f172a" class="flex-1 px-1 py-0.5 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-900 dark:text-white focus:ring-0">
-                            <!-- Quick Swatches -->
-                            <div class="flex items-center gap-1 shrink-0">
-                                @foreach(['#0f172a', '#ffffff', '#003C58', '#64748b'] as $cHex)
-                                    <button type="button" wire:click="$set('currentSectionLayout.text_color', '{{ $cHex }}')" class="w-4 h-4 rounded-full border border-black/10 transition-transform hover:scale-110" style="background-color: {{ $cHex }}"></button>
-                                @endforeach
-                            </div>
+                        <div>
+                            <x-compact-color-picker wire:model="currentSectionLayout.text_color" default="#0f172a" placeholder="#0f172a" />
                         </div>
                     </div>
                 </div>
@@ -836,13 +826,7 @@
                     <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-3">
                         <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Solid Background Surface Color</span>
                         <div class="flex flex-wrap items-center gap-3">
-                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs">
-                                <label class="relative w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0" title="Click to pick color">
-                                    <input type="color" wire:model.live="currentSectionLayout.bg_color" class="absolute -inset-2 w-12 h-12 opacity-0 cursor-pointer">
-                                    <span class="block w-full h-full" style="background-color: {{ $currentSectionLayout['bg_color'] ?? '#ffffff' }}"></span>
-                                </label>
-                                <input type="text" wire:model.live="currentSectionLayout.bg_color" placeholder="#ffffff" class="w-24 px-1 py-0.5 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-900 dark:text-white focus:ring-0">
-                            </div>
+                            <x-compact-color-picker wire:model="currentSectionLayout.bg_color" default="#ffffff" placeholder="#ffffff" :allowTransparent="true" />
 
                             <!-- Curated Corporate Swatches -->
                             <div class="flex items-center gap-1.5 flex-wrap">
@@ -883,23 +867,11 @@
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-500 mb-1">Color Stop 1</label>
-                                <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs">
-                                    <label class="relative w-5 h-5 rounded-md border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0">
-                                        <input type="color" wire:model.live="currentSectionLayout.gradient_stop1" class="absolute -inset-2 w-8 h-8 opacity-0 cursor-pointer">
-                                        <span class="block w-full h-full" style="background-color: {{ $currentSectionLayout['gradient_stop1'] ?? '#f8fafc' }}"></span>
-                                    </label>
-                                    <input type="text" wire:model.live="currentSectionLayout.gradient_stop1" placeholder="#f8fafc" class="flex-1 px-1 py-0 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-900 dark:text-white focus:ring-0">
-                                </div>
+                                <x-compact-color-picker wire:model="currentSectionLayout.gradient_stop1" default="#f8fafc" placeholder="#f8fafc" />
                             </div>
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-500 mb-1">Color Stop 2</label>
-                                <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs">
-                                    <label class="relative w-5 h-5 rounded-md border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0">
-                                        <input type="color" wire:model.live="currentSectionLayout.gradient_stop2" class="absolute -inset-2 w-8 h-8 opacity-0 cursor-pointer">
-                                        <span class="block w-full h-full" style="background-color: {{ $currentSectionLayout['gradient_stop2'] ?? '#e2e8f0' }}"></span>
-                                    </label>
-                                    <input type="text" wire:model.live="currentSectionLayout.gradient_stop2" placeholder="#e2e8f0" class="flex-1 px-1 py-0 text-xs font-mono font-bold uppercase bg-transparent border-0 text-slate-900 dark:text-white focus:ring-0">
-                                </div>
+                                <x-compact-color-picker wire:model="currentSectionLayout.gradient_stop2" default="#e2e8f0" placeholder="#e2e8f0" />
                             </div>
                         </div>
                     </div>
@@ -1039,69 +1011,7 @@
 
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1">Border Color</label>
-                            <div class="relative" x-data="{ openColorPicker: false }">
-                                <button type="button" 
-                                        @click="openColorPicker = !openColorPicker" 
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xs hover:border-[#003C58] dark:hover:border-cyan-500 transition-all cursor-pointer">
-                                    <span class="w-4 h-4 rounded-md border border-slate-300 dark:border-slate-600 shadow-2xs shrink-0"
-                                          style="background-color: {{ ($currentSectionLayout['border_color'] ?? '#e2e8f0') === 'transparent' ? 'transparent' : ($currentSectionLayout['border_color'] ?? '#e2e8f0') }}"></span>
-                                    <span class="text-[11px] font-mono font-bold uppercase text-slate-700 dark:text-slate-300">
-                                        {{ ($currentSectionLayout['border_color'] ?? '#e2e8f0') === 'transparent' ? 'None' : ($currentSectionLayout['border_color'] ?? '#E2E8F0') }}
-                                    </span>
-                                    <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-
-                                <!-- Color Swatch Popover -->
-                                <div x-show="openColorPicker" 
-                                     @click.outside="openColorPicker = false"
-                                     x-transition
-                                     style="display: none;"
-                                     class="absolute z-50 mt-1 w-64 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl space-y-3">
-                                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-slate-800">
-                                        <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Border Color</span>
-                                        <button type="button" 
-                                                wire:click="$set('currentSectionLayout.border_color', 'transparent')"
-                                                @click="openColorPicker = false"
-                                                class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer">
-                                            Clear (None)
-                                        </button>
-                                    </div>
-
-                                    <!-- Presets -->
-                                    <div>
-                                        <span class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase">Color Presets</span>
-                                        <div class="grid grid-cols-6 gap-1.5">
-                                            @foreach(['#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b', '#334155', '#0f172a', '#003C58', '#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'] as $presetHex)
-                                                <button type="button" 
-                                                        wire:click="$set('currentSectionLayout.border_color', '{{ $presetHex }}')"
-                                                        @click="openColorPicker = false"
-                                                        style="background-color: {{ $presetHex }};"
-                                                        class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs hover:scale-110 active:scale-95 transition-transform cursor-pointer relative"
-                                                        title="{{ $presetHex }}">
-                                                    @if(strtolower($currentSectionLayout['border_color'] ?? '') === strtolower($presetHex))
-                                                        <span class="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold drop-shadow">✓</span>
-                                                    @endif
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    <!-- Direct Hex & Native Color Eye-dropper -->
-                                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
-                                        <label class="relative w-8 h-8 rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden cursor-pointer shrink-0 shadow-2xs" title="Open Custom Color Picker">
-                                            <input type="color" 
-                                                   wire:model.live="currentSectionLayout.border_color"
-                                                   class="absolute -inset-2 w-12 h-12 opacity-0 cursor-pointer">
-                                            <span class="block w-full h-full" 
-                                                  style="background-color: {{ $currentSectionLayout['border_color'] ?? '#e2e8f0' }}"></span>
-                                        </label>
-                                        <input type="text" 
-                                               wire:model.live="currentSectionLayout.border_color"
-                                               placeholder="#e2e8f0"
-                                               class="flex-1 px-2.5 py-1 text-xs font-mono font-bold uppercase rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58]">
-                                    </div>
-                                </div>
-                            </div>
+                            <x-compact-color-picker wire:model="currentSectionLayout.border_color" default="#e2e8f0" placeholder="#e2e8f0" :allowTransparent="true" />
                         </div>
                     </div>
                 </div>

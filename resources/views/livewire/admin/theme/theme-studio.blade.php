@@ -230,9 +230,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Primary Brand Color (Main Color)</label>
                             <p class="text-[11px] text-slate-400">Used for main buttons, header, active menu links, and important highlights.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_primary_color" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_primary_color" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_primary_color" default="#003C58" placeholder="#003C58" />
                         </div>
                     </div>
 
@@ -242,9 +241,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Secondary Slate Color</label>
                             <p class="text-[11px] text-slate-400">Used for technical labels, subtle borders, and secondary buttons.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_secondary_color" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_secondary_color" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_secondary_color" default="#334155" placeholder="#334155" />
                         </div>
                     </div>
 
@@ -254,9 +252,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Accent Highlight Color (Badges &amp; CTA)</label>
                             <p class="text-[11px] text-slate-400">Used for badges, status indicators, glowing dots, and special action buttons.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_accent_color" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_accent_color" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_accent_color" default="#0ea5e9" placeholder="#0ea5e9" />
                         </div>
                     </div>
 
@@ -266,9 +263,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Page Background (Light Mode)</label>
                             <p class="text-[11px] text-slate-400">The clean background tone for daylight mode.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_surface_light" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_surface_light" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_surface_light" default="#ffffff" placeholder="#ffffff" />
                         </div>
                     </div>
 
@@ -278,9 +274,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Page Background (Dark Mode)</label>
                             <p class="text-[11px] text-slate-400">Deep corporate ocean tone used for dark cards &amp; night mode.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_surface_dark" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_surface_dark" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_surface_dark" default="#07131e" placeholder="#07131e" />
                         </div>
                     </div>
 
@@ -290,9 +285,8 @@
                             <label class="block text-xs font-bold text-slate-800 dark:text-white">Borders &amp; Separator Lines</label>
                             <p class="text-[11px] text-slate-400">Subtle container outlines, table borders, and divider lines.</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="color" wire:model.live="theme.theme_border_color" class="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent" />
-                            <input type="text" wire:model.live="theme.theme_border_color" class="w-24 px-2.5 py-1 text-xs font-mono rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 uppercase" />
+                        <div class="shrink-0">
+                            <x-compact-color-picker wire:model="theme.theme_border_color" default="#e2e8f0" placeholder="#e2e8f0" :allowTransparent="true" />
                         </div>
                     </div>
                 </div>
@@ -710,9 +704,8 @@
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Custom Border Color</label>
-                                <div class="flex items-center gap-1.5">
-                                    <input type="color" wire:model.live="headerBorderColor" class="w-8 h-8 rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer">
-                                    <input type="text" wire:model.live="headerBorderColor" placeholder="Default: Theme" class="w-full px-2 py-1.5 text-xs font-mono font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white">
+                                <div>
+                                    <x-compact-color-picker wire:model="headerBorderColor" default="#e2e8f0" placeholder="Default: Theme" :allowTransparent="true" />
                                 </div>
                             </div>
                         </div>
