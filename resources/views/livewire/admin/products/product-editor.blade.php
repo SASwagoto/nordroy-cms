@@ -322,7 +322,8 @@
                         @endif
                     </div>
 
-                    <button type="button" wire:click="openMediaPicker('featured_image')"
+                    <button type="button" 
+                            @click="$dispatch('open-media-picker', { targetField: 'featured_image', multiple: false, defaultFolder: 'products' })"
                             class="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs">
                         <x-icon name="solid:images" class="w-3.5 h-3.5" />
                         <span>{{ $featured_image_url ? 'Replace Image' : 'Select from Media Library' }}</span>
@@ -338,7 +339,8 @@
                             </h3>
                             <span class="text-[10px] text-slate-400">Additional angles &amp; details ({{ count($gallery_images) }})</span>
                         </div>
-                        <button type="button" wire:click="openMediaPicker('gallery')"
+                        <button type="button" 
+                                @click="$dispatch('open-media-picker', { targetField: 'gallery', multiple: true, selectedIds: @js(array_values(array_map(fn($item) => (int) $item['id'], $gallery_images))), defaultFolder: 'products' })"
                                 class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58]/20 transition-all inline-flex items-center gap-1 cursor-pointer">
                             <x-icon name="solid:plus" class="w-3 h-3" />
                             <span>Add Photo</span>
@@ -367,7 +369,8 @@
                         <div class="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400 space-y-1">
                             <x-icon name="solid:images" class="w-6 h-6 mx-auto opacity-40" />
                             <p class="text-[11px]">No gallery photos attached yet.</p>
-                            <button type="button" wire:click="openMediaPicker('gallery')"
+                            <button type="button" 
+                                    @click="$dispatch('open-media-picker', { targetField: 'gallery', multiple: true, selectedIds: @js(array_values(array_map(fn($item) => (int) $item['id'], $gallery_images))), defaultFolder: 'products' })"
                                     class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer">
                                 + Add photo from Media Library
                             </button>
@@ -398,7 +401,8 @@
                         <p class="text-xs text-slate-400">Attach an engineering blueprint, tolerance sheet, or class certificate PDF for customer download.</p>
                     @endif
 
-                    <button type="button" wire:click="openMediaPicker('brochure')"
+                    <button type="button" 
+                            @click="$dispatch('open-media-picker', { targetField: 'brochure', multiple: false, defaultFolder: 'products' })"
                             class="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs">
                         <x-icon name="solid:file-pdf" class="w-3.5 h-3.5" />
                         <span>{{ $brochure_media_url ? 'Replace Document' : 'Attach Technical Document' }}</span>
@@ -505,132 +509,7 @@
         </div>
     @endif
 
-    <!-- ==================== MEDIA PICKER MODAL (Multi-Select for Gallery, Single-Select for Featured/Brochure) ==================== -->
-    @if($isMediaPickerOpen)
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity" wire:click="$set('isMediaPickerOpen', false)"></div>
-            <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 z-10"
-                     @click.stop>
-                    
-                    <!-- Modal Header -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/20 text-[#003C58] dark:text-cyan-400 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:images" class="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">
-                                    @if($mediaPickerTarget === 'gallery')
-                                        Select Product Gallery Photos <span class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 font-mono">(Multi-Select)</span>
-                                    @elseif($mediaPickerTarget === 'featured_image')
-                                        Select Featured Product Photo <span class="text-xs font-semibold text-slate-400 font-mono">(Single Select)</span>
-                                    @else
-                                        Select Technical Document (PDF) <span class="text-xs font-semibold text-slate-400 font-mono">(Single Select)</span>
-                                    @endif
-                                </h3>
-                                <p class="text-[11px] text-slate-400">
-                                    {{ $mediaPickerTarget === 'gallery' ? 'Click on multiple images to select all at once, then confirm.' : 'Click any asset to instantly select it.' }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <!-- Search filter input -->
-                            <div class="relative">
-                                <input type="text" wire:model.live.debounce.250ms="mediaSearch" 
-                                       placeholder="Search filename..." 
-                                       class="w-44 sm:w-56 pl-7 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#003C58] dark:focus:ring-cyan-500">
-                                <x-icon name="solid:magnifying-glass" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                            </div>
-                            <button type="button" wire:click="$set('isMediaPickerOpen', false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold p-1 cursor-pointer">&times;</button>
-                        </div>
-                    </div>
-
-                    <!-- Media Grid -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto p-1">
-                        @forelse($mediaAssets as $asset)
-                            @if($mediaPickerTarget === 'gallery')
-                                @php $isSelected = in_array($asset->id, $selectedGalleryPickerIds, true); @endphp
-                                <div wire:click="toggleGalleryPickerAsset({{ $asset->id }})"
-                                     class="group relative aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 border overflow-hidden cursor-pointer transition-all {{ $isSelected ? 'border-[#003C58] dark:border-cyan-400 ring-3 ring-[#003C58]/30 dark:ring-cyan-400/30' : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600' }}">
-                                    <img src="{{ $asset->url }}" alt="{{ $asset->display_alt }}" class="w-full h-full object-cover">
-                                    
-                                    @if($isSelected)
-                                        <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-cyan-500/20 pointer-events-none"></div>
-                                        <span class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#003C58] dark:bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center shadow-md text-xs font-black z-10">
-                                            <x-icon name="solid:check" class="w-3.5 h-3.5" />
-                                        </span>
-                                    @else
-                                        <span class="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/40 border border-white/60 text-white flex items-center justify-center shadow-md text-xs opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                            <x-icon name="solid:plus" class="w-3 h-3" />
-                                        </span>
-                                    @endif
-                                    <span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-black/60 text-white truncate max-w-[85%]">
-                                        {{ $asset->file_name }}
-                                    </span>
-                                </div>
-                            @else
-                                <div wire:click="selectAsset({{ $asset->id }}, '{{ $asset->url }}')"
-                                     class="group relative aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#003C58] dark:hover:ring-cyan-500 transition-all">
-                                    @if(str_starts_with($asset->mime_type ?? '', 'image/'))
-                                        <img src="{{ $asset->url }}" alt="{{ $asset->display_alt }}" class="w-full h-full object-cover">
-                                    @else
-                                        <div class="w-full h-full flex flex-col items-center justify-center p-2 text-center text-slate-400">
-                                            <x-icon name="solid:file-pdf" class="w-8 h-8 mb-1 text-rose-500" />
-                                            <span class="text-[9px] truncate max-w-full font-mono">{{ $asset->original_filename }}</span>
-                                        </div>
-                                    @endif
-                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span class="text-[10px] font-bold text-white px-2.5 py-1 bg-black/70 rounded-lg">Select</span>
-                                    </div>
-                                    <span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-black/60 text-white truncate max-w-[85%]">
-                                        {{ $asset->file_name }}
-                                    </span>
-                                </div>
-                            @endif
-                        @empty
-                            <div class="col-span-full py-12 text-center text-slate-400">
-                                <x-icon name="solid:images" class="w-10 h-10 mx-auto opacity-40 mb-2" />
-                                <p class="text-xs">No matching media assets found.</p>
-                                <a href="{{ route('admin.media') }}" target="_blank" class="text-xs font-bold text-cyan-600 underline mt-1 inline-block">Upload in Media Library &rarr;</a>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <!-- Modal Footer -->
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-                        @if($mediaPickerTarget === 'gallery')
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs text-slate-600 dark:text-slate-300">
-                                    <strong class="font-mono text-cyan-600 dark:text-cyan-400 font-bold text-sm">{{ count($selectedGalleryPickerIds) }}</strong> photos selected
-                                </span>
-                                @if(count($selectedGalleryPickerIds) > 0)
-                                    <button type="button" wire:click="clearGalleryPickerSelection" class="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer">
-                                        Clear all
-                                    </button>
-                                @endif
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button" wire:click="$set('isMediaPickerOpen', false)" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-white cursor-pointer">
-                                    Cancel
-                                </button>
-                                <button type="button" wire:click="confirmGallerySelection" 
-                                        class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-md cursor-pointer transition-all flex items-center gap-1.5 active:scale-95">
-                                    <x-icon name="solid:check" class="w-4 h-4" />
-                                    <span>Add Selected Photos ({{ count($selectedGalleryPickerIds) }})</span>
-                                </button>
-                            </div>
-                        @else
-                            <div></div>
-                            <button type="button" wire:click="$set('isMediaPickerOpen', false)" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-white cursor-pointer">
-                                Close
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+    <!-- Global Unified Media Library & In-Modal Upload Modal (Single & Multi-Select) -->
+    <x-media-picker-modal />
 
 </div>

@@ -9,13 +9,16 @@ use App\Models\MediaAsset;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.admin')]
 #[Title('Spare Part Editor | Corporate CMS')]
 class ProductEditor extends Component
 {
+    use WithFileUploads;
     public ?int $productId = null;
     public bool $isEditing = false;
 
@@ -71,6 +74,13 @@ class ProductEditor extends Component
     public string $mediaPickerTarget = 'featured_image';
     public array $selectedGalleryPickerIds = [];
     public string $mediaSearch = '';
+
+    // Media Modal File Upload State (Enables in-modal upload like Settings)
+    public $uploads = [];
+    public string $uploadFolder = 'products';
+    public bool $autoCompress = true;
+    public ?string $modalTargetField = null;
+    public ?int $modalTargetIndex = null;
 
     protected function rules(): array
     {
@@ -296,14 +306,38 @@ class ProductEditor extends Component
 
     // ==================== MEDIA PICKER METHODS ====================
 
+    #[On('media-selected')]
+    public function handleMediaSelected(int $assetId, string $assetUrl, ?string $targetField = null, ?int $targetIndex = null): void
+    {
+        $this->selectAsset($assetId, $assetUrl, $targetField, $targetIndex);
+    }
+
+    #[On('multiple-media-selected')]
+    public function handleMultipleMediaSelected(array $assetIds, ?string $targetField = null): void
+    {
+        $this->selectMultipleAssets($assetIds, $targetField);
+    }
+
     public function openMediaPicker(string $target = 'featured_image'): void
     {
         $this->mediaPickerTarget = $target;
+        $this->modalTargetField = $target;
         $this->mediaSearch = '';
         if ($target === 'gallery') {
             $this->selectedGalleryPickerIds = array_values(array_map(fn($item) => (int) $item['id'], $this->gallery_images));
+            $this->dispatch('open-media-picker', [
+                'targetField'   => 'gallery',
+                'multiple'      => true,
+                'selectedIds'   => $this->selectedGalleryPickerIds,
+                'defaultFolder' => 'products',
+            ]);
         } else {
             $this->selectedGalleryPickerIds = [];
+            $this->dispatch('open-media-picker', [
+                'targetField'   => $target,
+                'multiple'      => false,
+                'defaultFolder' => 'products',
+            ]);
         }
         $this->isMediaPickerOpen = true;
     }
@@ -325,14 +359,46 @@ class ProductEditor extends Component
         $this->selectedGalleryPickerIds = [];
     }
 
-    public function confirmGallerySelection(): void
+    public function confirmGallerySelection(?array $selectedIds = null): void
     {
-        if ($this->mediaPickerTarget === 'gallery') {
-            if (!empty($this->selectedGalleryPickerIds)) {
-                $assets = MediaAsset::whereIn('id', $this->selectedGalleryPickerIds)->get()->keyBy('id');
+        $ids = $selectedIds ?? $this->selectedGalleryPickerIds;
+        $this->selectMultipleAssets($ids, 'gallery');
+        $this->isMediaPickerOpen = false;
+        $this->dispatch('close-media-modal');
+    }
+
+    public function selectAsset(int $id, string $url, ?string $targetField = null, ?int $targetIndex = null): void
+    {
+        $field = $targetField ?: $this->modalTargetField ?: $this->mediaPickerTarget;
+        if ($field === 'featured_image') {
+            $this->featured_image_id = $id;
+            $this->featured_image_url = $url;
+        } elseif ($field === 'brochure') {
+            $this->brochure_media_id = $id;
+            $this->brochure_media_url = $url;
+        } elseif ($field === 'gallery') {
+            $exists = collect($this->gallery_images)->contains('id', $id);
+            if (!$exists) {
+                $this->gallery_images[] = [
+                    'id'  => $id,
+                    'url' => $url,
+                ];
+            }
+        }
+        $this->isMediaPickerOpen = false;
+        $this->dispatch('close-media-modal');
+    }
+
+    public function selectMultipleAssets(array $assetIds, ?string $targetField = null): void
+    {
+        $field = $targetField ?: $this->modalTargetField ?: $this->mediaPickerTarget;
+        if ($field === 'gallery') {
+            $assetIds = array_values(array_unique(array_map('intval', $assetIds)));
+            if (!empty($assetIds)) {
+                $assets = MediaAsset::whereIn('id', $assetIds)->get()->keyBy('id');
                 $newGallery = [];
-                foreach ($this->selectedGalleryPickerIds as $gId) {
-                    if ($asset = $assets->get($gId)) {
+                foreach ($assetIds as $id) {
+                    if ($asset = $assets->get($id)) {
                         $newGallery[] = [
                             'id'  => $asset->id,
                             'url' => $asset->url,
@@ -345,21 +411,61 @@ class ProductEditor extends Component
             }
         }
         $this->isMediaPickerOpen = false;
+        $this->dispatch('close-media-modal');
     }
 
-    public function selectAsset(int $id, string $url): void
+    /**
+     * Upload assets directly through Media Modal when editing a Product (like in Settings).
+     */
+    public function uploadFiles(?string $targetField = null, ?int $targetIndex = null): void
     {
-        if ($this->mediaPickerTarget === 'gallery') {
-            $this->toggleGalleryPickerAsset($id);
-        } else {
-            if ($this->mediaPickerTarget === 'featured_image') {
-                $this->featured_image_id = $id;
-                $this->featured_image_url = $url;
-            } else {
-                $this->brochure_media_id = $id;
-                $this->brochure_media_url = $url;
+        if (empty($this->uploads) || !is_array($this->uploads)) {
+            $this->addError('uploads', 'Please select at least one file to upload.');
+            return;
+        }
+
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'pdf', 'gif', 'ico'];
+        $service = app(\App\Services\MediaStorageService::class);
+        $lastAsset = null;
+        $uploadedIds = [];
+        $successCount = 0;
+
+        foreach ($this->uploads as $file) {
+            if ($file) {
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (!in_array($ext, $allowedExtensions)) {
+                    continue;
+                }
+
+                $folder = $this->uploadFolder ?: 'products';
+                $lastAsset = $service->store($file, $folder, null, $this->autoCompress);
+                $successCount++;
+                $uploadedIds[] = $lastAsset->id;
+
+                $this->dispatch('media-asset-uploaded', [
+                    'id'       => $lastAsset->id,
+                    'name'     => $lastAsset->getTranslation('title', 'en') ?: $lastAsset->file_name,
+                    'url'      => $lastAsset->url,
+                    'is_image' => in_array(strtolower(pathinfo($lastAsset->file_name, PATHINFO_EXTENSION)), ['jpg','jpeg','png','webp','svg','gif','ico']),
+                    'size'     => $lastAsset->human_size,
+                    'folder'   => $lastAsset->folder,
+                ]);
             }
-            $this->isMediaPickerOpen = false;
+        }
+
+        $this->uploads = [];
+
+        if ($successCount > 0 && $lastAsset) {
+            $field = $targetField ?: $this->modalTargetField ?: $this->mediaPickerTarget;
+            if ($field === 'gallery') {
+                $existingIds = array_map(fn($item) => (int) $item['id'], $this->gallery_images);
+                $combinedIds = array_values(array_unique(array_merge($existingIds, $uploadedIds)));
+                $this->selectMultipleAssets($combinedIds, 'gallery');
+            } else {
+                $this->selectAsset($lastAsset->id, $lastAsset->url, $field, $targetIndex);
+            }
+            session()->flash('message', "{$successCount} asset(s) successfully uploaded and linked.");
+            $this->dispatch('close-media-modal');
         }
     }
 
@@ -509,28 +615,9 @@ class ProductEditor extends Component
             ];
         }
 
-        $mediaQuery = MediaAsset::query();
-        if (!empty(trim($this->mediaSearch))) {
-            $search = '%' . trim($this->mediaSearch) . '%';
-            $mediaQuery->where(function ($q) use ($search) {
-                $q->where('file_name', 'like', $search)
-                  ->orWhere('original_filename', 'like', $search);
-            });
-        }
-
-        if ($this->mediaPickerTarget === 'brochure') {
-            $mediaQuery->where(function ($q) {
-                $q->where('mime_type', 'like', '%pdf%')
-                  ->orWhere('file_name', 'like', '%.pdf');
-            });
-        } elseif ($this->mediaPickerTarget === 'gallery' || $this->mediaPickerTarget === 'featured_image') {
-            $mediaQuery->where('mime_type', 'like', 'image/%');
-        }
-
         return view('livewire.admin.products.product-editor', [
             'categoriesList' => $categoriesList,
             'brandsList'     => $brandsList,
-            'mediaAssets'    => $mediaQuery->latest()->take(48)->get(),
         ]);
     }
 }

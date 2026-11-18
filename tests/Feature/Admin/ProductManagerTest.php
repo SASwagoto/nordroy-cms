@@ -293,4 +293,26 @@ class ProductManagerTest extends TestCase
         $res->assertSee($galleryAsset1->url);
         $res->assertSee($galleryAsset2->url);
     }
+
+    public function test_product_editor_can_upload_files_directly_through_media_modal(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        // Different dimensions ensure different sha256 hashes to prevent deduplication
+        $file1 = \Illuminate\Http\UploadedFile::fake()->image('turbine-part-angle-1.jpg', 600, 600);
+        $file2 = \Illuminate\Http\UploadedFile::fake()->image('turbine-part-angle-2.jpg', 800, 800);
+
+        Livewire::actingAs($this->admin)
+            ->test(ProductEditor::class)
+            ->set('uploads', [$file1, $file2])
+            ->set('uploadFolder', 'products')
+            ->set('modalTargetField', 'gallery')
+            ->call('uploadFiles', 'gallery')
+            ->assertCount('gallery_images', 2)
+            ->assertDispatched('close-media-modal');
+
+        $this->assertDatabaseHas('media_assets', [
+            'folder' => 'products',
+        ]);
+    }
 }
