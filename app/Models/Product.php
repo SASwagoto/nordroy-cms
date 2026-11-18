@@ -17,12 +17,14 @@ class Product extends Model
         'slug',
         'part_number',
         'technical_specifications',
+        'category_id',
+        'brand_id',
         'featured_image_id',
         'brochure_media_id',
         'is_active',
     ];
 
-    protected $with = ['featuredImage'];
+    protected $with = ['featuredImage', 'category', 'brand'];
 
     protected $casts = [
         'title' => 'array',
@@ -38,6 +40,16 @@ class Product extends Model
     public function brochure(): BelongsTo
     {
         return $this->belongsTo(MediaAsset::class, 'brochure_media_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
     public function seo(): MorphOne
@@ -57,11 +69,23 @@ class Product extends Model
 
     public function getCategoryAttribute(): string
     {
+        if ($this->relationLoaded('category')) {
+            $cat = $this->getRelation('category');
+            if ($cat && isset($cat->name)) {
+                return $cat->name;
+            }
+        }
         return $this->technical_specifications['category'] ?? 'Turbocharger Spare Parts';
     }
 
     public function getBrandAttribute(): string
     {
+        if ($this->relationLoaded('brand')) {
+            $brand = $this->getRelation('brand');
+            if ($brand && isset($brand->name)) {
+                return $brand->name;
+            }
+        }
         return $this->technical_specifications['brand'] ?? 'Multi-Brand OEM';
     }
 

@@ -20,8 +20,15 @@
             <a href="{{ route('products') }}" target="_blank"
                class="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
                 <x-icon name="solid:arrow-top-right-on-square" class="w-3.5 h-3.5" />
-                <span>View Public Catalog</span>
+                <span>Public Catalog</span>
             </a>
+
+            <button type="button" 
+                    wire:click="openManageTaxonomiesModal('categories')"
+                    class="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <x-icon name="solid:tag" class="w-3.5 h-3.5 text-cyan-500" />
+                <span>Categories &amp; Brands</span>
+            </button>
 
             <button type="button" 
                     wire:click="createProduct"
@@ -270,6 +277,17 @@
                         <button type="button" wire:click="$set('isFormModalOpen', false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold">&times;</button>
                     </div>
 
+                    @if (session()->has('taxonomy_quick_success'))
+                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                             class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center justify-between shadow-xs">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="solid:check-circle" class="w-4 h-4 text-emerald-500" />
+                                <span>{{ session('taxonomy_quick_success') }}</span>
+                            </div>
+                            <button type="button" @click="show = false" class="text-emerald-500 cursor-pointer">&times;</button>
+                        </div>
+                    @endif
+
                     <!-- Modal Body / Form Grid -->
                     <form wire:submit.prevent="saveProduct" class="space-y-6">
 
@@ -334,10 +352,21 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Category <span class="text-rose-500">*</span>
-                                </label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        Category <span class="text-rose-500">*</span>
+                                    </label>
+                                    <button type="button" 
+                                            wire:click="openQuickCategoryModal" 
+                                            class="text-[10px] font-bold text-[#003C58] dark:text-cyan-400 hover:underline inline-flex items-center gap-0.5 cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span>+ New</span>
+                                    </button>
+                                </div>
                                 <select wire:model.live="category" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    <option value="">-- Select Category --</option>
                                     @foreach($categoriesList as $cat)
                                         <option value="{{ $cat }}">{{ $cat }}</option>
                                     @endforeach
@@ -345,10 +374,21 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Manufacturer / Brand <span class="text-rose-500">*</span>
-                                </label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        Manufacturer / Brand <span class="text-rose-500">*</span>
+                                    </label>
+                                    <button type="button" 
+                                            wire:click="openQuickBrandModal" 
+                                            class="text-[10px] font-bold text-[#003C58] dark:text-cyan-400 hover:underline inline-flex items-center gap-0.5 cursor-pointer">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span>+ New</span>
+                                    </button>
+                                </div>
                                 <select wire:model.live="brand" class="w-full px-3 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    <option value="">-- Select Brand --</option>
                                     @foreach($brandsList as $b)
                                         <option value="{{ $b }}">{{ $b }}</option>
                                     @endforeach
@@ -584,6 +624,213 @@
 
                     <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
                         <button type="button" wire:click="$set('isMediaPickerOpen', false)" class="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ==================== QUICK CREATE CATEGORY MODAL ==================== -->
+    @if($showQuickCategoryModal)
+        <div class="fixed inset-0 z-[60] overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity" wire:click="closeQuickCategoryModal"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 text-[#003C58] dark:text-cyan-400 flex items-center justify-center">
+                                <x-icon name="solid:tag" class="w-4 h-4" />
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Quick Add Category</h3>
+                        </div>
+                        <button type="button" wire:click="closeQuickCategoryModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold cursor-pointer">&times;</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Category Name <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" 
+                               wire:model="newCategoryName" 
+                               wire:keydown.enter.prevent="saveQuickCategory"
+                               placeholder="e.g. Heat Exchangers &amp; Coolers" 
+                               autofocus
+                               class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500">
+                        @error('newCategoryName') 
+                            <span class="text-rose-500 text-[10px] font-semibold block">{{ $message }}</span> 
+                        @enderror
+                        <p class="text-[11px] text-slate-400">
+                            The category will be saved to the database immediately and auto-selected for this product.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" 
+                                wire:click="closeQuickCategoryModal" 
+                                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="button" 
+                                wire:click="saveQuickCategory" 
+                                class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-sm cursor-pointer">
+                            Create &amp; Select
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ==================== QUICK CREATE BRAND MODAL ==================== -->
+    @if($showQuickBrandModal)
+        <div class="fixed inset-0 z-[60] overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity" wire:click="closeQuickBrandModal"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 text-[#003C58] dark:text-cyan-400 flex items-center justify-center">
+                                <x-icon name="solid:building" class="w-4 h-4" />
+                            </div>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Quick Add Manufacturer / Brand</h3>
+                        </div>
+                        <button type="button" wire:click="closeQuickBrandModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold cursor-pointer">&times;</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Manufacturer / Brand Name <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" 
+                               wire:model="newBrandName" 
+                               wire:keydown.enter.prevent="saveQuickBrand"
+                               placeholder="e.g. IHI Corporation" 
+                               autofocus
+                               class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500">
+                        @error('newBrandName') 
+                            <span class="text-rose-500 text-[10px] font-semibold block">{{ $message }}</span> 
+                        @enderror
+                        <p class="text-[11px] text-slate-400">
+                            The brand will be saved to the database immediately and auto-selected for this product.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" 
+                                wire:click="closeQuickBrandModal" 
+                                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="button" 
+                                wire:click="saveQuickBrand" 
+                                class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-sm cursor-pointer">
+                            Create &amp; Select
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- ==================== TAXONOMIES MANAGEMENT MODAL ==================== -->
+    @if($showManageTaxonomiesModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity" wire:click="closeManageTaxonomiesModal"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-2xl rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">Taxonomies Manager</span>
+                            <h2 class="text-base font-bold text-slate-900 dark:text-white font-heading">
+                                Product Categories &amp; Brands
+                            </h2>
+                        </div>
+                        <button type="button" wire:click="closeManageTaxonomiesModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold cursor-pointer">&times;</button>
+                    </div>
+
+                    @if (session()->has('taxonomy_manager_success'))
+                        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center justify-between">
+                            <span>{{ session('taxonomy_manager_success') }}</span>
+                            <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500">&times;</button>
+                        </div>
+                    @endif
+
+                    <!-- Tabs: Categories vs Brands -->
+                    <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <button type="button" 
+                                wire:click="$set('taxonomyActiveTab', 'categories')"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer {{ $taxonomyActiveTab === 'categories' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' }}">
+                            Categories ({{ $allCategories->count() }})
+                        </button>
+                        <button type="button" 
+                                wire:click="$set('taxonomyActiveTab', 'brands')"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer {{ $taxonomyActiveTab === 'brands' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' }}">
+                            Brands / Manufacturers ({{ $allBrands->count() }})
+                        </button>
+                    </div>
+
+                    <!-- Add New Item Inline Form -->
+                    <div class="flex items-center gap-2">
+                        <input type="text" 
+                               wire:model="taxonomyNewName" 
+                               wire:keydown.enter.prevent="addTaxonomyItem"
+                               placeholder="{{ $taxonomyActiveTab === 'categories' ? 'Add new category name...' : 'Add new brand / manufacturer name...' }}"
+                               class="flex-1 px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500">
+                        <button type="button" 
+                                wire:click="addTaxonomyItem" 
+                                class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 cursor-pointer">
+                            Add Item
+                        </button>
+                    </div>
+                    @error('taxonomyNewName') 
+                        <span class="text-rose-500 text-[10px] font-semibold block">{{ $message }}</span> 
+                    @enderror
+
+                    <!-- Items List -->
+                    <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                        @if($taxonomyActiveTab === 'categories')
+                            @forelse($allCategories as $cat)
+                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <div class="flex items-center gap-2">
+                                        <x-icon name="solid:tag" class="w-3.5 h-3.5 text-cyan-500" />
+                                        <span class="text-xs font-bold text-slate-800 dark:text-white">{{ $cat->name }}</span>
+                                        <span class="text-[10px] font-mono text-slate-400">({{ $cat->slug }})</span>
+                                    </div>
+                                    <button type="button" 
+                                            wire:click="deleteCategory({{ $cat->id }})" 
+                                            wire:confirm="Are you sure you want to delete category '{{ $cat->name }}'?"
+                                            class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+                                        <x-icon name="solid:trash" class="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            @empty
+                                <div class="p-4 text-center text-xs text-slate-400">No categories found.</div>
+                            @endforelse
+                        @else
+                            @forelse($allBrands as $brand)
+                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <div class="flex items-center gap-2">
+                                        <x-icon name="solid:building" class="w-3.5 h-3.5 text-cyan-500" />
+                                        <span class="text-xs font-bold text-slate-800 dark:text-white">{{ $brand->name }}</span>
+                                        <span class="text-[10px] font-mono text-slate-400">({{ $brand->slug }})</span>
+                                    </div>
+                                    <button type="button" 
+                                            wire:click="deleteBrand({{ $brand->id }})" 
+                                            wire:confirm="Are you sure you want to delete brand '{{ $brand->name }}'?"
+                                            class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+                                        <x-icon name="solid:trash" class="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            @empty
+                                <div class="p-4 text-center text-xs text-slate-400">No brands found.</div>
+                            @endforelse
+                        @endif
+                    </div>
+
+                    <div class="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" wire:click="closeManageTaxonomiesModal" class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer">
+                            Done
+                        </button>
                     </div>
                 </div>
             </div>

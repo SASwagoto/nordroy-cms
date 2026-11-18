@@ -31,20 +31,27 @@
         }
 
         if ($selectedCat !== 'all') {
-            $query->where('technical_specifications', 'like', '%"category":"' . $selectedCat . '"%');
+            $query->where(function ($q) use ($selectedCat) {
+                $q->whereHas('category', function ($cq) use ($selectedCat) {
+                    $cq->where('name', $selectedCat)->orWhere('slug', $selectedCat);
+                })->orWhere('technical_specifications', 'like', '%"category":"' . $selectedCat . '"%');
+            });
         }
 
         $allProducts = $query->orderBy('id', 'desc')->get();
 
-        $categories = [
-            'all'                   => 'All Spare Parts',
-            'Rotor Assemblies'      => 'Rotor Assemblies',
-            'Cartridges (CHRA)'     => 'Cartridges (CHRA)',
-            'Nozzle Rings & Shrouds'=> 'Nozzle Rings',
-            'Bearings & Seals'      => 'Bearings & Seals',
-            'Turbine Blading'       => 'Turbine Blades',
-            'Compressor Impellers'  => 'Compressor Wheels',
-        ];
+        $dbCategories = \App\Models\Category::active()->orderBy('name')->pluck('name', 'name')->toArray();
+        if (empty($dbCategories)) {
+            $dbCategories = [
+                'Rotor Assemblies'      => 'Rotor Assemblies',
+                'Cartridges (CHRA)'     => 'Cartridges (CHRA)',
+                'Nozzle Rings & Shrouds'=> 'Nozzle Rings',
+                'Bearings & Seals'      => 'Bearings & Seals',
+                'Turbine Blading'       => 'Turbine Blades',
+                'Compressor Impellers'  => 'Compressor Wheels',
+            ];
+        }
+        $categories = array_merge(['all' => __('All Spare Parts')], $dbCategories);
     @endphp
 
     <!-- Catalog Section with Filter Strip -->

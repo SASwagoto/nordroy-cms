@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin\Products;
 
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\MediaAsset;
 use App\Models\Product;
 use Illuminate\Support\Str;
@@ -49,8 +51,21 @@ class ProductManager extends Component
 
     public string $slug = '';
     public string $part_number = '';
+    public ?int $category_id = null;
+    public ?int $brand_id = null;
     public string $category = 'Rotor Assemblies';
     public string $brand = 'MAN Energy Solutions';
+
+    // Instant Quick-Add Taxonomy State (On-the-fly inside product form)
+    public bool $showQuickCategoryModal = false;
+    public string $newCategoryName = '';
+    public bool $showQuickBrandModal = false;
+    public string $newBrandName = '';
+
+    // Full Taxonomy Management Modal State
+    public bool $showManageTaxonomiesModal = false;
+    public string $taxonomyActiveTab = 'categories';
+    public string $taxonomyNewName = '';
     public string $compatible_models = '';
     public string $condition = 'Genuine New OEM';
     public string $stock_status = 'In Stock (Central Warehouse)';
@@ -182,8 +197,14 @@ class ProductManager extends Component
 
         $this->slug = '';
         $this->part_number = '';
-        $this->category = 'Rotor Assemblies';
-        $this->brand = 'MAN Energy Solutions';
+
+        $defaultCat = Category::active()->value('name') ?? 'Rotor Assemblies';
+        $defaultBrand = Brand::active()->value('name') ?? 'MAN Energy Solutions';
+        $this->category = $defaultCat;
+        $this->brand = $defaultBrand;
+        $this->category_id = Category::where('name', $defaultCat)->value('id');
+        $this->brand_id = Brand::where('name', $defaultBrand)->value('id');
+
         $this->compatible_models = '';
         $this->condition = 'Genuine New OEM';
         $this->stock_status = 'In Stock (Central Warehouse)';
@@ -240,8 +261,10 @@ class ProductManager extends Component
         $this->slug = $product->slug;
         $this->part_number = $product->part_number ?? '';
 
-        $this->category = $specsJson['category'] ?? 'Rotor Assemblies';
-        $this->brand = $specsJson['brand'] ?? 'MAN Energy Solutions';
+        $this->category_id = $product->category_id;
+        $this->brand_id = $product->brand_id;
+        $this->category = $product->category?->name ?? ($specsJson['category'] ?? 'Rotor Assemblies');
+        $this->brand = $product->brand?->name ?? ($specsJson['brand'] ?? 'MAN Energy Solutions');
         $this->compatible_models = $specsJson['compatible_models'] ?? '';
         $this->condition = $specsJson['condition'] ?? 'Genuine New OEM';
         $this->stock_status = $specsJson['stock_status'] ?? 'In Stock';
@@ -325,11 +348,37 @@ class ProductManager extends Component
             'specs'             => $filteredSpecs,
         ];
 
+        if (!empty($this->category)) {
+            $catRecord = Category::firstOrCreate(
+                ['name' => trim($this->category)],
+                [
+                    'slug'      => Str::slug($this->category) ?: 'category-' . time(),
+                    'order'     => (int) (Category::max('order') ?? 0) + 1,
+                    'is_active' => true,
+                ]
+            );
+            $this->category_id = $catRecord->id;
+        }
+
+        if (!empty($this->brand)) {
+            $brandRecord = Brand::firstOrCreate(
+                ['name' => trim($this->brand)],
+                [
+                    'slug'      => Str::slug($this->brand) ?: 'brand-' . time(),
+                    'order'     => (int) (Brand::max('order') ?? 0) + 1,
+                    'is_active' => true,
+                ]
+            );
+            $this->brand_id = $brandRecord->id;
+        }
+
         $payload = [
             'title'                    => $titlePayload,
             'slug'                     => Str::slug($this->slug),
             'part_number'              => trim($this->part_number),
             'technical_specifications' => $techSpecsPayload,
+            'category_id'              => $this->category_id,
+            'brand_id'                 => $this->brand_id,
             'featured_image_id'        => $this->featured_image_id,
             'brochure_media_id'        => $this->brochure_media_id,
             'is_active'                => $this->is_active,
@@ -432,6 +481,158 @@ class ProductManager extends Component
         }
     }
 
+    // ==================== INSTANT QUICK-ADD TAXONOMY METHODS ====================
+
+    public function openQuickCategoryModal(): void
+    {
+        $this->resetValidation(['newCategoryName']);
+        $this->newCategoryName = '';
+        $this->showQuickCategoryModal = true;
+    }
+
+    public function closeQuickCategoryModal(): void
+    {
+        $this->showQuickCategoryModal = false;
+        $this->newCategoryName = '';
+        $this->resetValidation(['newCategoryName']);
+    }
+
+    public function saveQuickCategory(): void
+    {
+        $name = trim($this->newCategoryName);
+        if (empty($name)) {
+            $this->addError('newCategoryName', 'Please enter a valid category name.');
+            return;
+        }
+
+        $slug = Str::slug($name) ?: 'cat-' . time();
+
+        $cat = Category::firstOrCreate(
+            ['name' => $name],
+            [
+                'slug'      => $slug,
+                'order'     => (int) (Category::max('order') ?? 0) + 1,
+                'is_active' => true,
+            ]
+        );
+
+        $this->category = $cat->name;
+        $this->category_id = $cat->id;
+        $this->showQuickCategoryModal = false;
+        $this->newCategoryName = '';
+        session()->flash('taxonomy_quick_success', "Category '{$cat->name}' created and selected!");
+    }
+
+    public function openQuickBrandModal(): void
+    {
+        $this->resetValidation(['newBrandName']);
+        $this->newBrandName = '';
+        $this->showQuickBrandModal = true;
+    }
+
+    public function closeQuickBrandModal(): void
+    {
+        $this->showQuickBrandModal = false;
+        $this->newBrandName = '';
+        $this->resetValidation(['newBrandName']);
+    }
+
+    public function saveQuickBrand(): void
+    {
+        $name = trim($this->newBrandName);
+        if (empty($name)) {
+            $this->addError('newBrandName', 'Please enter a valid manufacturer/brand name.');
+            return;
+        }
+
+        $slug = Str::slug($name) ?: 'brand-' . time();
+
+        $brand = Brand::firstOrCreate(
+            ['name' => $name],
+            [
+                'slug'      => $slug,
+                'order'     => (int) (Brand::max('order') ?? 0) + 1,
+                'is_active' => true,
+            ]
+        );
+
+        $this->brand = $brand->name;
+        $this->brand_id = $brand->id;
+        $this->showQuickBrandModal = false;
+        $this->newBrandName = '';
+        session()->flash('taxonomy_quick_success', "Brand '{$brand->name}' created and selected!");
+    }
+
+    // ==================== FULL TAXONOMY MANAGEMENT METHODS ====================
+
+    public function openManageTaxonomiesModal(string $tab = 'categories'): void
+    {
+        $this->taxonomyActiveTab = $tab;
+        $this->taxonomyNewName = '';
+        $this->showManageTaxonomiesModal = true;
+    }
+
+    public function closeManageTaxonomiesModal(): void
+    {
+        $this->showManageTaxonomiesModal = false;
+        $this->taxonomyNewName = '';
+        $this->resetValidation(['taxonomyNewName']);
+    }
+
+    public function addTaxonomyItem(): void
+    {
+        $name = trim($this->taxonomyNewName);
+        if (empty($name)) {
+            $this->addError('taxonomyNewName', 'Item name is required.');
+            return;
+        }
+
+        $slug = Str::slug($name) ?: 'item-' . time();
+
+        if ($this->taxonomyActiveTab === 'categories') {
+            Category::firstOrCreate(
+                ['name' => $name],
+                [
+                    'slug'      => $slug,
+                    'order'     => (int) (Category::max('order') ?? 0) + 1,
+                    'is_active' => true,
+                ]
+            );
+        } else {
+            Brand::firstOrCreate(
+                ['name' => $name],
+                [
+                    'slug'      => $slug,
+                    'order'     => (int) (Brand::max('order') ?? 0) + 1,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $this->taxonomyNewName = '';
+        session()->flash('taxonomy_manager_success', ucfirst($this->taxonomyActiveTab) . " updated successfully.");
+    }
+
+    public function deleteCategory(int $id): void
+    {
+        $cat = Category::find($id);
+        if ($cat) {
+            $name = $cat->name;
+            $cat->delete();
+            session()->flash('taxonomy_manager_success', "Category '{$name}' deleted.");
+        }
+    }
+
+    public function deleteBrand(int $id): void
+    {
+        $brand = Brand::find($id);
+        if ($brand) {
+            $name = $brand->name;
+            $brand->delete();
+            session()->flash('taxonomy_manager_success', "Brand '{$name}' deleted.");
+        }
+    }
+
     public function render()
     {
         $query = Product::query()->with(['featuredImage', 'brochure']);
@@ -471,25 +672,34 @@ class ProductManager extends Component
         $activeCount = Product::where('is_active', true)->count();
         $inStockCount = Product::where('technical_specifications', 'like', '%In Stock%')->count();
 
-        // Unique categories and brands for filter bars
-        $categoriesList = [
-            'Rotor Assemblies',
-            'Cartridges (CHRA)',
-            'Nozzle Rings & Shrouds',
-            'Bearings & Seals',
-            'Turbine Blading',
-            'Compressor Impellers',
-            'Casing & Liners',
-        ];
+        // Dynamic categories and brands queried from Database
+        $categoriesList = Category::active()->pluck('name')->toArray();
+        if (empty($categoriesList)) {
+            $categoriesList = [
+                'Rotor Assemblies',
+                'Cartridges (CHRA)',
+                'Nozzle Rings & Shrouds',
+                'Bearings & Seals',
+                'Turbine Blading',
+                'Compressor Impellers',
+                'Casing & Liners',
+            ];
+        }
 
-        $brandsList = [
-            'MAN Energy Solutions',
-            'ABB / Accelleron',
-            'Mitsubishi Heavy Industries (MHI)',
-            'Napier Turbochargers',
-            'KBB Turbochargers',
-            'Garrett / Honeywell',
-        ];
+        $brandsList = Brand::active()->pluck('name')->toArray();
+        if (empty($brandsList)) {
+            $brandsList = [
+                'MAN Energy Solutions',
+                'ABB / Accelleron',
+                'Mitsubishi Heavy Industries (MHI)',
+                'Napier Turbochargers',
+                'KBB Turbochargers',
+                'Garrett / Honeywell',
+            ];
+        }
+
+        $allCategories = Category::orderBy('order')->orderBy('name')->get();
+        $allBrands = Brand::orderBy('order')->orderBy('name')->get();
 
         return view('livewire.admin.products.product-manager', [
             'products'        => $products,
@@ -498,6 +708,8 @@ class ProductManager extends Component
             'inStockCount'    => $inStockCount,
             'categoriesList'  => $categoriesList,
             'brandsList'      => $brandsList,
+            'allCategories'   => $allCategories,
+            'allBrands'       => $allBrands,
             'mediaAssets'     => MediaAsset::latest()->take(24)->get(),
         ]);
     }

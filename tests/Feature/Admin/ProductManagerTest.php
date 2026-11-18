@@ -3,6 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Livewire\Admin\Products\ProductManager;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\User;
@@ -140,5 +142,44 @@ class ProductManagerTest extends TestCase
         $resServiceDetails->assertSee('Dynamic Rotor Balancing 100k RPM');
         $resServiceDetails->assertSee('Class-Certified 5-Phase Overhaul Methodology');
         $resServiceDetails->assertSee('Request Overhaul RFQ');
+    }
+
+    public function test_products_manager_can_quick_create_category_and_brand_instantly(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(ProductManager::class)
+            ->call('createProduct')
+            ->call('openQuickCategoryModal')
+            ->assertSet('showQuickCategoryModal', true)
+            ->set('newCategoryName', 'Turbine Casings')
+            ->call('saveQuickCategory')
+            ->assertSet('showQuickCategoryModal', false)
+            ->assertSet('category', 'Turbine Casings')
+            ->call('openQuickBrandModal')
+            ->assertSet('showQuickBrandModal', true)
+            ->set('newBrandName', 'KBB Turbochargers')
+            ->call('saveQuickBrand')
+            ->assertSet('showQuickBrandModal', false)
+            ->assertSet('brand', 'KBB Turbochargers')
+            ->set('title_en', 'KBB HPR4000 Turbine Casing')
+            ->set('slug', 'kbb-hpr4000-turbine-casing')
+            ->set('part_number', 'KBB-HPR-4000-CSG')
+            ->call('saveProduct')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('categories', [
+            'name' => 'Turbine Casings',
+        ]);
+
+        $this->assertDatabaseHas('brands', [
+            'name' => 'KBB Turbochargers',
+        ]);
+
+        $product = Product::where('slug', 'kbb-hpr4000-turbine-casing')->first();
+        $this->assertNotNull($product);
+        $this->assertEquals('Turbine Casings', $product->category);
+        $this->assertEquals('KBB Turbochargers', $product->brand);
+        $this->assertNotNull($product->category_id);
+        $this->assertNotNull($product->brand_id);
     }
 }
