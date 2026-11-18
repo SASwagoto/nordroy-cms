@@ -5,6 +5,7 @@ use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Languages\LanguageManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
+use App\Livewire\Admin\Products\ProductEditor;
 use App\Livewire\Admin\Products\ProductManager;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
@@ -305,6 +306,14 @@ Route::middleware([
     Route::get('/products', ProductManager::class)
         ->middleware('permission:products.view')
         ->name('products');
+
+    Route::get('/products/create', ProductEditor::class)
+        ->middleware('permission:products.view')
+        ->name('products.create');
+
+    Route::get('/products/{id}/edit', ProductEditor::class)
+        ->middleware('permission:products.view')
+        ->name('products.edit');
 
     // Localization & Multi-Language Studio
     Route::get('/languages', LanguageManager::class)

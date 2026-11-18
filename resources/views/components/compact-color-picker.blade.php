@@ -39,13 +39,13 @@
             @if($allowTransparent)
                 <button type="button" 
                         @click="colorVal = 'transparent'; openColorPicker = false" 
-                        class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer">
+                        class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors cursor-pointer">
                     Clear (None)
                 </button>
             @else
                 <button type="button" 
                         @click="colorVal = '{{ $default }}'; openColorPicker = false" 
-                        class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 transition-colors cursor-pointer">
+                        class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                     Reset
                 </button>
             @endif

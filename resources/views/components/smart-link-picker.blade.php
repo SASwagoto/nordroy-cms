@@ -234,7 +234,7 @@
             <button type="button" 
                     @click.stop="isExpanded = !isExpanded"
                     class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 shadow-2xs"
-                    :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'">
+                    :class="isExpanded ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700'">
                 <span x-text="isExpanded ? 'Done' : 'Change'"></span>
                 <x-icon name="solid:chevron-down" class="w-3 h-3 transition-transform duration-200" ::class="isExpanded ? 'rotate-180' : ''" />
             </button>

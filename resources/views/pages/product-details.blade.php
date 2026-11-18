@@ -208,17 +208,17 @@
                 <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4 overflow-x-auto no-scrollbar">
                     <button type="button" @click="activeTab = 'specs'"
                             class="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer"
-                            :class="activeTab === 'specs' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900'">
+                            :class="activeTab === 'specs' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:hover:bg-slate-800'">
                         1. Engineering Specifications
                     </button>
                     <button type="button" @click="activeTab = 'inspection'"
                             class="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer"
-                            :class="activeTab === 'inspection' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900'">
+                            :class="activeTab === 'inspection' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:hover:bg-slate-800'">
                         2. Balancing &amp; NDT Protocols
                     </button>
                     <button type="button" @click="activeTab = 'warranty'"
                             class="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer"
-                            :class="activeTab === 'warranty' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900'">
+                            :class="activeTab === 'warranty' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:hover:bg-slate-800'">
                         3. Classification &amp; Warranty
                     </button>
                 </div>
@@ -320,7 +320,7 @@
                                     </h4>
                                     <span class="text-[10px] text-slate-400 block">{{ $rel->brand }}</span>
                                 </div>
-                                <a href="{{ route('product.details', $rel->slug) }}" class="block text-center py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58] hover:text-white transition-colors">
+                                <a href="{{ route('product.details', $rel->slug) }}" class="block text-center py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition-colors">
                                     {{ __('View Details') }} &rarr;
                                 </a>
                             </div>

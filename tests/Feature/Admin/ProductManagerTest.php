@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Livewire\Admin\Products\ProductEditor;
 use App\Livewire\Admin\Products\ProductManager;
 use App\Models\Brand;
 use App\Models\Category;
@@ -69,27 +70,63 @@ class ProductManagerTest extends TestCase
             ->assertSee('No spare parts found');
     }
 
-    public function test_products_manager_can_create_new_spare_part(): void
+    public function test_product_editor_page_is_accessible(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.products.create'));
+        $response->assertStatus(200);
+        $response->assertSee('Create New Spare Part');
+        $response->assertSee('Back to Products');
+    }
+
+    public function test_product_editor_can_create_new_spare_part(): void
     {
         Livewire::actingAs($this->admin)
-            ->test(ProductManager::class)
-            ->call('createProduct')
+            ->test(ProductEditor::class)
             ->set('title_en', 'ABB TPL 77 Core Cartridge')
             ->set('slug', 'abb-tpl77-cartridge')
             ->set('part_number', 'ABB-TPL77-CRT-TEST')
             ->set('category', 'Cartridges (CHRA)')
             ->set('brand', 'ABB / Accelleron')
             ->set('condition', 'Genuine New OEM')
-            ->set('stock_status', 'In Stock')
+            ->set('stock_status', 'In Stock (Central Warehouse)')
             ->set('specs', [
                 ['key' => 'Max RPM', 'value' => '22,000 RPM'],
             ])
             ->call('saveProduct')
-            ->assertHasNoErrors();
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.products'));
 
         $this->assertDatabaseHas('products', [
             'slug' => 'abb-tpl77-cartridge',
             'part_number' => 'ABB-TPL77-CRT-TEST',
+        ]);
+    }
+
+    public function test_product_editor_can_edit_existing_spare_part(): void
+    {
+        $part = Product::create([
+            'title' => ['en' => 'Napier NA297 Casing', 'bn' => 'নেপিয়ার কেসিং'],
+            'slug' => 'napier-na297-casing',
+            'part_number' => 'NAP-297-CSG',
+            'technical_specifications' => [
+                'category' => 'Rotor Assemblies',
+                'brand' => 'Napier Turbochargers',
+            ],
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($this->admin)
+            ->test(ProductEditor::class, ['id' => $part->id])
+            ->assertSet('title_en', 'Napier NA297 Casing')
+            ->set('title_en', 'Napier NA297 Casing Series II')
+            ->set('part_number', 'NAP-297-CSG-V2')
+            ->call('saveProduct')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.products'));
+
+        $this->assertDatabaseHas('products', [
+            'id' => $part->id,
+            'part_number' => 'NAP-297-CSG-V2',
         ]);
     }
 
@@ -144,11 +181,10 @@ class ProductManagerTest extends TestCase
         $resServiceDetails->assertSee('Request Overhaul RFQ');
     }
 
-    public function test_products_manager_can_quick_create_category_and_brand_instantly(): void
+    public function test_product_editor_can_quick_create_category_and_brand_instantly(): void
     {
         Livewire::actingAs($this->admin)
-            ->test(ProductManager::class)
-            ->call('createProduct')
+            ->test(ProductEditor::class)
             ->call('openQuickCategoryModal')
             ->assertSet('showQuickCategoryModal', true)
             ->set('newCategoryName', 'Turbine Casings')
@@ -165,7 +201,8 @@ class ProductManagerTest extends TestCase
             ->set('slug', 'kbb-hpr4000-turbine-casing')
             ->set('part_number', 'KBB-HPR-4000-CSG')
             ->call('saveProduct')
-            ->assertHasNoErrors();
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.products'));
 
         $this->assertDatabaseHas('categories', [
             'name' => 'Turbine Casings',

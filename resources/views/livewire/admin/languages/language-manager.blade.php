@@ -165,7 +165,7 @@
                             <td class="py-3.5 px-4">
                                 <button type="button" 
                                         wire:click="toggleActive({{ $lang->id }})"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer {{ $lang->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300' }}">
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer {{ $lang->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700' }}">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $lang->is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' }}"></span>
                                     <span>{{ $lang->is_active ? 'Active' : 'Disabled' }}</span>
                                 </button>

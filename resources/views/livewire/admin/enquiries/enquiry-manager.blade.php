@@ -441,25 +441,25 @@
 
                         <button type="button" 
                                 wire:click="updateStatus({{ $selectedEnquiry->id }}, 'new')" 
-                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'new' ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300' }} cursor-pointer transition-colors">
+                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'new' ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700' }} cursor-pointer transition-colors">
                             New
                         </button>
 
                         <button type="button" 
                                 wire:click="updateStatus({{ $selectedEnquiry->id }}, 'read')" 
-                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'read' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300' }} cursor-pointer transition-colors">
+                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'read' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700' }} cursor-pointer transition-colors">
                             Reviewing
                         </button>
 
                         <button type="button" 
                                 wire:click="updateStatus({{ $selectedEnquiry->id }}, 'replied')" 
-                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'replied' ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300' }} cursor-pointer transition-colors">
+                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'replied' ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700' }} cursor-pointer transition-colors">
                             Quoted
                         </button>
 
                         <button type="button" 
                                 wire:click="updateStatus({{ $selectedEnquiry->id }}, 'archived')" 
-                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'archived' ? 'bg-slate-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300' }} cursor-pointer transition-colors">
+                                class="px-2.5 py-1 rounded-lg text-xs font-semibold {{ $selectedEnquiry->status === 'archived' ? 'bg-slate-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700' }} cursor-pointer transition-colors">
                             Archive
                         </button>
                     </div>

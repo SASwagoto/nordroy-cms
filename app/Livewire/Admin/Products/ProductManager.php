@@ -174,118 +174,14 @@ class ProductManager extends Component
         }
     }
 
-    public function createProduct(): void
+    public function createProduct()
     {
-        $this->resetValidation();
-        $this->editingProductId = null;
-
-        $this->title = [];
-        $this->summary = [];
-        $this->description = [];
-        foreach ($this->languages as $lang) {
-            $this->title[$lang->code] = '';
-            $this->summary[$lang->code] = '';
-            $this->description[$lang->code] = '';
-        }
-        $this->title_en = '';
-        $this->title_bn = '';
-        $this->summary_en = '';
-        $this->summary_bn = '';
-        $this->description_en = '';
-        $this->description_bn = '';
-        $this->activeLocale = 'en';
-
-        $this->slug = '';
-        $this->part_number = '';
-
-        $defaultCat = Category::active()->value('name') ?? 'Rotor Assemblies';
-        $defaultBrand = Brand::active()->value('name') ?? 'MAN Energy Solutions';
-        $this->category = $defaultCat;
-        $this->brand = $defaultBrand;
-        $this->category_id = Category::where('name', $defaultCat)->value('id');
-        $this->brand_id = Brand::where('name', $defaultBrand)->value('id');
-
-        $this->compatible_models = '';
-        $this->condition = 'Genuine New OEM';
-        $this->stock_status = 'In Stock (Central Warehouse)';
-        $this->lead_time = 'Immediate Port Dispatch (24h)';
-        $this->warranty = '12 Months Marine Warranty';
-        $this->specs = [
-            ['key' => 'Max Speed', 'value' => '45,000 RPM'],
-            ['key' => 'Balancing Quality', 'value' => 'ISO 1940-1 Grade G1.0'],
-            ['key' => 'Metallurgy', 'value' => 'Inconel 713C / Titanium'],
-            ['key' => 'Class Approvals', 'value' => 'DNV, Lloyd\'s Register, ABS'],
-        ];
-        $this->featured_image_id = null;
-        $this->featured_image_url = null;
-        $this->brochure_media_id = null;
-        $this->brochure_media_url = null;
-        $this->is_active = true;
-
-        $this->isFormModalOpen = true;
+        return redirect()->route('admin.products.create');
     }
 
-    public function editProduct(int $id): void
+    public function editProduct(int $id)
     {
-        $this->resetValidation();
-        $product = Product::with(['featuredImage', 'brochure'])->findOrFail($id);
-        $this->editingProductId = $product->id;
-
-        $rawTitle = $product->title ?? [];
-        $rawTitle = is_array($rawTitle) ? $rawTitle : (json_decode($rawTitle, true) ?? ['en' => (string) $rawTitle]);
-
-        $specsJson = $product->technical_specifications ?? [];
-        $rawSummary = $specsJson['summary'] ?? ($specsJson['short_description'] ?? []);
-        $rawSummary = is_array($rawSummary) ? $rawSummary : (json_decode($rawSummary, true) ?? ['en' => (string) $rawSummary]);
-
-        $rawDesc = $specsJson['description'] ?? [];
-        $rawDesc = is_array($rawDesc) ? $rawDesc : (json_decode($rawDesc, true) ?? ['en' => (string) $rawDesc]);
-
-        $this->title = [];
-        $this->summary = [];
-        $this->description = [];
-        foreach ($this->languages as $lang) {
-            $this->title[$lang->code] = $rawTitle[$lang->code] ?? ($lang->code === 'en' ? (reset($rawTitle) ?: '') : '');
-            $this->summary[$lang->code] = $rawSummary[$lang->code] ?? ($lang->code === 'en' ? (reset($rawSummary) ?: '') : '');
-            $this->description[$lang->code] = $rawDesc[$lang->code] ?? ($lang->code === 'en' ? (reset($rawDesc) ?: '') : '');
-        }
-
-        $this->title_en = $this->title['en'] ?? '';
-        $this->title_bn = $this->title['bn'] ?? '';
-        $this->summary_en = $this->summary['en'] ?? '';
-        $this->summary_bn = $this->summary['bn'] ?? '';
-        $this->description_en = $this->description['en'] ?? '';
-        $this->description_bn = $this->description['bn'] ?? '';
-        $this->activeLocale = 'en';
-
-        $this->slug = $product->slug;
-        $this->part_number = $product->part_number ?? '';
-
-        $this->category_id = $product->category_id;
-        $this->brand_id = $product->brand_id;
-        $this->category = $product->category?->name ?? ($specsJson['category'] ?? 'Rotor Assemblies');
-        $this->brand = $product->brand?->name ?? ($specsJson['brand'] ?? 'MAN Energy Solutions');
-        $this->compatible_models = $specsJson['compatible_models'] ?? '';
-        $this->condition = $specsJson['condition'] ?? 'Genuine New OEM';
-        $this->stock_status = $specsJson['stock_status'] ?? 'In Stock';
-        $this->lead_time = $specsJson['lead_time'] ?? '24-48 Hours';
-        $this->warranty = $specsJson['warranty'] ?? '12 Months';
-
-        $this->specs = $specsJson['specs'] ?? [];
-        if (empty($this->specs)) {
-            $this->specs = [
-                ['key' => 'Max Speed', 'value' => '45,000 RPM'],
-                ['key' => 'Balancing Quality', 'value' => 'ISO 1940-1 Grade G1.0'],
-            ];
-        }
-
-        $this->featured_image_id = $product->featured_image_id;
-        $this->featured_image_url = $product->featuredImage?->url;
-        $this->brochure_media_id = $product->brochure_media_id;
-        $this->brochure_media_url = $product->brochure?->url;
-        $this->is_active = (bool) $product->is_active;
-
-        $this->isFormModalOpen = true;
+        return redirect()->route('admin.products.edit', $id);
     }
 
     public function addSpecItem(): void

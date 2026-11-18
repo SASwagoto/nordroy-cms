@@ -139,7 +139,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 block mb-1">Select Role</span>
                 @foreach($roles as $role)
                     <button type="button" wire:click="selectRole({{ $role->id }})"
-                        class="w-full px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between {{ $selectedRoleId === $role->id ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 border-[#003C58]' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50' }}">
+                        class="w-full px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between {{ $selectedRoleId === $role->id ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 border-[#003C58]' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800' }}">
                         <div class="truncate">
                             <p class="font-bold text-xs truncate">{{ $role->name }}</p>
                             <p class="text-[10px] opacity-75">{{ $role->users_count }} Assigned</p>

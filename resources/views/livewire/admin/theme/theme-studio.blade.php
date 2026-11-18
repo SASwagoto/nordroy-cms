@@ -627,7 +627,7 @@
 
                         <!-- Outline Button -->
                         <button type="button"
-                                class="px-4 py-2 text-xs font-bold border transition-all hover:bg-slate-100/30 active:scale-95"
+                                class="px-4 py-2 text-xs font-bold border transition-all hover:bg-slate-100/30 dark:hover:bg-slate-800/40 active:scale-95"
                                 style="
                                     font-family: '{{ $theme['theme_body_font'] }}', sans-serif;
                                     border-radius: {{ $theme['theme_button_radius'] ?? '12px' }};
