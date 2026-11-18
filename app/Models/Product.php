@@ -22,6 +22,8 @@ class Product extends Model
         'is_active',
     ];
 
+    protected $with = ['featuredImage'];
+
     protected $casts = [
         'title' => 'array',
         'technical_specifications' => 'array',
@@ -45,9 +47,10 @@ class Product extends Model
 
     public function getDisplayTitleAttribute(): string
     {
-        $val = $this->getTranslation('title');
+        $locale = app()->getLocale();
+        $val = $this->getTranslation('title', $locale);
         if (is_array($val)) {
-            return $val['en'] ?? reset($val) ?? '';
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
         }
         return (string) ($val ?? '');
     }
@@ -89,12 +92,22 @@ class Product extends Model
 
     public function getSummaryAttribute(): string
     {
-        return $this->technical_specifications['summary'] ?? ($this->technical_specifications['short_description'] ?? '');
+        $val = $this->technical_specifications['summary'] ?? ($this->technical_specifications['short_description'] ?? '');
+        if (is_array($val)) {
+            $locale = app()->getLocale();
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
+        }
+        return (string) $val;
     }
 
     public function getDescriptionAttribute(): string
     {
-        return $this->technical_specifications['description'] ?? '';
+        $val = $this->technical_specifications['description'] ?? '';
+        if (is_array($val)) {
+            $locale = app()->getLocale();
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
+        }
+        return (string) $val;
     }
 
     public function getSpecsListAttribute(): array
@@ -104,11 +117,23 @@ class Product extends Model
 
     public function getImageUrlAttribute(): string
     {
-        return $this->featuredImage?->url ?? asset('assets/images/gallery/gallery-turbine.webp');
+        if ($this->relationLoaded('featuredImage')) {
+            return $this->featuredImage?->url ?? asset('assets/images/gallery/gallery-turbine.webp');
+        }
+
+        return $this->featured_image_id
+            ? ($this->featuredImage?->url ?? asset('assets/images/gallery/gallery-turbine.webp'))
+            : asset('assets/images/gallery/gallery-turbine.webp');
     }
 
     public function getPdfUrlAttribute(): ?string
     {
-        return $this->brochure?->url ?? ($this->technical_specifications['pdf_url'] ?? null);
+        if ($this->relationLoaded('brochure')) {
+            return $this->brochure?->url ?? ($this->technical_specifications['pdf_url'] ?? null);
+        }
+
+        return $this->brochure_media_id
+            ? ($this->brochure?->url ?? ($this->technical_specifications['pdf_url'] ?? null))
+            : ($this->technical_specifications['pdf_url'] ?? null);
     }
 }

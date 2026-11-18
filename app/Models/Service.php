@@ -24,6 +24,8 @@ class Service extends Model
         'is_active',
     ];
 
+    protected $with = ['featuredImage'];
+
     protected $casts = [
         'title' => 'array',
         'short_summary' => 'array',
@@ -45,27 +47,30 @@ class Service extends Model
 
     public function getDisplayTitleAttribute(): string
     {
-        $val = $this->getTranslation('title');
+        $locale = app()->getLocale();
+        $val = $this->getTranslation('title', $locale);
         if (is_array($val)) {
-            return $val['en'] ?? reset($val) ?? '';
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
         }
         return (string) ($val ?? '');
     }
 
     public function getDisplaySummaryAttribute(): string
     {
-        $val = $this->getTranslation('short_summary');
+        $locale = app()->getLocale();
+        $val = $this->getTranslation('short_summary', $locale);
         if (is_array($val)) {
-            return $val['en'] ?? reset($val) ?? '';
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
         }
         return (string) ($val ?? '');
     }
 
     public function getDisplayContentAttribute(): string
     {
-        $val = $this->getTranslation('content');
+        $locale = app()->getLocale();
+        $val = $this->getTranslation('content', $locale);
         if (is_array($val)) {
-            return $val['en'] ?? reset($val) ?? '';
+            return $val[$locale] ?? $val[config('app.fallback_locale', 'en')] ?? reset($val) ?? '';
         }
         return (string) ($val ?? '');
     }

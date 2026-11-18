@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust all reverse proxies (Render, Cloudflare, Load Balancers)
         $middleware->trustProxies(at: '*');
 
+        // Multi-Language Dynamic Locale Middleware
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         // Spatie Role & Permission Middleware Registration
         $middleware->alias([
             'role'               => RoleMiddleware::class,

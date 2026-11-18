@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ $currentLanguageDirection ?? 'ltr' }}" class="h-full scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -301,12 +301,12 @@
             <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div class="flex items-center gap-3">
                     <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
-                        24/7 Port Call &amp; Emergency Squads
+                        {{ __('24/7 Port Call & Emergency Squads') }}
                     </span>
                     <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
-                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">Authorized Multi-Brand Turbocharger Engineering</span>
+                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ __('Authorized Multi-Brand Turbocharger Engineering') }}</span>
                 </div>
-                <div class="flex items-center gap-4 text-xs">
+                <div class="flex items-center gap-3 sm:gap-4 text-xs">
                     <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
                         <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         <span>{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</span>
@@ -315,8 +315,60 @@
                         <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         <span>{{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}</span>
                     </a>
+
+                    <!-- Dynamic Multi-Language Switcher Dropdown -->
+                    @php
+                        $navLanguages = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+                        $activeLocaleCode = app()->getLocale();
+                        $currLang = $navLanguages->firstWhere('code', $activeLocaleCode) 
+                            ?? $navLanguages->firstWhere('is_default', true) 
+                            ?? $navLanguages->first();
+                    @endphp
+
+                    @if($navLanguages->count() > 0)
+                        <div class="relative inline-block text-left" x-data="{ langOpen: false }" @click.outside="langOpen = false">
+                            <button type="button" 
+                                    @click="langOpen = !langOpen" 
+                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-800 dark:text-slate-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
+                                    title="Switch Language">
+                                <span class="text-xs select-none">{{ $currLang?->flag_icon ?: '🌐' }}</span>
+                                <span class="font-bold">{{ $currLang?->native_name ?: strtoupper($currLang?->code ?? 'EN') }}</span>
+                                <svg class="w-3 h-3 text-slate-400 transition-transform" :class="langOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div x-show="langOpen" 
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute right-0 mt-1 w-40 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 overflow-hidden" 
+                                 style="display: none;">
+                                <div class="px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                                    Select Language
+                                </div>
+                                @foreach($navLanguages as $l)
+                                    <a href="{{ route('language.switch', $l->code) }}" 
+                                       class="flex items-center justify-between px-3 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ $activeLocaleCode === $l->code ? 'text-[#003C58] dark:text-cyan-400 font-bold bg-[#003C58]/5 dark:bg-cyan-500/10' : 'text-slate-700 dark:text-slate-300' }}">
+                                        <span class="flex items-center gap-2">
+                                            <span class="text-sm select-none">{{ $l->flag_icon ?: '🌐' }}</span>
+                                            <span>{{ $l->native_name }}</span>
+                                        </span>
+                                        @if($activeLocaleCode === $l->code)
+                                            <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
-                        Admin Portal &rarr;
+                        {{ __('Admin Portal') }} &rarr;
                     </a>
                 </div>
             </div>
@@ -344,13 +396,13 @@
                     <!-- 1. Home Link -->
                     <a href="{{ route('home') }}" 
                        class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('home') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
-                        Home
+                        {{ __('Home') }}
                     </a>
 
                     <!-- 2. About Conglomerate (Dropdown) -->
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>About Us</span>
+                            <span>{{ __('About Us') }}</span>
                             <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                         <!-- Submenu Dropdown Card -->
@@ -363,19 +415,19 @@
                              x-transition:leave-end="opacity-0 translate-y-2"
                              class="absolute left-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
                              style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Conglomerate Structure</div>
+                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ __('Company Overview') }}</div>
                             <a href="{{ route('about') }}#overview" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Corporate Heritage &amp; Profile
+                                {{ __('Corporate Heritage & Profile') }}
                             </a>
                             <a href="{{ route('about') }}#mission" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Mission, Vision &amp; Core Values
+                                {{ __('Mission, Vision & Core Values') }}
                             </a>
 
                             <a href="{{ route('about') }}#certifications" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                ISO 9001:2015 &amp; DNV Standards
+                                {{ __('ISO 9001:2015 & DNV Standards') }}
                             </a>
                         </div>
                     </div>
@@ -383,7 +435,7 @@
                     <!-- 3. Overhaul Services (Dropdown) -->
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>Services</span>
+                            <span>{{ __('Services') }}</span>
                             <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                         <div x-show="open" 
@@ -395,39 +447,39 @@
                              x-transition:leave-end="opacity-0 translate-y-2"
                              class="absolute left-0 mt-1 w-72 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
                              style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Precision Engineering</div>
+                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ __('Services & Precision Overhauls') }}</div>
                             <a href="{{ route('services') }}#balancing" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Dynamic Rotor Balancing (100k RPM)
+                                {{ __('Dynamic Rotor Balancing (100k RPM)') }}
                             </a>
                             <a href="{{ route('services') }}#overhaul" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Turbine Blading &amp; TIG Welding
+                                {{ __('Turbine Blading & TIG Welding') }}
                             </a>
                             <a href="{{ route('services') }}#cartridge" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Cartridge (CHRA) Exchange &amp; Rebuild
+                                {{ __('Cartridge (CHRA) Exchange') }}
                             </a>
                             <a href="{{ route('services') }}#ultrasonic" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Ultrasonic Chemical Cleaning
+                                {{ __('Ultrasonic Chemical Cleaning') }}
                             </a>
                             <a href="{{ route('services') }}#flying-squad" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                24/7 Port Flying Squads to Vessel
+                                {{ __('24/7 Port Emergency Flying Squads') }}
                             </a>
                         </div>
                     </div>
 
                     <!-- 4. Products Link -->
                     <a href="{{ route('products') }}" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('products*') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
-                        Products &amp; Spares
+                        {{ __('Products & Spares') }}
                     </a>
 
                     <!-- 5. Projects & Media (Dropdown) -->
                     <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                         <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
-                            <span>Projects &amp; Media</span>
+                            <span>{{ __('Projects') }}</span>
                             <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                         <div x-show="open" 
@@ -439,18 +491,18 @@
                              x-transition:leave-end="opacity-0 translate-y-2"
                              class="absolute left-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
                              style="display: none;">
-                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Portfolio &amp; Media</div>
+                            <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ __('Case Studies') }}</div>
                             <a href="{{ route('projects') }}#projects" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Industrial Projects
+                                {{ __('Featured Industrial Projects') }}
                             </a>
                             <a href="{{ route('projects') }}#videos" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Video Gallery (Hover Play)
+                                {{ __('Video Gallery (Hover to Play)') }}
                             </a>
                             <a href="{{ route('projects') }}#photos" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Photo Gallery &amp; Workshops
+                                {{ __('Photo Gallery & Workshops') }}
                             </a>
                         </div>
                     </div>
@@ -458,7 +510,7 @@
                     <!-- 6. Contact Link -->
                     <a href="{{ route('contact') }}" 
                        class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('contact') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
-                        Contact
+                        {{ __('Contact') }}
                     </a>
 
                 </nav>
@@ -485,7 +537,7 @@
                        class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all"
                        style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span>Request RFQ</span>
+                        <span>{{ __('Request RFQ') }}</span>
                     </a>
 
                     <!-- Mobile Hamburger Button -->
@@ -555,22 +607,38 @@
                     <!-- Drawer Nav Items (with Accordion Submenus - Pure Title Case) -->
                     <div class="flex-1 overflow-y-auto p-5 space-y-2 text-sm font-semibold tracking-normal">
                         
+                        <!-- Mobile Language Switcher Strip -->
+                        @if(isset($navLanguages) && $navLanguages->count() > 1)
+                            <div class="pb-3 mb-2 border-b border-slate-100 dark:border-slate-800">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Language</span>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    @foreach($navLanguages as $l)
+                                        <a href="{{ route('language.switch', $l->code) }}" 
+                                           class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 {{ app()->getLocale() === $l->code ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
+                                            <span>{{ $l->flag_icon ?: '🌐' }}</span>
+                                            <span>{{ $l->native_name }}</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <a href="{{ route('home') }}" @click="mobileNavOpen = false" 
                            class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('home') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
-                            Home
+                            {{ __('Home') }}
                         </a>
 
                         <!-- About Us Accordion -->
                         <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
                             <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'about' ? null : 'about')" 
                                     class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>About Us</span>
+                                <span>{{ __('About Us') }}</span>
                                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'about' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             <div x-show="activeMobileSubmenu === 'about'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('about') }}#overview" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Corporate Heritage &amp; Profile</a>
-                                <a href="{{ route('about') }}#mission" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Mission, Vision &amp; Core Values</a>
-                                <a href="{{ route('about') }}#certifications" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">ISO 9001:2015 &amp; DNV Standards</a>
+                                <a href="{{ route('about') }}#overview" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Corporate Heritage & Profile') }}</a>
+                                <a href="{{ route('about') }}#mission" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Mission, Vision & Core Values') }}</a>
+                                <a href="{{ route('about') }}#certifications" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('ISO 9001:2015 & DNV Standards') }}</a>
                             </div>
                         </div>
 
@@ -578,40 +646,40 @@
                         <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
                             <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'services' ? null : 'services')" 
                                     class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>Services</span>
+                                <span>{{ __('Services') }}</span>
                                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'services' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             <div x-show="activeMobileSubmenu === 'services'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('services') }}#balancing" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Dynamic Rotor Balancing (100k RPM)</a>
-                                <a href="{{ route('services') }}#overhaul" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Turbine Blading &amp; TIG Welding</a>
-                                <a href="{{ route('services') }}#cartridge" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Cartridge (CHRA) Exchange</a>
-                                <a href="{{ route('services') }}#ultrasonic" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Ultrasonic Chemical Cleaning</a>
-                                <a href="{{ route('services') }}#flying-squad" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">24/7 Port Emergency Flying Squads</a>
+                                <a href="{{ route('services') }}#balancing" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Dynamic Rotor Balancing (100k RPM)') }}</a>
+                                <a href="{{ route('services') }}#overhaul" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Turbine Blading & TIG Welding') }}</a>
+                                <a href="{{ route('services') }}#cartridge" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Cartridge (CHRA) Exchange') }}</a>
+                                <a href="{{ route('services') }}#ultrasonic" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Ultrasonic Chemical Cleaning') }}</a>
+                                <a href="{{ route('services') }}#flying-squad" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('24/7 Port Emergency Flying Squads') }}</a>
                             </div>
                         </div>
 
                         <a href="{{ route('products') }}" @click="mobileNavOpen = false" 
                            class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800/80 pb-2 transition-colors {{ request()->routeIs('products*') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
-                            Products &amp; Spares
+                            {{ __('Products & Spares') }}
                         </a>
 
                         <!-- Projects Accordion -->
                         <div class="border-b border-slate-100 dark:border-slate-800/80 pb-2">
                             <button type="button" @click="activeMobileSubmenu = (activeMobileSubmenu === 'projects' ? null : 'projects')" 
                                     class="w-full flex items-center justify-between py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors">
-                                <span>Projects &amp; Media</span>
+                                <span>{{ __('Projects') }}</span>
                                 <svg class="w-4 h-4 transition-transform duration-200" :class="activeMobileSubmenu === 'projects' ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             <div x-show="activeMobileSubmenu === 'projects'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                <a href="{{ route('projects') }}#projects" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Featured Industrial Projects</a>
-                                <a href="{{ route('projects') }}#videos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Video Gallery (Hover to Play)</a>
-                                <a href="{{ route('projects') }}#photos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Photo Gallery &amp; Workshops</a>
+                                <a href="{{ route('projects') }}#projects" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Featured Industrial Projects') }}</a>
+                                <a href="{{ route('projects') }}#videos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Video Gallery (Hover to Play)') }}</a>
+                                <a href="{{ route('projects') }}#photos" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">{{ __('Photo Gallery & Workshops') }}</a>
                             </div>
                         </div>
 
                         <a href="{{ route('contact') }}" @click="mobileNavOpen = false" 
                            class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('contact') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
-                            Contact &amp; RFQ
+                            {{ __('Contact') }}
                         </a>
                     </div>
 
@@ -620,7 +688,7 @@
                         <a href="{{ route('contact') }}#rfq" @click="mobileNavOpen = false" 
                            class="w-full inline-flex items-center justify-center py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md"
                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
-                            Request Instant RFQ
+                            {{ __('Request Instant RFQ') }}
                         </a>
                         <div class="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
                             24/7 Port Helpline: <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="font-bold text-[#003C58] dark:text-cyan-400">{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</a>

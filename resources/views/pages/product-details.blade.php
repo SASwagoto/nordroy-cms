@@ -300,10 +300,10 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <span class="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">Inventory Catalog</span>
-                            <h2 class="text-xl sm:text-2xl font-black font-heading text-slate-900 dark:text-white">Related Spare Parts &amp; Kits</h2>
+                            <h2 class="text-xl sm:text-2xl font-black font-heading text-slate-900 dark:text-white">{{ __('Related Spare Parts & Kits') }}</h2>
                         </div>
                         <a href="{{ route('products') }}" class="text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                            View All Catalog &rarr;
+                            {{ __('View All Catalog') }} &rarr;
                         </a>
                     </div>
 
@@ -321,7 +321,7 @@
                                     <span class="text-[10px] text-slate-400 block">{{ $rel->brand }}</span>
                                 </div>
                                 <a href="{{ route('product.details', $rel->slug) }}" class="block text-center py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58] hover:text-white transition-colors">
-                                    View Details &rarr;
+                                    {{ __('View Details') }} &rarr;
                                 </a>
                             </div>
                         @endforeach

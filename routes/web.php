@@ -2,6 +2,7 @@
 
 use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
+use App\Livewire\Admin\Languages\LanguageManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
 use App\Livewire\Admin\Products\ProductManager;
@@ -59,7 +60,8 @@ Route::get('/products/{slug}', function (string $slug) {
         ->where('slug', $slug)
         ->firstOrFail();
 
-    $relatedProducts = \App\Models\Product::where('id', '!=', $product->id)
+    $relatedProducts = \App\Models\Product::with(['featuredImage', 'brochure'])
+        ->where('id', '!=', $product->id)
         ->where('is_active', true)
         ->take(4)
         ->get();
@@ -215,6 +217,20 @@ Route::get('/contact', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Public Dynamic Language Switcher Route
+|--------------------------------------------------------------------------
+*/
+Route::get('/language/{locale}', function (string $locale) {
+    $language = \App\Models\Language::where('code', $locale)->where('is_active', true)->first();
+    if ($language) {
+        session(['locale' => $locale]);
+        \Illuminate\Support\Facades\Cookie::queue('locale', $locale, 60 * 24 * 365);
+    }
+    return redirect()->back();
+})->name('language.switch');
+
+/*
+|--------------------------------------------------------------------------
 | Authentication Fallback & Direct Logout
 |--------------------------------------------------------------------------
 */
@@ -289,6 +305,11 @@ Route::middleware([
     Route::get('/products', ProductManager::class)
         ->middleware('permission:products.view')
         ->name('products');
+
+    // Localization & Multi-Language Studio
+    Route::get('/languages', LanguageManager::class)
+        ->middleware('permission:settings.manage')
+        ->name('languages');
 
     // Ultra-Fast Cached JSON Endpoint for Icon Picker (Zero Page Bloat)
     Route::get('/api/icons-manifest', function () {

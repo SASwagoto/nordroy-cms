@@ -1,16 +1,16 @@
-<x-layouts.frontend title="Marine Turbocharger Spare Parts & Industrial Products | Nordroy Marine">
+<x-layouts.frontend :title="__('Marine Turbocharger Spare Parts & Industrial Products') . ' | ' . \App\Models\Setting::get('site_name', 'Nordroy Marine')">
 
     <!-- Hero Header -->
     <div class="py-16 sm:py-24 bg-transparent border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
             <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
-                Genuine OEM &amp; Precision Parts
+                {{ __('Genuine OEM & Precision Parts') }}
             </span>
             <h1 class="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white mt-4 leading-tight">
-                Marine Turbocharger Spare Parts &amp; Assemblies.
+                {{ __('Marine Turbocharger Spare Parts & Assemblies.') }}
             </h1>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl mt-4 leading-relaxed font-medium">
-                Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.
+                {{ __('Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.') }}
             </p>
         </div>
     </div>
@@ -69,7 +69,7 @@
                     @if($selectedCat !== 'all')
                         <input type="hidden" name="category" value="{{ $selectedCat }}">
                     @endif
-                    <input type="text" name="q" value="{{ $searchQ }}" placeholder="Search by Part # or Model..."
+                    <input type="text" name="q" value="{{ $searchQ }}" placeholder="{{ __('Search by Part # or Model...') }}"
                            class="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58]">
                     <x-icon name="solid:magnifying-glass" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     @if(!empty($searchQ))
@@ -144,7 +144,7 @@
 
                                 <a href="{{ route('product.details', $part->slug) }}" 
                                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-950 transition-all cursor-pointer">
-                                    <span>Details</span>
+                                    <span>{{ __('Details') }}</span>
                                     <x-icon name="solid:arrow-right" class="w-3 h-3" />
                                 </a>
                             </div>
@@ -169,17 +169,17 @@
     <!-- Bottom Technical Assistance CTA -->
     <div class="py-16 bg-white dark:bg-[#07131e] text-center border-t border-slate-200 dark:border-slate-800">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8 space-y-4">
-            <h2 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">Looking for a Specific Marine Turbocharger Part?</h2>
+            <h2 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ __('Looking for a Specific Marine Turbocharger Part?') }}</h2>
             <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-                Send your engine nameplate photo or turbocharger serial number to our technical dispatch team for instant quotation and availability.
+                {{ __('Send your engine nameplate photo or turbocharger serial number to our technical dispatch team for instant quotation and availability.') }}
             </p>
             <div class="flex items-center justify-center gap-3 pt-2 flex-wrap">
                 <a href="{{ route('contact') }}#rfq" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-[#003C58] hover:bg-[#024a6d] shadow-lg transition-all">
-                    Submit Technical RFQ &rarr;
+                    {{ __('Submit Technical RFQ') }} &rarr;
                 </a>
                 <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+8801819318488') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                     <x-icon name="solid:phone-volume" class="w-4 h-4 text-cyan-500" />
-                    <span>Call 24/7 Port Duty Desk</span>
+                    <span>{{ __('Call 24/7 Port Duty Desk') }}</span>
                 </a>
             </div>
         </div>
