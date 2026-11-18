@@ -69,6 +69,8 @@ class ProductEditor extends Component
     // Media Library Picker Modal
     public bool $isMediaPickerOpen = false;
     public string $mediaPickerTarget = 'featured_image';
+    public array $selectedGalleryPickerIds = [];
+    public string $mediaSearch = '';
 
     protected function rules(): array
     {
@@ -297,27 +299,68 @@ class ProductEditor extends Component
     public function openMediaPicker(string $target = 'featured_image'): void
     {
         $this->mediaPickerTarget = $target;
+        $this->mediaSearch = '';
+        if ($target === 'gallery') {
+            $this->selectedGalleryPickerIds = array_values(array_map(fn($item) => (int) $item['id'], $this->gallery_images));
+        } else {
+            $this->selectedGalleryPickerIds = [];
+        }
         $this->isMediaPickerOpen = true;
+    }
+
+    public function toggleGalleryPickerAsset(int $id): void
+    {
+        if (in_array($id, $this->selectedGalleryPickerIds, true)) {
+            $this->selectedGalleryPickerIds = array_values(array_filter(
+                $this->selectedGalleryPickerIds,
+                fn($val) => $val !== $id
+            ));
+        } else {
+            $this->selectedGalleryPickerIds[] = $id;
+        }
+    }
+
+    public function clearGalleryPickerSelection(): void
+    {
+        $this->selectedGalleryPickerIds = [];
+    }
+
+    public function confirmGallerySelection(): void
+    {
+        if ($this->mediaPickerTarget === 'gallery') {
+            if (!empty($this->selectedGalleryPickerIds)) {
+                $assets = MediaAsset::whereIn('id', $this->selectedGalleryPickerIds)->get()->keyBy('id');
+                $newGallery = [];
+                foreach ($this->selectedGalleryPickerIds as $gId) {
+                    if ($asset = $assets->get($gId)) {
+                        $newGallery[] = [
+                            'id'  => $asset->id,
+                            'url' => $asset->url,
+                        ];
+                    }
+                }
+                $this->gallery_images = $newGallery;
+            } else {
+                $this->gallery_images = [];
+            }
+        }
+        $this->isMediaPickerOpen = false;
     }
 
     public function selectAsset(int $id, string $url): void
     {
-        if ($this->mediaPickerTarget === 'featured_image') {
-            $this->featured_image_id = $id;
-            $this->featured_image_url = $url;
-        } elseif ($this->mediaPickerTarget === 'gallery') {
-            $exists = collect($this->gallery_images)->contains('id', $id);
-            if (!$exists) {
-                $this->gallery_images[] = [
-                    'id'  => $id,
-                    'url' => $url,
-                ];
-            }
+        if ($this->mediaPickerTarget === 'gallery') {
+            $this->toggleGalleryPickerAsset($id);
         } else {
-            $this->brochure_media_id = $id;
-            $this->brochure_media_url = $url;
+            if ($this->mediaPickerTarget === 'featured_image') {
+                $this->featured_image_id = $id;
+                $this->featured_image_url = $url;
+            } else {
+                $this->brochure_media_id = $id;
+                $this->brochure_media_url = $url;
+            }
+            $this->isMediaPickerOpen = false;
         }
-        $this->isMediaPickerOpen = false;
     }
 
     public function removeGalleryImage(int $index): void
@@ -466,10 +509,28 @@ class ProductEditor extends Component
             ];
         }
 
+        $mediaQuery = MediaAsset::query();
+        if (!empty(trim($this->mediaSearch))) {
+            $search = '%' . trim($this->mediaSearch) . '%';
+            $mediaQuery->where(function ($q) use ($search) {
+                $q->where('file_name', 'like', $search)
+                  ->orWhere('original_filename', 'like', $search);
+            });
+        }
+
+        if ($this->mediaPickerTarget === 'brochure') {
+            $mediaQuery->where(function ($q) {
+                $q->where('mime_type', 'like', '%pdf%')
+                  ->orWhere('file_name', 'like', '%.pdf');
+            });
+        } elseif ($this->mediaPickerTarget === 'gallery' || $this->mediaPickerTarget === 'featured_image') {
+            $mediaQuery->where('mime_type', 'like', 'image/%');
+        }
+
         return view('livewire.admin.products.product-editor', [
             'categoriesList' => $categoriesList,
             'brandsList'     => $brandsList,
-            'mediaAssets'    => MediaAsset::latest()->take(36)->get(),
+            'mediaAssets'    => $mediaQuery->latest()->take(48)->get(),
         ]);
     }
 }

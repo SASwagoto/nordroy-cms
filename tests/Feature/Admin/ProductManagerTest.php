@@ -234,7 +234,7 @@ class ProductManagerTest extends TestCase
             'title' => ['en' => 'Test Rotor'],
         ]);
 
-        $galleryAsset = \App\Models\MediaAsset::create([
+        $galleryAsset1 = \App\Models\MediaAsset::create([
             'disk' => 'public',
             'file_path' => 'uploads/test-rotor-angle-2.jpg',
             'file_name' => 'test-rotor-angle-2.jpg',
@@ -244,7 +244,17 @@ class ProductManagerTest extends TestCase
             'alt_text' => ['en' => 'Angle 2', 'bn' => 'অ্যাঙ্গেল ২'],
         ]);
 
-        // Test opening media picker for featured image does not crash
+        $galleryAsset2 = \App\Models\MediaAsset::create([
+            'disk' => 'public',
+            'file_path' => 'uploads/test-rotor-angle-3.jpg',
+            'file_name' => 'test-rotor-angle-3.jpg',
+            'mime_type' => 'image/jpeg',
+            'file_size' => 102400,
+            'file_hash' => 'hash-test-rotor-03',
+            'alt_text' => ['en' => 'Angle 3', 'bn' => 'অ্যাঙ্গেল ৩'],
+        ]);
+
+        // Test single select for featured image: immediately closes modal
         Livewire::actingAs($this->admin)
             ->test(ProductEditor::class)
             ->call('openMediaPicker', 'featured_image')
@@ -253,10 +263,15 @@ class ProductManagerTest extends TestCase
             ->call('selectAsset', $asset->id, $asset->url)
             ->assertSet('featured_image_id', $asset->id)
             ->assertSet('isMediaPickerOpen', false)
+            // Test multi-select for gallery: toggles multiple and confirms all at once
             ->call('openMediaPicker', 'gallery')
             ->assertSet('isMediaPickerOpen', true)
-            ->call('selectAsset', $galleryAsset->id, $galleryAsset->url)
-            ->assertCount('gallery_images', 1)
+            ->call('toggleGalleryPickerAsset', $galleryAsset1->id)
+            ->call('toggleGalleryPickerAsset', $galleryAsset2->id)
+            ->assertCount('selectedGalleryPickerIds', 2)
+            ->call('confirmGallerySelection')
+            ->assertSet('isMediaPickerOpen', false)
+            ->assertCount('gallery_images', 2)
             ->set('title_en', 'Multi Image Rotor Part')
             ->set('slug', 'multi-image-rotor-part')
             ->set('part_number', 'MIR-001')
@@ -267,13 +282,15 @@ class ProductManagerTest extends TestCase
         $savedProduct = Product::where('slug', 'multi-image-rotor-part')->first();
         $this->assertNotNull($savedProduct);
         $this->assertEquals($asset->id, $savedProduct->featured_image_id);
-        $this->assertContains($galleryAsset->id, $savedProduct->gallery_image_ids);
-        $this->assertCount(1, $savedProduct->gallery_images);
+        $this->assertContains($galleryAsset1->id, $savedProduct->gallery_image_ids);
+        $this->assertContains($galleryAsset2->id, $savedProduct->gallery_image_ids);
+        $this->assertCount(2, $savedProduct->gallery_images);
 
-        // Verify public details page renders both images in the gallery
+        // Verify public details page renders images in the gallery
         $res = $this->get(route('product.details', $savedProduct->slug));
         $res->assertStatus(200);
         $res->assertSee($asset->url);
-        $res->assertSee($galleryAsset->url);
+        $res->assertSee($galleryAsset1->url);
+        $res->assertSee($galleryAsset2->url);
     }
 }
