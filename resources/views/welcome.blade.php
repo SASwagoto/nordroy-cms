@@ -6,17 +6,12 @@
          ===================================================================== -->
     @php
         $heroBackdrop = \App\Models\Setting::get('theme_hero_backdrop', 'frosted');
-        $heroBackdropClass = ($heroBackdrop === 'solid') ? 'bg-white dark:bg-[#07131e]' : 'bg-transparent';
-
-        $heroSettings = \App\Models\Setting::getJson('hero_banner_settings') ?: [];
-        $heroBadge1   = $heroSettings['badge_1'] ?? 'Authorized Multi-Brand Turbocharger Engineering';
-        $heroBadge2   = $heroSettings['badge_2'] ?? 'ISO 9001:2015 &bull; DNV Certified';
-        $heroHeadline = $heroSettings['headline'] ?? 'Precision <span class="text-[#003C58] dark:text-cyan-400">Turbocharger Overhauls</span> &amp; Marine Propulsion Support.';
-        $heroSubtitle = $heroSettings['subtitle'] ?? 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil &amp; gas terminals.';
-        $heroCta1Text = $heroSettings['cta_primary_label'] ?? 'Explore Overhaul Services';
-        $heroCta1Url  = $heroSettings['cta_primary_url'] ?? route('services');
-        $heroCta2Text = $heroSettings['cta_secondary_label'] ?? 'Request Instant RFQ';
-        $heroCta2Url  = $heroSettings['cta_secondary_url'] ?? (route('contact') . '#rfq');
+        $heroBackdropClass = match($heroBackdrop) {
+            'transparent' => 'bg-transparent backdrop-blur-none',
+            'subtle_tint' => 'bg-white/70 dark:bg-[#07131e]/70 backdrop-blur-xs',
+            'solid'       => 'bg-white dark:bg-[#07131e]',
+            default       => 'bg-white/92 dark:bg-[#07131e]/90 backdrop-blur-xs',
+        };
     @endphp
     <section class="relative overflow-hidden {{ $heroBackdropClass }} text-slate-900 dark:text-white py-16 sm:py-24 lg:py-28 border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
         
@@ -32,36 +27,36 @@
                     <!-- Clean Corporate Badges (NO generic pulsing dots) -->
                     <div class="flex flex-wrap items-center gap-2.5">
                         <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                            {!! $heroBadge1 !!}
+                            Authorized Multi-Brand Turbocharger Engineering
                         </span>
                         <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-white dark:bg-[#0a1926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {!! $heroBadge2 !!}
+                            ISO 9001:2015 &bull; DNV Certified
                         </span>
                     </div>
 
                     <!-- Main Headline (Bespoke Human Typography, No AI Text Gradients) -->
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight font-heading text-slate-900 dark:text-white drop-shadow-xs">
-                        {!! $heroHeadline !!}
+                        Precision <span class="text-[#003C58] dark:text-cyan-400">Turbocharger Overhauls</span> &amp; Marine Propulsion Support.
                     </h1>
 
                     <!-- Technical Subtitle -->
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl font-body font-medium">
-                        {{ $heroSubtitle }}
+                        Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil &amp; gas terminals.
                     </p>
 
                     <!-- Dual Call-to-Action Buttons -->
                     <div class="flex flex-wrap items-center gap-4 pt-2">
-                        <a href="{{ $heroCta1Url }}" 
+                        <a href="{{ route('services') }}" 
                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-lg active:scale-95 transition-all"
                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
-                            <span>{{ $heroCta1Text }}</span>
+                            <span>Explore Overhaul Services</span>
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
 
-                        <a href="{{ $heroCta2Url }}" 
+                        <a href="{{ route('contact') }}#rfq" 
                            class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
                            style="border-radius: var(--button-radius);">
-                            <span>{{ $heroCta2Text }}</span>
+                            <span>Request Instant RFQ</span>
                         </a>
                     </div>
 
@@ -315,8 +310,8 @@
                     <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                         Warehoused inventory of genuine rotor shafts, turbine blades, bearings, nozzle rings, and seal kits ready for prompt dispatch.
                     </p>
-                    <a href="{{ route('products') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                        <span>Parts Inventory</span> &rarr;
+                    <a href="{{ route('services') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
+                        <span>Division Details</span> &rarr;
                     </a>
                 </div>
 
@@ -358,63 +353,79 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @php
-                    $activeServices = collect();
-                    if (\Illuminate\Support\Facades\Schema::hasTable('services')) {
-                        try {
-                            $activeServices = \App\Models\Service::where('is_active', true)
-                                ->orderBy('order', 'asc')
-                                ->get();
-                        } catch (\Throwable $e) {}
-                    }
-                @endphp
-
-                @forelse ($activeServices as $index => $service)
-                    <!-- Dynamic Service {{ $index + 1 }} -->
-                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3 flex flex-col justify-between group">
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">
-                                    {{ sprintf('%02d', $index + 1) }} / {{ strtoupper(explode('-', $service->slug)[0] ?? 'SERVICE') }}
-                                </span>
-                                <div class="w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors">
-                                    <x-icon :name="$service->icon ?: 'solid:gauge'" class="w-5 h-5" />
-                                </div>
-                            </div>
-                            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white group-hover:text-[#003C58] dark:group-hover:text-cyan-400 transition-colors">
-                                {{ $service->display_title }}
-                            </h3>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {{ $service->display_summary }}
-                            </p>
-                        </div>
-                        <div class="pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
-                            <a href="{{ route('service.details', $service->slug) }}" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline inline-flex items-center gap-1">
-                                <span>Technical Scope</span> &rarr;
-                            </a>
-                            <span class="text-[10px] font-mono text-slate-400">ISO 9001 Specs</span>
-                        </div>
+                
+                <!-- Service 1 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">01 / BALANCING</span>
+                        <x-icon name="solid:gauge" class="w-5 h-5 text-slate-400" />
                     </div>
-                @empty
-                    <!-- Fallback if database empty -->
-                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">01 / BALANCING</span>
-                            <x-icon name="solid:gauge" class="w-5 h-5 text-slate-400" />
-                        </div>
-                        <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Dynamic Rotor Balancing (100k RPM)</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Elimination of micro-vibrations with computerized dynamic balancing up to 100,000 RPM, certified with comprehensive tolerance test sheets.
-                        </p>
-                    </div>
-                @endforelse
-            </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Dynamic Rotor Balancing (100k RPM)</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Elimination of micro-vibrations with computerized dynamic balancing up to 100,000 RPM, certified with comprehensive tolerance test sheets.
+                    </p>
+                </div>
 
-            <div class="mt-12 text-center">
-                <a href="{{ route('services') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#003C58] dark:text-cyan-400 transition-colors">
-                    <span>View All Overhaul Capabilities</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </a>
+                <!-- Service 2 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">02 / WELDING</span>
+                        <x-icon name="solid:fire-flame-curved" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Turbine Blading &amp; TIG Welding</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Precision laser and micro-TIG rebuilding of eroded turbine blade profiles, shroud rings, and metallurgical crack restoration.
+                    </p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">03 / CHRA</span>
+                        <x-icon name="solid:arrows-rotate" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Cartridge (CHRA) Exchange</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Pre-assembled, factory-balanced cartridge replacement modules for rapid turnaround times during tight vessel port calls.
+                    </p>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">04 / CHEMICAL</span>
+                        <x-icon name="solid:spray-can" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Ultrasonic Chemical De-Carbonization</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Multi-stage heated ultrasonic bath cleaning to remove stubborn heavy fuel oil carbon glaze without damaging parent metal tolerances.
+                    </p>
+                </div>
+
+                <!-- Service 5 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">05 / FLYING SQUAD</span>
+                        <x-icon name="solid:truck-fast" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">24/7 Port Emergency Flying Squads</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Marine engineers equipped with mobile inspection tools ready to board vessels at Chattogram, Mongla, or international outer anchorages.
+                    </p>
+                </div>
+
+                <!-- Service 6 -->
+                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">06 / RETROFIT</span>
+                        <x-icon name="solid:wrench" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Retrofit &amp; Modernization Upgrades</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Replacement of outdated, obsolete turbochargers with modern, high-efficiency models for reduced fuel consumption and lower IMO emissions.
+                    </p>
+                </div>
+
             </div>
 
         </div>
@@ -449,7 +460,7 @@
     @endif
 
     <!-- =====================================================================
-         SECTION 6: COMPANY MISSION, VISION & STRATEGIC VALUES
+         SECTION 6: COMPANY MISSION, VISION & STRATEGIC VALUES (NEW)
          ===================================================================== -->
     <section class="py-20 lg:py-28 bg-slate-50 dark:bg-[#06121d] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
@@ -509,7 +520,7 @@
     </section>
 
     <!-- =====================================================================
-         SECTION 7: LEADERSHIP & ENGINEERING BOARD (MEMBERS)
+         SECTION 7: LEADERSHIP & ENGINEERING BOARD (MEMBERS) (NEW)
          ===================================================================== -->
     <section class="py-20 lg:py-28 bg-white dark:bg-[#07131e] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
@@ -582,7 +593,7 @@
     </section>
 
     <!-- =====================================================================
-         SECTION 8: OUR PROJECTS PORTFOLIO (Dana Group Style)
+         SECTION 8: OUR PROJECTS PORTFOLIO (Dana Group Style) (NEW)
          ===================================================================== -->
     <section id="projects" class="py-20 lg:py-28 bg-slate-50 dark:bg-[#0b1b2b] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
@@ -649,7 +660,8 @@
     </section>
 
     <!-- =====================================================================
-         SECTION 9: VIDEO GALLERY WITH HOVER-TO-PLAY (Dana Group Style)
+         SECTION 9: VIDEO GALLERY WITH HOVER-TO-PLAY (Dana Group Style) (NEW)
+         Thumbnails play video preview smoothly on mouse hover, without YouTube distractions.
          ===================================================================== -->
     <section id="videos" class="py-20 lg:py-28 bg-white dark:bg-[#07131e] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
@@ -676,16 +688,19 @@
                        @mouseenter="isHovered = true; $refs.video1.play()"
                        @mouseleave="isHovered = false; $refs.video1.pause(); $refs.video1.currentTime = 0">
                         
+                        <!-- Video element -->
                         <video x-ref="video1" loop muted playsinline preload="metadata" 
                                class="w-full h-full object-cover">
                             <source src="{{ asset('assets/videos/background-marine.mp4') }}" type="video/mp4">
                         </video>
 
+                        <!-- Guaranteed Poster Image (Fades on hover, INSTANTLY returns on mouseleave so it NEVER stays black) -->
                         <img src="{{ asset('assets/images/gallery/gallery-balancing.webp') }}" 
                              alt="Dynamic Balancing Thumbnail"
                              x-show="!isHovered"
                              class="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none transition-opacity duration-150" />
 
+                        <!-- Play Button Overlay -->
                         <div x-show="!isHovered" class="absolute inset-0 bg-slate-900/15 dark:bg-black/40 flex items-center justify-center transition-opacity pointer-events-none z-20">
                             <div class="w-12 h-12 rounded-full bg-white text-[#003C58] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <x-icon name="solid:play" class="w-4 h-4 translate-x-0.5" />
@@ -708,13 +723,14 @@
                             <p class="text-xs text-slate-500 dark:text-slate-400">Calibrated precision run on our computerized Schenck hard-bearing rig.</p>
                         </div>
 
+                        <!-- Card Action Links -->
                         <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
                             <a href="{{ route('project.details', ['slug' => 'marine-vessel-turbocharger-overhaul']) }}"
                                class="inline-flex items-center gap-1.5 font-bold text-red-600 dark:text-red-400 hover:underline">
                                 <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                                 <span>Watch Video &amp; Case Study &rarr;</span>
                             </a>
-                            <a href="{{ route('services') }}" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
+                            <a href="{{ route('services') }}#balancing" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
                                 Details &rarr;
                             </a>
                         </div>
@@ -767,7 +783,7 @@
                                 <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                                 <span>Watch Video &amp; Case Study &rarr;</span>
                             </a>
-                            <a href="{{ route('projects') }}" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
+                            <a href="{{ route('projects') }}#projects" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
                                 Details &rarr;
                             </a>
                         </div>
@@ -820,7 +836,7 @@
                                 <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                                 <span>Watch Video &amp; Case Study &rarr;</span>
                             </a>
-                            <a href="{{ route('services') }}" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
+                            <a href="{{ route('services') }}#overhaul" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
                                 Details &rarr;
                             </a>
                         </div>
@@ -833,7 +849,7 @@
     </section>
 
     <!-- =====================================================================
-         SECTION 10: PHOTO GALLERY & WORKSHOPS (With Full-Screen Image Lightbox Preview)
+         SECTION 10: PHOTO GALLERY & WORKSHOPS (NEW - With Full-Screen Image Lightbox Preview)
          ===================================================================== -->
     <section id="photos" class="py-20 lg:py-28 bg-slate-50 dark:bg-[#06121d] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
@@ -1035,71 +1051,43 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                @php
-                    $displayProducts = collect();
-                    if (\Illuminate\Support\Facades\Schema::hasTable('products')) {
-                        try {
-                            $displayProducts = \App\Models\Product::where('is_active', true)->orderBy('order', 'asc')->take(6)->get();
-                        } catch (\Throwable $e) {}
-                    }
-                @endphp
+                
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:fan" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Turbine Blades</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">Nimonic 80A / 90</span>
+                </div>
 
-                @if($displayProducts->isNotEmpty())
-                    @foreach($displayProducts as $prod)
-                        <a href="{{ route('product.details', $prod->slug) }}" class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all group block">
-                            @if($prod->image)
-                                <img src="{{ asset($prod->image) }}" alt="{{ $prod->display_title }}" class="w-10 h-10 mx-auto object-cover rounded-lg group-hover:scale-110 transition-transform">
-                            @else
-                                <x-icon :name="$prod->icon ?: 'solid:gears'" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400 group-hover:scale-110 transition-transform" />
-                            @endif
-                            <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $prod->display_title }}</h4>
-                            <span class="text-[10px] text-slate-500 font-mono block truncate">{{ $prod->part_number ?: ($prod->category ? $prod->category->display_name : 'OEM Marine') }}</span>
-                        </a>
-                    @endforeach
-                @else
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:fan" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Turbine Blades</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">Nimonic 80A / 90</span>
-                    </div>
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:circle-notch" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Rotor Shafts</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">Forged Alloy Steel</span>
+                </div>
 
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:circle-notch" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Rotor Shafts</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">Forged Alloy Steel</span>
-                    </div>
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:ring" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Nozzle Rings</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">High-Temp Resistant</span>
+                </div>
 
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:ring" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Nozzle Rings</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">High-Temp Resistant</span>
-                    </div>
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:compact-disc" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Bearing Bushes</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">Hydrodynamic Squeeze</span>
+                </div>
 
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:compact-disc" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Bearing Bushes</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">Hydrodynamic Squeeze</span>
-                    </div>
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:asterisk" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Impellers</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">Milled Titanium / Al</span>
+                </div>
 
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:asterisk" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Impellers</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">Milled Titanium / Al</span>
-                    </div>
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                    <x-icon name="solid:shield" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Seal Kits</h4>
+                    <span class="text-[10px] text-slate-500 font-mono block">Gas &amp; Oil Labyrinth</span>
+                </div>
 
-                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
-                        <x-icon name="solid:shield" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Seal Kits</h4>
-                        <span class="text-[10px] text-slate-500 font-mono block">Gas &amp; Oil Labyrinth</span>
-                    </div>
-                @endif
-            </div>
-
-            <div class="mt-10 text-center">
-                <a href="{{ route('products') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#003C58] dark:text-cyan-400 transition-colors">
-                    <span>Explore Full Spare Parts Inventory</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </a>
             </div>
 
         </div>
@@ -1125,61 +1113,62 @@
                     </p>
                 </div>
 
-                <livewire:frontend.rfq-lead-form />
+                <form action="#" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Vessel / Plant Name</label>
+                            <input type="text" placeholder="e.g. M/V Nordroy Carrier or Power Plant Unit 3" class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Turbocharger Model &amp; Serial</label>
+                            <input type="text" placeholder="e.g. ABB TPL-77 or MAN TCR22" class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Port / Location</label>
+                            <input type="text" placeholder="Chattogram / Mongla / Other" class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Service Required</label>
+                            <select class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none">
+                                <option>Complete Overhaul &amp; Dynamic Balancing</option>
+                                <option>CHRA Cartridge Exchange</option>
+                                <option>Emergency Flying Squad to Vessel</option>
+                                <option>Spare Parts Purchase</option>
+                                <option>NDT Metallurgical Inspection</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Urgency Level</label>
+                            <select class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none">
+                                <option>Standard Scheduled Maintenance</option>
+                                <option>Urgent Port Call (Within 48h)</option>
+                                <option>Emergency Vessel Blackout / AOG</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Email &amp; Phone</label>
+                        <input type="text" placeholder="technical.director@shipping-line.com / +880 1800-000000" class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Technical Notes &amp; Observed Issues</label>
+                        <textarea rows="3" placeholder="Describe symptoms (e.g. abnormal vibrations, oil leakage in exhaust casing, surging under load)..." class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none"></textarea>
+                    </div>
+
+                    <button type="button" class="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all"
+                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
+                        Submit Technical RFQ to Duty Desk
+                    </button>
+                </form>
 
             </div>
 
         </div>
     </section>
-
-    <!-- =====================================================================
-         SECTION 14: DYNAMIC CMS PAGE BUILDER SECTIONS (Customized via Admin Studio)
-         ===================================================================== -->
-    @php
-        $customSections = collect();
-        if (\Illuminate\Support\Facades\Schema::hasTable('pages') && \Illuminate\Support\Facades\Schema::hasTable('page_sections')) {
-            try {
-                $homepage = \App\Models\Page::where('slug', 'home')->first();
-                if ($homepage) {
-                    $customSections = \App\Models\PageSection::where('page_id', $homepage->id)
-                        ->where('is_active', true)
-                        ->whereNotIn('section_type', ['hero'])
-                        ->orderBy('order')
-                        ->get();
-                }
-            } catch (\Throwable $e) {}
-        }
-    @endphp
-
-    @if($customSections->isNotEmpty())
-        @foreach($customSections as $cSec)
-            <section class="py-16 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800 transition-colors">
-                <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
-                    @if(!empty($cSec->title))
-                        <div class="text-center max-w-3xl mx-auto space-y-2 mb-10">
-                            <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-                                {{ $cSec->settings['title_settings']['badge_text'] ?? 'Custom Section' }}
-                            </span>
-                            <h2 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ $cSec->title }}</h2>
-                            @if(!empty($cSec->settings['title_settings']['subtitle']))
-                                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">{{ $cSec->settings['title_settings']['subtitle'] }}</p>
-                            @endif
-                        </div>
-                    @endif
-
-                    @if(!empty($cSec->content['items']) && is_array($cSec->content['items']))
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @foreach($cSec->content['items'] as $item)
-                                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 space-y-2">
-                                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">{{ $item['title'] ?? '' }}</h3>
-                                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ $item['desc'] ?? ($item['description'] ?? '') }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            </section>
-        @endforeach
-    @endif
 
 </x-layouts.frontend>

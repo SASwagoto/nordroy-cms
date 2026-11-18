@@ -479,20 +479,6 @@
             @if($activeTab === 'header')
                 <div class="space-y-6">
 
-                    <!-- Shortcut Banner to Dedicated Header & Footer Builder -->
-                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#003C58]/10 via-cyan-500/10 to-transparent border border-[#003C58]/20 dark:border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                        <div class="flex items-center gap-2.5">
-                            <x-icon name="solid:compass-drafting" class="w-4 h-4 text-[#003C58] dark:text-cyan-400 shrink-0" />
-                            <div>
-                                <strong class="block text-xs text-slate-800 dark:text-white font-bold">Dedicated Visual Header &amp; Footer Builder Available</strong>
-                                <span class="text-[11px] text-slate-500 dark:text-slate-400">Design multi-row headers and footers with independent box models in a dedicated studio.</span>
-                            </div>
-                        </div>
-                        <a href="{{ route('admin.header-footer') }}" wire:navigate
-                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#003C58] hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 font-bold text-xs text-white shrink-0 shadow-2xs transition-all">
-                            <span>Open Dedicated Builder &rarr;</span>
-                        </a>
-                    </div>
 
                     <!-- SECTION 1: TOP EMERGENCY & INFORMATION STRIP -->
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
@@ -902,20 +888,6 @@
             @if($activeTab === 'footer')
                 <div class="space-y-6">
 
-                    <!-- Shortcut Banner to Dedicated Header & Footer Builder -->
-                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#003C58]/10 via-cyan-500/10 to-transparent border border-[#003C58]/20 dark:border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                        <div class="flex items-center gap-2.5">
-                            <x-icon name="solid:compass-drafting" class="w-4 h-4 text-[#003C58] dark:text-cyan-400 shrink-0" />
-                            <div>
-                                <strong class="block text-xs text-slate-800 dark:text-white font-bold">Dedicated Visual Header &amp; Footer Builder Available</strong>
-                                <span class="text-[11px] text-slate-500 dark:text-slate-400">Design multi-row headers and footers with independent box models in a dedicated studio.</span>
-                            </div>
-                        </div>
-                        <a href="{{ route('admin.header-footer') }}" wire:navigate
-                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#003C58] hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 font-bold text-xs text-white shrink-0 shadow-2xs transition-all">
-                            <span>Open Dedicated Builder &rarr;</span>
-                        </a>
-                    </div>
 
                     <!-- SECTION 1: FOOTER APPEARANCE & COLORS -->
                     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
