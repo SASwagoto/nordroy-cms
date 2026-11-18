@@ -241,8 +241,8 @@
                                 NR
                             </div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">Executive Leadership</h4>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Board of Directors &bull; Marine Engineering Division</p>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">Technical Operations</h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Turbomachinery Overhaul Division</p>
                             </div>
                         </div>
                     </div>
@@ -253,86 +253,6 @@
         </div>
     </section>
 
-    <!-- =====================================================================
-         SECTION 4: MULTI-BUSINESS UNITS MATRIX (Dana Group Style)
-         ===================================================================== -->
-    <section id="divisions" class="py-20 lg:py-28 bg-slate-50 dark:bg-[#0b1b2b] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
-            
-            <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-                    Conglomerate Business Divisions
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">
-                    Specialized Engineering Units
-                </h2>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                    Each business unit operates with certified workshops, dedicated engineering squads, and specialized heavy tooling.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <!-- Unit 1 -->
-                <div class="rounded-2xl p-6 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                        <x-icon name="solid:ship" class="w-6 h-6" />
-                    </div>
-                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Marine Turbochargers</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Authorized overhauls for container carriers, bulk carriers, tankers, and offshore tugs across Chattogram and international ports.
-                    </p>
-                    <a href="{{ route('services') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                        <span>Division Details</span> &rarr;
-                    </a>
-                </div>
-
-                <!-- Unit 2 -->
-                <div class="rounded-2xl p-6 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                        <x-icon name="solid:bolt" class="w-6 h-6" />
-                    </div>
-                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Captive Power Generation</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Continuous maintenance contracts for gas and heavy fuel oil (HFO) generator power plants in spinning mills and industries.
-                    </p>
-                    <a href="{{ route('services') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                        <span>Division Details</span> &rarr;
-                    </a>
-                </div>
-
-                <!-- Unit 3 -->
-                <div class="rounded-2xl p-6 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                        <x-icon name="solid:boxes-stacked" class="w-6 h-6" />
-                    </div>
-                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">Spare Parts Logistics</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Warehoused inventory of genuine rotor shafts, turbine blades, bearings, nozzle rings, and seal kits ready for prompt dispatch.
-                    </p>
-                    <a href="{{ route('services') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                        <span>Division Details</span> &rarr;
-                    </a>
-                </div>
-
-                <!-- Unit 4 -->
-                <div class="rounded-2xl p-6 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all space-y-4">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                        <x-icon name="solid:microscope" class="w-6 h-6" />
-                    </div>
-                    <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">NDT &amp; Inspection</h3>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Certified ultrasonic flaw detection, magnetic particle testing, hardness verification, and laser geometry alignment.
-                    </p>
-                    <a href="{{ route('services') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline">
-                        <span>Division Details</span> &rarr;
-                    </a>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
 
     <!-- =====================================================================
          SECTION 5: PRECISION OVERHAUL SERVICES (Turbo Internacional Style)
@@ -519,78 +439,6 @@
         </div>
     </section>
 
-    <!-- =====================================================================
-         SECTION 7: LEADERSHIP & ENGINEERING BOARD (MEMBERS) (NEW)
-         ===================================================================== -->
-    <section class="py-20 lg:py-28 bg-white dark:bg-[#07131e] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
-            
-            <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-                    Executive Governance
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">
-                    Leadership &amp; Chief Engineering Board
-                </h2>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                    Decades of sea-going and shipyard experience leading certified maritime turbocharger overhauls.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <!-- Member 1 -->
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">
-                        TI
-                    </div>
-                    <div>
-                        <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Engr. Tariqul Islam</h4>
-                        <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Group Managing Director</p>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Ex-Chief Engineer, Class 1 Marine &bull; 28+ Yrs Maritime Experience</p>
-                    </div>
-                </div>
-
-                <!-- Member 2 -->
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">
-                        HL
-                    </div>
-                    <div>
-                        <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Dr. Henrik Lindqvist</h4>
-                        <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Chief Technical Officer</p>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Ph.D. Turbomachinery Dynamics &bull; Former ABB/Accelleron Specialist</p>
-                    </div>
-                </div>
-
-                <!-- Member 3 -->
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">
-                        MR
-                    </div>
-                    <div>
-                        <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Capt. Mahfuzur Rahman</h4>
-                        <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Director of Port Operations</p>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Master Mariner &bull; 22+ Yrs Chittagong &amp; Singapore Port Operations</p>
-                    </div>
-                </div>
-
-                <!-- Member 4 -->
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">
-                        AK
-                    </div>
-                    <div>
-                        <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Engr. Asaduzzaman Khan</h4>
-                        <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Head of NDT &amp; Dynamic Balancing</p>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">ASNT Level III NDT Certified &bull; Schenck Balancing Specialist</p>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
 
     <!-- =====================================================================
          SECTION 8: OUR PROJECTS PORTFOLIO (Dana Group Style) (NEW)

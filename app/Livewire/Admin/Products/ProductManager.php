@@ -32,10 +32,21 @@ class ProductManager extends Component
     // Form Modal State
     public bool $isFormModalOpen = false;
     public ?int $editingProductId = null;
+    public string $activeLocale = 'en';
 
-    // Form Fields
+    // Multi-Language Form Fields (Dynamic array keyed by language code)
+    public array $title = [];
+    public array $summary = [];
+    public array $description = [];
+
+    // Legacy sync variables for backwards compatibility & tests
     public string $title_en = '';
     public string $title_bn = '';
+    public string $summary_en = '';
+    public string $summary_bn = '';
+    public string $description_en = '';
+    public string $description_bn = '';
+
     public string $slug = '';
     public string $part_number = '';
     public string $category = 'Rotor Assemblies';
@@ -45,10 +56,6 @@ class ProductManager extends Component
     public string $stock_status = 'In Stock (Central Warehouse)';
     public string $lead_time = 'Immediate Port Dispatch (24h)';
     public string $warranty = '12 Months Marine Warranty';
-    public string $summary_en = '';
-    public string $summary_bn = '';
-    public string $description_en = '';
-    public string $description_bn = '';
     public array $specs = []; // [['key' => '...', 'value' => '...']]
     public ?int $featured_image_id = null;
     public ?string $featured_image_url = null;
@@ -68,11 +75,32 @@ class ProductManager extends Component
     public string $uploadFolder = 'products';
     public bool $autoCompress = true;
 
+    public function getLanguagesProperty()
+    {
+        $langs = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+        if ($langs->isEmpty()) {
+            return collect([
+                (object) ['code' => 'en', 'name' => 'English', 'native_name' => 'English', 'flag_icon' => '🇬🇧', 'is_default' => true, 'direction' => 'ltr'],
+                (object) ['code' => 'bn', 'name' => 'Bengali', 'native_name' => 'বাংলা', 'flag_icon' => '🇧🇩', 'is_default' => false, 'direction' => 'ltr'],
+            ]);
+        }
+        return $langs;
+    }
+
+    public function getActiveLanguageDirectionProperty(): string
+    {
+        $lang = $this->languages->firstWhere('code', $this->activeLocale);
+        return $lang->direction ?? 'ltr';
+    }
+
+    public function setLocale(string $locale): void
+    {
+        $this->activeLocale = $locale;
+    }
+
     protected function rules(): array
     {
         return [
-            'title_en'          => 'required|string|max:255',
-            'title_bn'          => 'nullable|string|max:255',
             'slug'              => 'required|string|max:255|unique:products,slug,' . $this->editingProductId,
             'part_number'       => 'nullable|string|max:100',
             'category'          => 'required|string|max:100',
@@ -82,10 +110,6 @@ class ProductManager extends Component
             'stock_status'      => 'required|string|max:100',
             'lead_time'         => 'nullable|string|max:100',
             'warranty'          => 'nullable|string|max:100',
-            'summary_en'        => 'nullable|string|max:1000',
-            'summary_bn'        => 'nullable|string|max:1000',
-            'description_en'    => 'nullable|string',
-            'description_bn'    => 'nullable|string',
             'specs'             => 'nullable|array',
             'specs.*.key'       => 'nullable|string|max:100',
             'specs.*.value'     => 'nullable|string|max:255',
@@ -117,8 +141,21 @@ class ProductManager extends Component
 
     public function updatedTitleEn(string $value): void
     {
+        $this->title['en'] = $value;
         if (!$this->editingProductId || empty($this->slug)) {
             $this->slug = Str::slug($value);
+        }
+    }
+
+    public function updatedTitle($value, $key): void
+    {
+        if ($key === 'en') {
+            $this->title_en = $value;
+            if (!$this->editingProductId || empty($this->slug)) {
+                $this->slug = Str::slug($value);
+            }
+        } elseif ($key === 'bn') {
+            $this->title_bn = $value;
         }
     }
 
@@ -127,8 +164,22 @@ class ProductManager extends Component
         $this->resetValidation();
         $this->editingProductId = null;
 
+        $this->title = [];
+        $this->summary = [];
+        $this->description = [];
+        foreach ($this->languages as $lang) {
+            $this->title[$lang->code] = '';
+            $this->summary[$lang->code] = '';
+            $this->description[$lang->code] = '';
+        }
         $this->title_en = '';
         $this->title_bn = '';
+        $this->summary_en = '';
+        $this->summary_bn = '';
+        $this->description_en = '';
+        $this->description_bn = '';
+        $this->activeLocale = 'en';
+
         $this->slug = '';
         $this->part_number = '';
         $this->category = 'Rotor Assemblies';
@@ -138,10 +189,6 @@ class ProductManager extends Component
         $this->stock_status = 'In Stock (Central Warehouse)';
         $this->lead_time = 'Immediate Port Dispatch (24h)';
         $this->warranty = '12 Months Marine Warranty';
-        $this->summary_en = '';
-        $this->summary_bn = '';
-        $this->description_en = '';
-        $this->description_bn = '';
         $this->specs = [
             ['key' => 'Max Speed', 'value' => '45,000 RPM'],
             ['key' => 'Balancing Quality', 'value' => 'ISO 1940-1 Grade G1.0'],
@@ -163,13 +210,36 @@ class ProductManager extends Component
         $product = Product::with(['featuredImage', 'brochure'])->findOrFail($id);
         $this->editingProductId = $product->id;
 
-        $title = $product->title ?? [];
-        $this->title_en = is_array($title) ? ($title['en'] ?? reset($title) ?? '') : (string) $title;
-        $this->title_bn = is_array($title) ? ($title['bn'] ?? '') : '';
+        $rawTitle = $product->title ?? [];
+        $rawTitle = is_array($rawTitle) ? $rawTitle : (json_decode($rawTitle, true) ?? ['en' => (string) $rawTitle]);
+
+        $specsJson = $product->technical_specifications ?? [];
+        $rawSummary = $specsJson['summary'] ?? ($specsJson['short_description'] ?? []);
+        $rawSummary = is_array($rawSummary) ? $rawSummary : (json_decode($rawSummary, true) ?? ['en' => (string) $rawSummary]);
+
+        $rawDesc = $specsJson['description'] ?? [];
+        $rawDesc = is_array($rawDesc) ? $rawDesc : (json_decode($rawDesc, true) ?? ['en' => (string) $rawDesc]);
+
+        $this->title = [];
+        $this->summary = [];
+        $this->description = [];
+        foreach ($this->languages as $lang) {
+            $this->title[$lang->code] = $rawTitle[$lang->code] ?? ($lang->code === 'en' ? (reset($rawTitle) ?: '') : '');
+            $this->summary[$lang->code] = $rawSummary[$lang->code] ?? ($lang->code === 'en' ? (reset($rawSummary) ?: '') : '');
+            $this->description[$lang->code] = $rawDesc[$lang->code] ?? ($lang->code === 'en' ? (reset($rawDesc) ?: '') : '');
+        }
+
+        $this->title_en = $this->title['en'] ?? '';
+        $this->title_bn = $this->title['bn'] ?? '';
+        $this->summary_en = $this->summary['en'] ?? '';
+        $this->summary_bn = $this->summary['bn'] ?? '';
+        $this->description_en = $this->description['en'] ?? '';
+        $this->description_bn = $this->description['bn'] ?? '';
+        $this->activeLocale = 'en';
+
         $this->slug = $product->slug;
         $this->part_number = $product->part_number ?? '';
 
-        $specsJson = $product->technical_specifications ?? [];
         $this->category = $specsJson['category'] ?? 'Rotor Assemblies';
         $this->brand = $specsJson['brand'] ?? 'MAN Energy Solutions';
         $this->compatible_models = $specsJson['compatible_models'] ?? '';
@@ -177,14 +247,6 @@ class ProductManager extends Component
         $this->stock_status = $specsJson['stock_status'] ?? 'In Stock';
         $this->lead_time = $specsJson['lead_time'] ?? '24-48 Hours';
         $this->warranty = $specsJson['warranty'] ?? '12 Months';
-
-        $summary = $specsJson['summary'] ?? ($specsJson['short_description'] ?? '');
-        $this->summary_en = is_array($summary) ? ($summary['en'] ?? reset($summary) ?? '') : (string) $summary;
-        $this->summary_bn = is_array($summary) ? ($summary['bn'] ?? '') : '';
-
-        $desc = $specsJson['description'] ?? '';
-        $this->description_en = is_array($desc) ? ($desc['en'] ?? reset($desc) ?? '') : (string) $desc;
-        $this->description_bn = is_array($desc) ? ($desc['bn'] ?? '') : '';
 
         $this->specs = $specsJson['specs'] ?? [];
         if (empty($this->specs)) {
@@ -216,11 +278,39 @@ class ProductManager extends Component
 
     public function saveProduct(): void
     {
+        if (!empty($this->title_en) && empty($this->title['en'])) {
+            $this->title['en'] = $this->title_en;
+        }
+        if (!empty($this->title['en'])) {
+            $this->title_en = $this->title['en'];
+        }
+
+        $defaultTitle = $this->title['en'] ?? reset($this->title) ?? '';
+        if (empty(trim($defaultTitle))) {
+            $this->addError('title.en', 'The primary product title in English is required.');
+            $this->activeLocale = 'en';
+            return;
+        }
+
         $this->validate();
 
         $filteredSpecs = array_values(array_filter($this->specs, function ($item) {
             return !empty(trim($item['key'] ?? '')) || !empty(trim($item['value'] ?? ''));
         }));
+
+        $titlePayload = [];
+        $summaryPayload = [];
+        $descPayload = [];
+        foreach ($this->languages as $lang) {
+            $tVal = trim($this->title[$lang->code] ?? '');
+            $titlePayload[$lang->code] = !empty($tVal) ? $tVal : $defaultTitle;
+
+            $sVal = trim($this->summary[$lang->code] ?? '');
+            $summaryPayload[$lang->code] = !empty($sVal) ? $sVal : ($this->summary['en'] ?? '');
+
+            $dVal = trim($this->description[$lang->code] ?? '');
+            $descPayload[$lang->code] = !empty($dVal) ? $dVal : ($this->description['en'] ?? '');
+        }
 
         $techSpecsPayload = [
             'category'          => $this->category,
@@ -230,22 +320,13 @@ class ProductManager extends Component
             'stock_status'      => $this->stock_status,
             'lead_time'         => $this->lead_time,
             'warranty'          => $this->warranty,
-            'summary'           => [
-                'en' => $this->summary_en,
-                'bn' => $this->summary_bn,
-            ],
-            'description'       => [
-                'en' => $this->description_en,
-                'bn' => $this->description_bn,
-            ],
+            'summary'           => $summaryPayload,
+            'description'       => $descPayload,
             'specs'             => $filteredSpecs,
         ];
 
         $payload = [
-            'title' => [
-                'en' => $this->title_en,
-                'bn' => $this->title_bn ?: $this->title_en,
-            ],
+            'title'                    => $titlePayload,
             'slug'                     => Str::slug($this->slug),
             'part_number'              => trim($this->part_number),
             'technical_specifications' => $techSpecsPayload,
@@ -257,10 +338,10 @@ class ProductManager extends Component
         if ($this->editingProductId) {
             $product = Product::findOrFail($this->editingProductId);
             $product->update($payload);
-            session()->flash('message', "Spare part '{$this->title_en}' successfully updated.");
+            session()->flash('message', "Spare part '{$defaultTitle}' successfully updated.");
         } else {
             Product::create($payload);
-            session()->flash('message', "New spare part '{$this->title_en}' successfully added to catalog.");
+            session()->flash('message', "New spare part '{$defaultTitle}' successfully added to catalog.");
         }
 
         $this->isFormModalOpen = false;

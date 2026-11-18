@@ -32,17 +32,25 @@ class ServiceManager extends Component
     // Service Form Modal State
     public bool $isFormModalOpen = false;
     public ?int $editingServiceId = null;
+    public string $activeLocale = 'en';
 
+    // Multi-Language Form Fields (Dynamic array keyed by language code)
+    public array $title = [];
+    public array $short_summary = [];
+    public array $content = [];
+
+    // Legacy sync variables for backwards compatibility
     public string $title_en = '';
     public string $title_bn = '';
-    public string $slug = '';
-    public string $icon = 'solid:gauge';
-    public ?int $featured_image_id = null;
-    public ?string $featured_image_url = null;
     public string $short_summary_en = '';
     public string $short_summary_bn = '';
     public string $content_en = '';
     public string $content_bn = '';
+
+    public string $slug = '';
+    public string $icon = 'solid:gauge';
+    public ?int $featured_image_id = null;
+    public ?string $featured_image_url = null;
     public int $order = 0;
     public bool $is_featured = false;
     public bool $is_active = true;
@@ -64,6 +72,29 @@ class ServiceManager extends Component
     public string $uploadFolder = 'services';
     public bool $autoCompress = true;
 
+    public function getLanguagesProperty()
+    {
+        $langs = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+        if ($langs->isEmpty()) {
+            return collect([
+                (object) ['code' => 'en', 'name' => 'English', 'native_name' => 'English', 'flag_icon' => '🇬🇧', 'is_default' => true, 'direction' => 'ltr'],
+                (object) ['code' => 'bn', 'name' => 'Bengali', 'native_name' => 'বাংলা', 'flag_icon' => '🇧🇩', 'is_default' => false, 'direction' => 'ltr'],
+            ]);
+        }
+        return $langs;
+    }
+
+    public function getActiveLanguageDirectionProperty(): string
+    {
+        $lang = $this->languages->firstWhere('code', $this->activeLocale);
+        return $lang->direction ?? 'ltr';
+    }
+
+    public function setLocale(string $locale): void
+    {
+        $this->activeLocale = $locale;
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -81,8 +112,21 @@ class ServiceManager extends Component
 
     public function updatedTitleEn(string $value): void
     {
+        $this->title['en'] = $value;
         if (!$this->editingServiceId || empty($this->slug)) {
             $this->slug = Str::slug($value);
+        }
+    }
+
+    public function updatedTitle($value, $key): void
+    {
+        if ($key === 'en') {
+            $this->title_en = $value;
+            if (!$this->editingServiceId || empty($this->slug)) {
+                $this->slug = Str::slug($value);
+            }
+        } elseif ($key === 'bn') {
+            $this->title_bn = $value;
         }
     }
 
@@ -93,16 +137,26 @@ class ServiceManager extends Component
 
         $maxOrder = (int) Service::max('order');
 
+        $this->title = [];
+        $this->short_summary = [];
+        $this->content = [];
+        foreach ($this->languages as $lang) {
+            $this->title[$lang->code] = '';
+            $this->short_summary[$lang->code] = '';
+            $this->content[$lang->code] = '';
+        }
         $this->title_en = '';
         $this->title_bn = '';
-        $this->slug = '';
-        $this->icon = 'solid:gauge';
-        $this->featured_image_id = null;
-        $this->featured_image_url = null;
         $this->short_summary_en = '';
         $this->short_summary_bn = '';
         $this->content_en = '';
         $this->content_bn = '';
+        $this->activeLocale = 'en';
+
+        $this->slug = '';
+        $this->icon = 'solid:gauge';
+        $this->featured_image_id = null;
+        $this->featured_image_url = null;
         $this->order = $maxOrder + 1;
         $this->is_featured = false;
         $this->is_active = true;
@@ -117,23 +171,36 @@ class ServiceManager extends Component
 
         $this->editingServiceId = $service->id;
 
-        $title = $service->title ?? [];
-        $summary = $service->short_summary ?? [];
-        $content = $service->content ?? [];
+        $rawTitle = $service->title ?? [];
+        $rawTitle = is_array($rawTitle) ? $rawTitle : (json_decode($rawTitle, true) ?? ['en' => (string) $rawTitle]);
 
-        $this->title_en = is_array($title) ? ($title['en'] ?? '') : (string) $title;
-        $this->title_bn = is_array($title) ? ($title['bn'] ?? '') : '';
+        $rawSummary = $service->short_summary ?? [];
+        $rawSummary = is_array($rawSummary) ? $rawSummary : (json_decode($rawSummary, true) ?? ['en' => (string) $rawSummary]);
+
+        $rawContent = $service->content ?? [];
+        $rawContent = is_array($rawContent) ? $rawContent : (json_decode($rawContent, true) ?? ['en' => (string) $rawContent]);
+
+        $this->title = [];
+        $this->short_summary = [];
+        $this->content = [];
+        foreach ($this->languages as $lang) {
+            $this->title[$lang->code] = $rawTitle[$lang->code] ?? ($lang->code === 'en' ? (reset($rawTitle) ?: '') : '');
+            $this->short_summary[$lang->code] = $rawSummary[$lang->code] ?? ($lang->code === 'en' ? (reset($rawSummary) ?: '') : '');
+            $this->content[$lang->code] = $rawContent[$lang->code] ?? ($lang->code === 'en' ? (reset($rawContent) ?: '') : '');
+        }
+
+        $this->title_en = $this->title['en'] ?? '';
+        $this->title_bn = $this->title['bn'] ?? '';
+        $this->short_summary_en = $this->short_summary['en'] ?? '';
+        $this->short_summary_bn = $this->short_summary['bn'] ?? '';
+        $this->content_en = $this->content['en'] ?? '';
+        $this->content_bn = $this->content['bn'] ?? '';
+        $this->activeLocale = 'en';
 
         $this->slug = $service->slug;
         $this->icon = $service->icon ?: 'solid:gauge';
         $this->featured_image_id = $service->featured_image_id;
         $this->featured_image_url = $service->featuredImage?->url ?? null;
-
-        $this->short_summary_en = is_array($summary) ? ($summary['en'] ?? '') : (string) $summary;
-        $this->short_summary_bn = is_array($summary) ? ($summary['bn'] ?? '') : '';
-
-        $this->content_en = is_array($content) ? ($content['en'] ?? '') : (string) $content;
-        $this->content_bn = is_array($content) ? ($content['bn'] ?? '') : '';
 
         $this->order = (int) $service->order;
         $this->is_featured = (bool) $service->is_featured;
@@ -144,57 +211,64 @@ class ServiceManager extends Component
 
     public function saveService(): void
     {
+        if (!empty($this->title_en) && empty($this->title['en'])) {
+            $this->title['en'] = $this->title_en;
+        }
+        if (!empty($this->title['en'])) {
+            $this->title_en = $this->title['en'];
+        }
+
+        $defaultTitle = $this->title['en'] ?? reset($this->title) ?? '';
+        if (empty(trim($defaultTitle))) {
+            $this->addError('title.en', 'The primary service title in English is required.');
+            $this->activeLocale = 'en';
+            return;
+        }
+
         $slugRule = 'required|string|max:255|unique:services,slug' . ($this->editingServiceId ? (',' . $this->editingServiceId) : '');
 
         $this->validate([
-            'title_en'          => 'required|string|max:255',
-            'title_bn'          => 'nullable|string|max:255',
             'slug'              => $slugRule,
             'icon'              => 'nullable|string|max:100',
-            'short_summary_en'  => 'nullable|string|max:1000',
-            'short_summary_bn'  => 'nullable|string|max:1000',
-            'content_en'        => 'nullable|string',
-            'content_bn'        => 'nullable|string',
             'order'             => 'required|integer|min:0',
             'featured_image_id' => 'nullable|exists:media_assets,id',
             'is_featured'       => 'boolean',
             'is_active'         => 'boolean',
         ]);
 
-        $titleData = [
-            'en' => trim($this->title_en),
-            'bn' => !empty(trim($this->title_bn)) ? trim($this->title_bn) : trim($this->title_en),
-        ];
+        $titleData = [];
+        $summaryData = [];
+        $contentData = [];
+        foreach ($this->languages as $lang) {
+            $t = trim($this->title[$lang->code] ?? '');
+            $titleData[$lang->code] = !empty($t) ? $t : $defaultTitle;
 
-        $summaryData = [
-            'en' => trim($this->short_summary_en),
-            'bn' => !empty(trim($this->short_summary_bn)) ? trim($this->short_summary_bn) : trim($this->short_summary_en),
-        ];
+            $s = trim($this->short_summary[$lang->code] ?? '');
+            $summaryData[$lang->code] = !empty($s) ? $s : ($this->short_summary['en'] ?? '');
 
-        $contentData = [
-            'en' => trim($this->content_en),
-            'bn' => !empty(trim($this->content_bn)) ? trim($this->content_bn) : trim($this->content_en),
-        ];
+            $c = trim($this->content[$lang->code] ?? '');
+            $contentData[$lang->code] = !empty($c) ? $c : ($this->content['en'] ?? '');
+        }
 
         $payload = [
             'title'             => $titleData,
             'slug'              => Str::slug($this->slug),
             'icon'              => $this->icon ?: 'solid:gauge',
+            'featured_image_id' => $this->featured_image_id,
             'short_summary'     => $summaryData,
             'content'           => $contentData,
-            'featured_image_id' => $this->featured_image_id,
-            'order'             => (int) $this->order,
-            'is_featured'       => (bool) $this->is_featured,
-            'is_active'         => (bool) $this->is_active,
+            'order'             => $this->order,
+            'is_featured'       => $this->is_featured,
+            'is_active'         => $this->is_active,
         ];
 
         if ($this->editingServiceId) {
             $service = Service::findOrFail($this->editingServiceId);
             $service->update($payload);
-            session()->flash('message', "Service '{$service->display_title}' updated successfully.");
+            session()->flash('message', "Service '{$defaultTitle}' successfully updated.");
         } else {
-            $service = Service::create($payload);
-            session()->flash('message', "Service '{$service->display_title}' created successfully.");
+            Service::create($payload);
+            session()->flash('message', "New service '{$defaultTitle}' successfully registered.");
         }
 
         $this->closeFormModal();

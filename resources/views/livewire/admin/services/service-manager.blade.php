@@ -290,30 +290,46 @@
 
                 <!-- Modal Form Body -->
                 <form wire:submit="saveService" class="flex-1 overflow-y-auto p-6 space-y-6">
-                    
-                    <!-- Title & Slug Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Service Title (English) <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model.live.debounce.400ms="title_en" 
-                                   placeholder="e.g. Dynamic Rotor Balancing (100k RPM)" 
-                                   class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500" />
-                            @error('title_en') <span class="text-rose-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
-                        </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Service Title (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="title_bn" 
-                                   placeholder="e.g. Dynamic Rotor Balancing (Bengali)" 
-                                   class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500" />
-                            @error('title_bn') <span class="text-rose-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
+                    <!-- Multi-Language Switcher Tabs -->
+                    <div class="flex items-center justify-between p-2 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2">Language:</span>
+                            @foreach($this->languages as $lang)
+                                <button type="button" 
+                                        wire:click="setLocale('{{ $lang->code }}')"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer {{ $activeLocale === $lang->code ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
+                                    <span>{{ $lang->flag_icon ?? '🌐' }}</span>
+                                    <span>{{ $lang->name }} ({{ strtoupper($lang->code) }})</span>
+                                    @if($lang->is_default)
+                                        <span class="text-[9px] px-1.5 py-0.5 rounded-md bg-white/20 font-mono">Default</span>
+                                    @endif
+                                </button>
+                            @endforeach
                         </div>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+                            Editing: <strong class="text-slate-800 dark:text-slate-200 uppercase">{{ $activeLocale }}</strong>
+                        </span>
+                    </div>
+                    
+                    <!-- Title Row -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Service Title ({{ strtoupper($activeLocale) }})
+                                @if($activeLocale === 'en')
+                                    <span class="text-rose-500">*</span>
+                                @else
+                                    <span class="text-[10px] font-normal text-slate-400">(Optional - defaults to English)</span>
+                                @endif
+                            </label>
+                        </div>
+                        <input type="text" 
+                               wire:model.live.debounce.400ms="title.{{ $activeLocale }}" 
+                               placeholder="e.g. Dynamic Rotor Balancing (100k RPM)" 
+                               dir="{{ $this->activeLanguageDirection }}"
+                               class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500" />
+                        @error('title.' . $activeLocale) <span class="text-rose-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -398,51 +414,28 @@
                         </div>
                     </div>
 
-                    <!-- Short Summary (EN & BN) -->
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Short Summary (English) <span class="text-slate-400 font-normal">(Used on Cards &amp; Grid)</span>
-                            </label>
-                            <textarea wire:model="short_summary_en" 
-                                      rows="3" 
-                                      placeholder="Brief overview of tolerances, equipment used, and marine capability..."
-                                      class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
-                            @error('short_summary_en') <span class="text-rose-500 text-[11px] block mt-1">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Short Summary (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
-                            </label>
-                            <textarea wire:model="short_summary_bn" 
-                                      rows="2" 
-                                      placeholder="Brief summary in Bengali..."
-                                      class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
-                        </div>
+                    <!-- Short Summary (Active Language) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Short Summary ({{ strtoupper($activeLocale) }}) <span class="text-slate-400 font-normal">(Used on Cards &amp; Grid)</span>
+                        </label>
+                        <textarea wire:model.live="short_summary.{{ $activeLocale }}" 
+                                  rows="3" 
+                                  dir="{{ $this->activeLanguageDirection }}"
+                                  placeholder="Brief overview of tolerances, equipment used, and marine capability in {{ strtoupper($activeLocale) }}..."
+                                  class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
                     </div>
 
-                    <!-- Full Technical Content (EN & BN) -->
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Technical Specifications &amp; Methodology (English)
-                            </label>
-                            <textarea wire:model="content_en" 
-                                      rows="4" 
-                                      placeholder="In-depth technical breakdown of procedures, classification approvals, testing protocols..."
-                                      class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                                Technical Specifications (Bengali) <span class="text-slate-400 font-normal">(Optional)</span>
-                            </label>
-                            <textarea wire:model="content_bn" 
-                                      rows="3" 
-                                      placeholder="Detailed technical specifications in Bengali..."
-                                      class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
-                        </div>
+                    <!-- Full Technical Content (Active Language) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            Technical Specifications &amp; Methodology ({{ strtoupper($activeLocale) }})
+                        </label>
+                        <textarea wire:model.live="content.{{ $activeLocale }}" 
+                                  rows="4" 
+                                  dir="{{ $this->activeLanguageDirection }}"
+                                  placeholder="In-depth technical breakdown of procedures, classification approvals, testing protocols in {{ strtoupper($activeLocale) }}..."
+                                  class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500"></textarea>
                     </div>
 
                     <!-- Toggles: Active & Featured -->

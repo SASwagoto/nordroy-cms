@@ -93,49 +93,6 @@
         </div>
     </section>
 
-    <!-- Leadership Board -->
-    <section id="leadership" class="py-20 bg-slate-50 dark:bg-[#06121d] border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
-            <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-                    Governance
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white">
-                    Board of Directors &amp; Engineering Chiefs
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-3">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">TI</div>
-                    <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Engr. Tariqul Islam</h4>
-                    <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Managing Director</p>
-                    <p class="text-[11px] text-slate-500">28+ Yrs Marine Propulsion &amp; Overhauls</p>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-3">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">HL</div>
-                    <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Dr. Henrik Lindqvist</h4>
-                    <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Chief Technical Officer</p>
-                    <p class="text-[11px] text-slate-500">Ph.D. Turbomachinery Dynamics</p>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-3">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">MR</div>
-                    <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Capt. Mahfuzur Rahman</h4>
-                    <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Director of Port Operations</p>
-                    <p class="text-[11px] text-slate-500">Master Mariner &bull; Harbor Logistics</p>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-3">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-[#003C58] dark:border-cyan-400 flex items-center justify-center font-bold text-xl text-[#003C58] dark:text-cyan-400">AK</div>
-                    <h4 class="text-base font-bold font-heading text-slate-900 dark:text-white">Engr. Asaduzzaman Khan</h4>
-                    <p class="text-xs text-[#003C58] dark:text-cyan-400 font-semibold">Head of NDT &amp; Balancing</p>
-                    <p class="text-[11px] text-slate-500">ASNT Level III NDT Specialist</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Quality Standards -->
     <section id="certifications" class="py-20 bg-white dark:bg-[#07131e]">

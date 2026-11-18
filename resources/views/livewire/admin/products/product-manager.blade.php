@@ -273,24 +273,45 @@
                     <!-- Modal Body / Form Grid -->
                     <form wire:submit.prevent="saveProduct" class="space-y-6">
 
-                        <!-- Row 1: Titles (English & Bengali) -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Part Title (English) <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" wire:model.live="title_en" placeholder="e.g. MAN NR24/R Rotor Assembly"
-                                       class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]">
-                                @error('title_en') <span class="text-[10px] text-rose-500 font-semibold">{{ $message }}</span> @enderror
+                        <!-- Multi-Language Switcher Tabs -->
+                        <div class="flex items-center justify-between p-2 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2">Language:</span>
+                                @foreach($this->languages as $lang)
+                                    <button type="button" 
+                                            wire:click="setLocale('{{ $lang->code }}')"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer {{ $activeLocale === $lang->code ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white' }}">
+                                        <span>{{ $lang->flag_icon ?? '🌐' }}</span>
+                                        <span>{{ $lang->name }} ({{ strtoupper($lang->code) }})</span>
+                                        @if($lang->is_default)
+                                            <span class="text-[9px] px-1.5 py-0.5 rounded-md bg-white/20 font-mono">Default</span>
+                                        @endif
+                                    </button>
+                                @endforeach
                             </div>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+                                Editing: <strong class="text-slate-800 dark:text-slate-200 uppercase">{{ $activeLocale }}</strong>
+                            </span>
+                        </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Part Title (Bengali)
+                        <!-- Row 1: Active Language Title -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                                    Part Title ({{ strtoupper($activeLocale) }})
+                                    @if($activeLocale === 'en')
+                                        <span class="text-rose-500">*</span>
+                                    @else
+                                        <span class="text-[10px] font-normal text-slate-400">(Optional - defaults to English)</span>
+                                    @endif
                                 </label>
-                                <input type="text" wire:model.live="title_bn" placeholder="e.g. ম্যান NR24/R রটার অ্যাসেম্বলি"
-                                       class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                             </div>
+                            <input type="text" 
+                                   wire:model.live="title.{{ $activeLocale }}" 
+                                   placeholder="e.g. MAN NR24/R Rotor Assembly ({{ strtoupper($activeLocale) }})"
+                                   dir="{{ $this->activeLanguageDirection }}"
+                                   class="w-full px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]">
+                            @error('title.' . $activeLocale) <span class="text-[10px] text-rose-500 font-semibold">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Row 2: Part Number, Slug, Category, Brand -->
@@ -412,21 +433,25 @@
                             </div>
                         </div>
 
-                        <!-- Row 5: Summary & Description -->
+                        <!-- Row 5: Summary & Description (Active Language) -->
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Short Summary / Scope
+                                    Short Summary / Scope ({{ strtoupper($activeLocale) }})
                                 </label>
-                                <textarea wire:model.live="summary_en" rows="2" placeholder="Brief technical summary shown on cards..."
+                                <textarea wire:model.live="summary.{{ $activeLocale }}" rows="2" 
+                                          placeholder="Brief technical summary in {{ strtoupper($activeLocale) }}..."
+                                          dir="{{ $this->activeLanguageDirection }}"
                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"></textarea>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                    Full Engineering Description &amp; Inspection Protocols
+                                    Full Engineering Description &amp; Inspection Protocols ({{ strtoupper($activeLocale) }})
                                 </label>
-                                <textarea wire:model.live="description_en" rows="4" placeholder="Detailed metallurgical overview, balancing certification, and warranty..."
+                                <textarea wire:model.live="description.{{ $activeLocale }}" rows="4" 
+                                          placeholder="Detailed metallurgical overview, balancing certification, and warranty in {{ strtoupper($activeLocale) }}..."
+                                          dir="{{ $this->activeLanguageDirection }}"
                                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"></textarea>
                             </div>
                         </div>

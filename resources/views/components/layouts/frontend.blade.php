@@ -372,10 +372,7 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
                                 Mission, Vision &amp; Core Values
                             </a>
-                            <a href="{{ route('about') }}#leadership" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
-                                Leadership &amp; Engineering Board
-                            </a>
+
                             <a href="{{ route('about') }}#certifications" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
                                 ISO 9001:2015 &amp; DNV Standards
@@ -422,9 +419,9 @@
                         </div>
                     </div>
 
-                    <!-- 4. Business Units -->
-                    <a href="{{ route('home') }}#divisions" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors">
-                        Business Units
+                    <!-- 4. Products Link -->
+                    <a href="{{ route('products') }}" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('products*') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
+                        Products &amp; Spares
                     </a>
 
                     <!-- 5. Projects & Media (Dropdown) -->
@@ -573,7 +570,6 @@
                             <div x-show="activeMobileSubmenu === 'about'" x-transition class="pl-4 pt-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                                 <a href="{{ route('about') }}#overview" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Corporate Heritage &amp; Profile</a>
                                 <a href="{{ route('about') }}#mission" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Mission, Vision &amp; Core Values</a>
-                                <a href="{{ route('about') }}#leadership" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">Leadership &amp; Engineering Board</a>
                                 <a href="{{ route('about') }}#certifications" @click="mobileNavOpen = false" class="block py-1.5 px-2.5 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-slate-800/60">ISO 9001:2015 &amp; DNV Standards</a>
                             </div>
                         </div>
@@ -594,9 +590,9 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('home') }}#divisions" @click="mobileNavOpen = false" 
-                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800/80 pb-2 transition-colors">
-                            Business Units
+                        <a href="{{ route('products') }}" @click="mobileNavOpen = false" 
+                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800/80 pb-2 transition-colors {{ request()->routeIs('products*') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
+                            Products &amp; Spares
                         </a>
 
                         <!-- Projects Accordion -->
@@ -678,15 +674,15 @@
                         </div>
                     </div>
 
-                    <!-- Col 2: Business Units -->
+                    <!-- Col 2: Products & Spare Parts -->
                     <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Business Units</h4>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">OEM Spare Parts</h4>
                         <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Marine Turbochargers</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Captive Power Generation</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Spare Parts Distribution</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Non-Destructive Testing (NDT)</a></li>
-                            <li><a href="{{ route('home') }}#divisions" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Gas Compressor Solutions</a></li>
+                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blades &amp; Rotors</a></li>
+                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">CHRA Replacement Cartridges</a></li>
+                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Nozzle Rings &amp; Diffusers</a></li>
+                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Hydrodynamic Bearing Bushes</a></li>
+                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Complete OEM Catalog &rarr;</a></li>
                         </ul>
                     </div>
 
