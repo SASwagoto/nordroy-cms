@@ -70,10 +70,45 @@
                             </h2>
                         </div>
 
-                        <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed space-y-4">
-                            <p>{{ $service->display_content ?: $service->display_summary }}</p>
+                        <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {!! $service->display_content ?: nl2br(e($service->display_summary)) !!}
                         </div>
                     </div>
+
+                    <!-- YouTube Video Showcase Section -->
+                    @if($service->youtube_embed_url)
+                        <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-5">
+                            <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                                        <x-icon name="solid:video" class="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Workshop In Action</span>
+                                        <h2 class="text-lg sm:text-xl font-bold font-heading text-white">
+                                            {{ $service->display_title }} - Video Demonstration
+                                        </h2>
+                                    </div>
+                                </div>
+                                @if($service->video_url)
+                                    <a href="{{ $service->video_url }}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-xs font-bold text-cyan-400 hover:underline flex items-center gap-1">
+                                        <span>Watch on YouTube</span>
+                                        <x-icon name="solid:arrow-top-right-on-square" class="w-3.5 h-3.5" />
+                                    </a>
+                                @endif
+                            </div>
+
+                            <div class="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-slate-800">
+                                <iframe src="{{ $service->youtube_embed_url }}" 
+                                        class="w-full h-full" 
+                                        title="{{ $service->display_title }}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- 5-Phase Step-by-Step Procedure -->
                     <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">

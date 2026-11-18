@@ -21,14 +21,13 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button type="button" 
-                    wire:click="createService" 
-                    class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-sm transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
+            <a href="{{ route('admin.services.create') }}" 
+               class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#003C58] text-white hover:bg-[#024a6d] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 shadow-sm transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 <span class="whitespace-nowrap">Add New Service</span>
-            </button>
+            </a>
         </div>
     </div>
 
@@ -211,12 +210,11 @@
                             <!-- Actions -->
                             <td class="py-3.5 px-4 text-right">
                                 <div class="inline-flex items-center gap-1.5">
-                                    <button type="button" 
-                                            wire:click="editService({{ $service->id }})" 
-                                            title="Edit service details"
-                                            class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                                    <a href="{{ route('admin.services.edit', $service->id) }}" 
+                                       title="Edit service details"
+                                       class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
                                         <x-icon name="solid:pen-to-square" class="w-3.5 h-3.5" />
-                                    </button>
+                                    </a>
 
                                     <button type="button" 
                                             wire:click="duplicateService({{ $service->id }})" 
@@ -242,9 +240,9 @@
                                 </div>
                                 <h4 class="text-sm font-bold text-slate-700 dark:text-slate-300">No Services Found</h4>
                                 <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">No marine overhaul services match your current search or filter criteria.</p>
-                                <button type="button" wire:click="createService" class="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 cursor-pointer">
+                                <a href="{{ route('admin.services.create') }}" class="mt-4 inline-block px-4 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 cursor-pointer">
                                     Create First Service
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     @endforelse

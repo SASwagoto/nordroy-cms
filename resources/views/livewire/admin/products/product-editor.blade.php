@@ -409,6 +409,48 @@
                     </button>
                 </div>
 
+                <!-- Video Showcase Card (YouTube) -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <div class="flex items-center gap-2">
+                            <x-icon name="solid:video" class="w-4 h-4 text-rose-500" />
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                                Product Video (YouTube)
+                            </h3>
+                        </div>
+                        @if(!empty($video_url))
+                            <button type="button" wire:click="$set('video_url', '')" class="text-[10px] font-bold text-rose-500 hover:underline cursor-pointer">Clear</button>
+                        @endif
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            YouTube Video URL
+                        </label>
+                        <input type="text" wire:model.live.debounce.300ms="video_url" 
+                               placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                               class="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#003C58] dark:focus:ring-cyan-500">
+                        <p class="text-[10px] text-slate-400 mt-1">Supports standard YouTube URLs, short links (youtu.be), or shorts.</p>
+                    </div>
+
+                    @if($this->youtubeId)
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                <x-icon name="solid:check-circle" class="w-3.5 h-3.5" />
+                                Valid YouTube ID: <span class="font-mono">{{ $this->youtubeId }}</span>
+                            </span>
+                            <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-700 shadow-inner">
+                                <iframe src="https://www.youtube-nocookie.com/embed/{{ $this->youtubeId }}" 
+                                        class="w-full h-full" 
+                                        title="YouTube video preview" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
             </div>
 
         </div>

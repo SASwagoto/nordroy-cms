@@ -72,6 +72,15 @@
                         </div>
                     @endif
 
+                    @if($product->youtube_embed_url)
+                        <button type="button" 
+                                @click="activeTab = 'video'; document.getElementById('details-tabs')?.scrollIntoView({ behavior: 'smooth' })"
+                                class="w-full py-2.5 px-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-bold transition-all flex items-center justify-center gap-2 hover:bg-rose-100 dark:hover:bg-rose-900/60 cursor-pointer shadow-2xs">
+                            <x-icon name="solid:play" class="w-3.5 h-3.5 fill-current" />
+                            <span>{{ __('Watch Video Showcase') }}</span>
+                        </button>
+                    @endif
+
                     <!-- Quality & Certification Trust Matrix -->
                     <div class="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-center">
                         <div class="space-y-1">
@@ -220,7 +229,7 @@
             </div>
 
             <!-- In-Depth Technical Information & Inspection Protocols Tabs -->
-            <div class="mt-16 pt-12 border-t border-slate-200 dark:border-slate-800">
+            <div id="details-tabs" class="mt-16 pt-12 border-t border-slate-200 dark:border-slate-800">
                 
                 <!-- Tab Selector Buttons -->
                 <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4 overflow-x-auto no-scrollbar">
@@ -239,6 +248,14 @@
                             :class="activeTab === 'warranty' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:hover:bg-slate-800'">
                         3. Classification &amp; Warranty
                     </button>
+                    @if($product->youtube_embed_url)
+                        <button type="button" @click="activeTab = 'video'"
+                                class="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                                :class="activeTab === 'video' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white dark:hover:bg-slate-800'">
+                            <x-icon name="solid:video" class="w-3.5 h-3.5 text-rose-500" />
+                            <span>4. {{ __('Video Showcase') }}</span>
+                        </button>
+                    @endif
                 </div>
 
                 <!-- Tab Content 1: Full Specifications Table -->
@@ -309,6 +326,39 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Tab Content 4: Video Showcase -->
+                @if($product->youtube_embed_url)
+                    <div x-show="activeTab === 'video'" class="pt-6 space-y-4" style="display: none;">
+                        <div class="p-4 sm:p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 space-y-4 shadow-xl">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                                        <x-icon name="solid:video" class="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-bold">{{ $product->display_title }}</h3>
+                                        <p class="text-[11px] text-slate-400">{{ __('Live Demonstration & Quality Inspection Video') }}</p>
+                                    </div>
+                                </div>
+                                @if($product->video_url)
+                                    <a href="{{ $product->video_url }}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-cyan-400 hover:underline flex items-center gap-1">
+                                        <span>{{ __('Watch on YouTube') }}</span>
+                                        <x-icon name="solid:arrow-top-right-on-square" class="w-3.5 h-3.5" />
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-slate-800">
+                                <iframe src="{{ $product->youtube_embed_url }}" 
+                                        class="w-full h-full" 
+                                        title="{{ $product->display_title }}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
             </div>
 

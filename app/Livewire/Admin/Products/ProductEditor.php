@@ -61,6 +61,7 @@ class ProductEditor extends Component
     public array $gallery_images = []; // [['id' => 12, 'url' => '...']]
     public ?int $brochure_media_id = null;
     public ?string $brochure_media_url = null;
+    public ?string $video_url = '';
     public bool $is_active = true;
 
     // Instant Quick-Add Taxonomy State
@@ -89,6 +90,7 @@ class ProductEditor extends Component
             'part_number' => 'nullable|string|max:100',
             'category'    => 'required|string|max:150',
             'brand'       => 'required|string|max:150',
+            'video_url'   => 'nullable|string|max:500',
             'specs'       => 'nullable|array',
         ];
     }
@@ -171,6 +173,7 @@ class ProductEditor extends Component
         $this->featured_image_url = $product->featuredImage?->url;
         $this->brochure_media_id = $product->brochure_media_id;
         $this->brochure_media_url = $product->brochure?->url;
+        $this->video_url = $product->video_url ?? '';
 
         // Load Gallery Images
         $this->gallery_images = [];
@@ -204,6 +207,18 @@ class ProductEditor extends Component
                 $this->slug = Str::slug($value);
             }
         }
+    }
+
+    public function getYoutubeIdProperty(): ?string
+    {
+        if (empty($this->video_url)) {
+            return null;
+        }
+        $pattern = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/|youtube\.com/shorts/)([^"&?/ ]{11})%i';
+        if (preg_match($pattern, trim($this->video_url), $match)) {
+            return $match[1];
+        }
+        return null;
     }
 
     public function setLocale(string $locale): void
@@ -488,6 +503,11 @@ class ProductEditor extends Component
 
     // ==================== SAVE METHOD ====================
 
+    public function save()
+    {
+        return $this->saveProduct();
+    }
+
     public function saveProduct()
     {
         if (!empty($this->title_en) && empty($this->title['en'])) {
@@ -574,6 +594,7 @@ class ProductEditor extends Component
             'featured_image_id'        => $this->featured_image_id,
             'gallery_image_ids'        => $galleryIds,
             'brochure_media_id'        => $this->brochure_media_id,
+            'video_url'                => trim($this->video_url) ?: null,
             'is_active'                => $this->is_active,
         ];
 

@@ -318,7 +318,12 @@
 
                     <!-- Dynamic Multi-Language Switcher Dropdown -->
                     @php
-                        $navLanguages = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+                        $navLanguages = collect();
+                        if (\Illuminate\Support\Facades\Schema::hasTable('languages')) {
+                            try {
+                                $navLanguages = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+                            } catch (\Throwable $e) {}
+                        }
                         $activeLocaleCode = app()->getLocale();
                         $currLang = $navLanguages->firstWhere('code', $activeLocaleCode) 
                             ?? $navLanguages->firstWhere('is_default', true) 

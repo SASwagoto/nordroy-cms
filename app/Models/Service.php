@@ -19,6 +19,7 @@ class Service extends Model
         'short_summary',
         'content',
         'featured_image_id',
+        'video_url',
         'is_featured',
         'order',
         'is_active',
@@ -43,6 +44,24 @@ class Service extends Model
     public function seo(): MorphOne
     {
         return $this->morphOne(SeoMeta::class, 'seoble');
+    }
+
+    public function getYoutubeIdAttribute(): ?string
+    {
+        if (empty($this->video_url)) {
+            return null;
+        }
+        $pattern = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/|youtube\.com/shorts/)([^"&?/ ]{11})%i';
+        if (preg_match($pattern, trim($this->video_url), $match)) {
+            return $match[1];
+        }
+        return null;
+    }
+
+    public function getYoutubeEmbedUrlAttribute(): ?string
+    {
+        $id = $this->youtube_id;
+        return $id ? "https://www.youtube-nocookie.com/embed/{$id}?rel=0" : null;
     }
 
     public function getDisplayTitleAttribute(): string

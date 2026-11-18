@@ -2,11 +2,13 @@
 
 use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
+use App\Livewire\Admin\Gallery\GalleryManager;
 use App\Livewire\Admin\Languages\LanguageManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
 use App\Livewire\Admin\Products\ProductEditor;
 use App\Livewire\Admin\Products\ProductManager;
+use App\Livewire\Admin\Services\ServiceEditor;
 use App\Livewire\Admin\Services\ServiceManager;
 use App\Livewire\Admin\Settings\SettingsManager;
 use App\Livewire\Admin\Theme\ThemeStudio;
@@ -216,6 +218,37 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
+Route::get('/gallery', function (Request $request) {
+    $albumSlug = $request->query('album');
+    $type = $request->query('type', 'all');
+
+    $albums = \App\Models\GalleryAlbum::active()->orderBy('order')->withCount(['photos', 'videos'])->get();
+
+    $currentAlbum = null;
+    if ($albumSlug) {
+        $currentAlbum = \App\Models\GalleryAlbum::active()->where('slug', $albumSlug)->first();
+    }
+
+    $photosQuery = \App\Models\PhotoGallery::active()->with(['media', 'album']);
+    $videosQuery = \App\Models\VideoGallery::active()->with(['thumbnail', 'album']);
+
+    if ($currentAlbum) {
+        $photosQuery->where('album_id', $currentAlbum->id);
+        $videosQuery->where('album_id', $currentAlbum->id);
+    }
+
+    $photos = $photosQuery->orderBy('order')->get();
+    $videos = $videosQuery->orderBy('order')->get();
+
+    return view('pages.gallery', [
+        'albums'       => $albums,
+        'currentAlbum' => $currentAlbum,
+        'photos'       => $photos,
+        'videos'       => $videos,
+        'currentType'  => $type,
+    ]);
+})->name('gallery');
+
 /*
 |--------------------------------------------------------------------------
 | Public Dynamic Language Switcher Route
@@ -302,6 +335,14 @@ Route::middleware([
         ->middleware('permission:services.view')
         ->name('services');
 
+    Route::get('/services/create', ServiceEditor::class)
+        ->middleware('permission:services.view')
+        ->name('services.create');
+
+    Route::get('/services/{id}/edit', ServiceEditor::class)
+        ->middleware('permission:services.view')
+        ->name('services.edit');
+
     // Marine Spare Parts & Industrial Products
     Route::get('/products', ProductManager::class)
         ->middleware('permission:products.view')
@@ -314,6 +355,11 @@ Route::middleware([
     Route::get('/products/{id}/edit', ProductEditor::class)
         ->middleware('permission:products.view')
         ->name('products.edit');
+
+    // Visual Media Gallery & Video Showcase
+    Route::get('/gallery', GalleryManager::class)
+        ->middleware('permission:media.view')
+        ->name('gallery');
 
     // Localization & Multi-Language Studio
     Route::get('/languages', LanguageManager::class)
