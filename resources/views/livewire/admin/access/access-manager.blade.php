@@ -66,12 +66,12 @@
         <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        <tr>
-                            <th class="py-3 px-5">Administrator</th>
-                            <th class="py-3 px-5">Assigned Role</th>
-                            <th class="py-3 px-5">Created On</th>
-                            <th class="py-3 px-5 text-right">Actions</th>
+                    <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <tr class="bg-slate-100 dark:bg-slate-900">
+                            <th class="py-3 px-5 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Administrator</th>
+                            <th class="py-3 px-5 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Assigned Role</th>
+                            <th class="py-3 px-5 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Created On</th>
+                            <th class="py-3 px-5 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">

@@ -126,14 +126,14 @@
     <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono text-[10px]">
-                    <tr>
-                        <th class="py-3.5 px-4 w-16 text-center">Order</th>
-                        <th class="py-3.5 px-4">Service &amp; Vector Icon</th>
-                        <th class="py-3.5 px-4 hidden md:table-cell">Short Summary</th>
-                        <th class="py-3.5 px-4 text-center">Featured</th>
-                        <th class="py-3.5 px-4 text-center">Status</th>
-                        <th class="py-3.5 px-4 text-right">Actions</th>
+                <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono text-[10px]">
+                    <tr class="bg-slate-100 dark:bg-slate-900">
+                        <th class="py-3.5 px-4 w-16 text-center bg-slate-100 dark:bg-slate-900">Order</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Service &amp; Vector Icon</th>
+                        <th class="py-3.5 px-4 hidden md:table-cell bg-slate-100 dark:bg-slate-900">Short Summary</th>
+                        <th class="py-3.5 px-4 text-center bg-slate-100 dark:bg-slate-900">Featured</th>
+                        <th class="py-3.5 px-4 text-center bg-slate-100 dark:bg-slate-900">Status</th>
+                        <th class="py-3.5 px-4 text-right bg-slate-100 dark:bg-slate-900">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">

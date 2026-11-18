@@ -60,6 +60,23 @@
             50% { transform: translateX(50%); }
             100% { transform: translateX(200%); }
         }
+
+        /* Bulletproof Admin Dark Theme Tables & Hovers */
+        html.dark table thead,
+        html.dark table thead tr,
+        html.dark table thead th {
+            background-color: #0f172a !important;
+            color: #94a3b8 !important;
+            border-color: #1e293b !important;
+        }
+        html.dark table tbody tr:hover {
+            background-color: rgba(30, 41, 59, 0.5) !important;
+        }
+        html.dark .hover\:bg-slate-50:hover,
+        html.dark .hover\:bg-slate-100:hover {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

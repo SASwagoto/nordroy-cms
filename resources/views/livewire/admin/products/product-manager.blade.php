@@ -118,14 +118,14 @@
     <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-600 dark:text-slate-400">
-                <thead class="bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                    <tr>
-                        <th class="py-3 px-4">Part / Image</th>
-                        <th class="py-3 px-4">Part Number &amp; OEM Code</th>
-                        <th class="py-3 px-4">Category &amp; Brand</th>
-                        <th class="py-3 px-4">Condition &amp; Stock</th>
-                        <th class="py-3 px-4 text-center">Status</th>
-                        <th class="py-3 px-4 text-right">Actions</th>
+                <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider">
+                    <tr class="bg-slate-100 dark:bg-slate-900">
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Part / Image</th>
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Part Number &amp; OEM Code</th>
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Category &amp; Brand</th>
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">Condition &amp; Stock</th>
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-center">Status</th>
+                        <th class="py-3 px-4 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium">
@@ -332,7 +332,7 @@
                     <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl">
                         @if($taxonomyActiveTab === 'categories')
                             @forelse($allCategories as $cat)
-                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                     <div class="flex items-center gap-2">
                                         <x-icon name="solid:tag" class="w-3.5 h-3.5 text-cyan-500" />
                                         <span class="text-xs font-bold text-slate-800 dark:text-white">{{ $cat->name }}</span>
@@ -350,7 +350,7 @@
                             @endforelse
                         @else
                             @forelse($allBrands as $brand)
-                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                <div class="px-4 py-2.5 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                     <div class="flex items-center gap-2">
                                         <x-icon name="solid:building" class="w-3.5 h-3.5 text-cyan-500" />
                                         <span class="text-xs font-bold text-slate-800 dark:text-white">{{ $brand->name }}</span>

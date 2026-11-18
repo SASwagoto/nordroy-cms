@@ -106,15 +106,15 @@
     <div class="rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/50 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        <th class="py-3.5 px-4">Language</th>
-                        <th class="py-3.5 px-4">Code</th>
-                        <th class="py-3.5 px-4">Direction</th>
-                        <th class="py-3.5 px-4">Default</th>
-                        <th class="py-3.5 px-4">Status</th>
-                        <th class="py-3.5 px-4 text-center">Order</th>
-                        <th class="py-3.5 px-4 text-right">Actions</th>
+                <thead class="bg-slate-100 dark:bg-slate-900">
+                    <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Language</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Code</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Direction</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Default</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900">Status</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900 text-center">Order</th>
+                        <th class="py-3.5 px-4 bg-slate-100 dark:bg-slate-900 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">

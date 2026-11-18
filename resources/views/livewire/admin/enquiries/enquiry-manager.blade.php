@@ -160,15 +160,15 @@
         @else
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            <th class="px-5 py-3">Reference / Date</th>
-                            <th class="px-5 py-3">Vessel / Plant Target</th>
-                            <th class="px-5 py-3">Client Personnel</th>
-                            <th class="px-5 py-3">Service &amp; Port</th>
-                            <th class="px-5 py-3">Urgency</th>
-                            <th class="px-5 py-3">Status</th>
-                            <th class="px-5 py-3 text-right">Actions</th>
+                    <thead class="bg-slate-100 dark:bg-slate-900">
+                        <tr class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Reference / Date</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Vessel / Plant Target</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Client Personnel</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Service &amp; Port</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Urgency</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900">Status</th>
+                            <th class="px-5 py-3 bg-slate-100 dark:bg-slate-900 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
