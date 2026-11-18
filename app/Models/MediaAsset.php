@@ -70,6 +70,15 @@ class MediaAsset extends Model
         return round($bytes, 1) . ' ' . ($units[$i] ?? 'MB');
     }
 
+    public function getDisplayAltAttribute(): string
+    {
+        if (is_array($this->alt_text)) {
+            $locale = app()->getLocale();
+            return $this->alt_text[$locale] ?? $this->alt_text['en'] ?? reset($this->alt_text) ?: ($this->file_name ?? 'Media Asset');
+        }
+        return (string) ($this->alt_text ?: ($this->file_name ?? 'Media Asset'));
+    }
+
     public function usages(): HasMany
     {
         return $this->hasMany(MediaUsage::class);

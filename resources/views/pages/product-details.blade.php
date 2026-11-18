@@ -19,6 +19,7 @@
     <section class="py-10 sm:py-16 bg-white dark:bg-[#06121d] border-b border-slate-200 dark:border-slate-800 transition-colors"
              x-data="{ 
                  activeTab: 'specs',
+                 activeImage: '{{ $product->image_url }}',
                  isRfqModalOpen: false,
                  copiedPart: false,
                  copyPartNumber() {
@@ -32,9 +33,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
                 
                 <!-- Left Column: High-Res Image Showcase & Engineering Badges (5 cols) -->
-                <div class="lg:col-span-5 space-y-6">
+                <div class="lg:col-span-5 space-y-4">
                     <div class="relative rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg aspect-square flex items-center justify-center group">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->display_title }}" 
+                        <img :src="activeImage" src="{{ $product->image_url }}" alt="{{ $product->display_title }}" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
 
                         <!-- Top Floating Badges -->
@@ -53,6 +54,23 @@
                             <span>High-Precision Component</span>
                         </div>
                     </div>
+
+                    <!-- Multi-Angle Gallery Thumbnails (Interactive Image Switcher) -->
+                    @php
+                        $allImages = $product->all_images;
+                    @endphp
+                    @if($allImages->count() > 1)
+                        <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+                            @foreach($allImages as $galleryItem)
+                                <button type="button" 
+                                        @click="activeImage = '{{ $galleryItem->url }}'"
+                                        class="relative w-16 h-16 rounded-2xl border-2 overflow-hidden shrink-0 transition-all cursor-pointer shadow-2xs"
+                                        :class="activeImage === '{{ $galleryItem->url }}' ? 'border-[#003C58] dark:border-cyan-400 ring-2 ring-[#003C58]/30 dark:ring-cyan-400/30 scale-105' : 'border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-100'">
+                                    <img src="{{ $galleryItem->url }}" alt="{{ $galleryItem->display_alt }}" class="w-full h-full object-cover">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
 
                     <!-- Quality & Certification Trust Matrix -->
                     <div class="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-center">

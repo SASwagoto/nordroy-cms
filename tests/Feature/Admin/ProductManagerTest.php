@@ -219,4 +219,61 @@ class ProductManagerTest extends TestCase
         $this->assertNotNull($product->category_id);
         $this->assertNotNull($product->brand_id);
     }
+
+    public function test_media_picker_opens_without_htmlspecialchars_error_and_supports_gallery(): void
+    {
+        // Create media asset with array alt_text as stored in production
+        $asset = \App\Models\MediaAsset::create([
+            'disk' => 'public',
+            'file_path' => 'uploads/test-rotor.jpg',
+            'file_name' => 'test-rotor.jpg',
+            'mime_type' => 'image/jpeg',
+            'file_size' => 102400,
+            'file_hash' => 'hash-test-rotor-01',
+            'alt_text' => ['en' => 'Test Rotor Blade', 'bn' => 'রটার ব্লেড'],
+            'title' => ['en' => 'Test Rotor'],
+        ]);
+
+        $galleryAsset = \App\Models\MediaAsset::create([
+            'disk' => 'public',
+            'file_path' => 'uploads/test-rotor-angle-2.jpg',
+            'file_name' => 'test-rotor-angle-2.jpg',
+            'mime_type' => 'image/jpeg',
+            'file_size' => 102400,
+            'file_hash' => 'hash-test-rotor-02',
+            'alt_text' => ['en' => 'Angle 2', 'bn' => 'অ্যাঙ্গেল ২'],
+        ]);
+
+        // Test opening media picker for featured image does not crash
+        Livewire::actingAs($this->admin)
+            ->test(ProductEditor::class)
+            ->call('openMediaPicker', 'featured_image')
+            ->assertSet('isMediaPickerOpen', true)
+            ->assertSee('test-rotor.jpg')
+            ->call('selectAsset', $asset->id, $asset->url)
+            ->assertSet('featured_image_id', $asset->id)
+            ->assertSet('isMediaPickerOpen', false)
+            ->call('openMediaPicker', 'gallery')
+            ->assertSet('isMediaPickerOpen', true)
+            ->call('selectAsset', $galleryAsset->id, $galleryAsset->url)
+            ->assertCount('gallery_images', 1)
+            ->set('title_en', 'Multi Image Rotor Part')
+            ->set('slug', 'multi-image-rotor-part')
+            ->set('part_number', 'MIR-001')
+            ->call('saveProduct')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('admin.products'));
+
+        $savedProduct = Product::where('slug', 'multi-image-rotor-part')->first();
+        $this->assertNotNull($savedProduct);
+        $this->assertEquals($asset->id, $savedProduct->featured_image_id);
+        $this->assertContains($galleryAsset->id, $savedProduct->gallery_image_ids);
+        $this->assertCount(1, $savedProduct->gallery_images);
+
+        // Verify public details page renders both images in the gallery
+        $res = $this->get(route('product.details', $savedProduct->slug));
+        $res->assertStatus(200);
+        $res->assertSee($asset->url);
+        $res->assertSee($galleryAsset->url);
+    }
 }

@@ -329,6 +329,52 @@
                     </button>
                 </div>
 
+                <!-- Product Gallery Photos Card -->
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-white">
+                                Product Gallery Photos
+                            </h3>
+                            <span class="text-[10px] text-slate-400">Additional angles &amp; details ({{ count($gallery_images) }})</span>
+                        </div>
+                        <button type="button" wire:click="openMediaPicker('gallery')"
+                                class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-400 hover:bg-[#003C58]/20 transition-all inline-flex items-center gap-1 cursor-pointer">
+                            <x-icon name="solid:plus" class="w-3 h-3" />
+                            <span>Add Photo</span>
+                        </button>
+                    </div>
+
+                    @if(count($gallery_images) > 0)
+                        <div class="grid grid-cols-3 gap-2.5 max-h-60 overflow-y-auto p-1">
+                            @foreach($gallery_images as $index => $gImg)
+                                <div class="group relative aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xs">
+                                    <img src="{{ $gImg['url'] }}" alt="Gallery Image {{ $index + 1 }}" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                        <button type="button" wire:click="removeGalleryImage({{ $index }})" 
+                                                class="p-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white cursor-pointer transition-colors"
+                                                title="Delete photo">
+                                            <x-icon name="solid:trash" class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <span class="absolute bottom-1 left-1 px-1 py-0.5 rounded text-[8px] font-mono font-bold bg-black/60 text-white pointer-events-none">
+                                        #{{ $index + 1 }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400 space-y-1">
+                            <x-icon name="solid:images" class="w-6 h-6 mx-auto opacity-40" />
+                            <p class="text-[11px]">No gallery photos attached yet.</p>
+                            <button type="button" wire:click="openMediaPicker('gallery')"
+                                    class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer">
+                                + Add photo from Media Library
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
                 <!-- Technical PDF Brochure Card -->
                 <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -470,7 +516,7 @@
                         <div class="flex items-center gap-2">
                             <x-icon name="solid:images" class="w-5 h-5 text-[#003C58] dark:text-cyan-400" />
                             <h3 class="text-sm font-bold text-slate-900 dark:text-white">
-                                Select {{ $mediaPickerTarget === 'featured_image' ? 'Product Photo' : 'Document (PDF)' }} from Media Library
+                                Select {{ $mediaPickerTarget === 'featured_image' ? 'Product Photo' : ($mediaPickerTarget === 'gallery' ? 'Gallery Photo' : 'Document (PDF)') }} from Media Library
                             </h3>
                         </div>
                         <button type="button" wire:click="$set('isMediaPickerOpen', false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold">&times;</button>
@@ -481,7 +527,7 @@
                             <div wire:click="selectAsset({{ $asset->id }}, '{{ $asset->url }}')"
                                  class="group relative aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#003C58] dark:hover:ring-cyan-500 transition-all">
                                 @if(str_starts_with($asset->mime_type ?? '', 'image/'))
-                                    <img src="{{ $asset->url }}" alt="{{ $asset->alt_text }}" class="w-full h-full object-cover">
+                                    <img src="{{ $asset->url }}" alt="{{ $asset->display_alt }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex flex-col items-center justify-center p-2 text-center text-slate-400">
                                         <x-icon name="solid:file" class="w-6 h-6 mb-1 text-slate-500" />

@@ -20,6 +20,7 @@ class Product extends Model
         'category_id',
         'brand_id',
         'featured_image_id',
+        'gallery_image_ids',
         'brochure_media_id',
         'is_active',
     ];
@@ -27,9 +28,10 @@ class Product extends Model
     protected $with = ['featuredImage', 'category', 'brand'];
 
     protected $casts = [
-        'title' => 'array',
+        'title'                    => 'array',
         'technical_specifications' => 'array',
-        'is_active' => 'boolean',
+        'gallery_image_ids'        => 'array',
+        'is_active'                => 'boolean',
     ];
 
     public function featuredImage(): BelongsTo
@@ -159,5 +161,36 @@ class Product extends Model
         return $this->brochure_media_id
             ? ($this->brochure?->url ?? ($this->technical_specifications['pdf_url'] ?? null))
             : ($this->technical_specifications['pdf_url'] ?? null);
+    }
+
+    /**
+     * Get Collection of gallery MediaAsset objects preserving order.
+     */
+    public function getGalleryImagesAttribute()
+    {
+        $ids = $this->gallery_image_ids ?? ($this->technical_specifications['gallery_image_ids'] ?? []);
+        if (empty($ids) || !is_array($ids)) {
+            return collect();
+        }
+
+        $assets = MediaAsset::whereIn('id', $ids)->get()->keyBy('id');
+        return collect($ids)->map(fn($id) => $assets->get($id))->filter()->values();
+    }
+
+    /**
+     * Get all images (featured image + gallery images).
+     */
+    public function getAllImagesAttribute()
+    {
+        $images = collect();
+        if ($this->featuredImage) {
+            $images->push($this->featuredImage);
+        }
+        foreach ($this->gallery_images as $img) {
+            if (!$images->contains('id', $img->id)) {
+                $images->push($img);
+            }
+        }
+        return $images;
     }
 }

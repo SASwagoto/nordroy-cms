@@ -55,6 +55,7 @@ class ProductEditor extends Component
     // Media Assets
     public ?int $featured_image_id = null;
     public ?string $featured_image_url = null;
+    public array $gallery_images = []; // [['id' => 12, 'url' => '...']]
     public ?int $brochure_media_id = null;
     public ?string $brochure_media_url = null;
     public bool $is_active = true;
@@ -158,6 +159,21 @@ class ProductEditor extends Component
         $this->featured_image_url = $product->featuredImage?->url;
         $this->brochure_media_id = $product->brochure_media_id;
         $this->brochure_media_url = $product->brochure?->url;
+
+        // Load Gallery Images
+        $this->gallery_images = [];
+        $galleryIds = $product->gallery_image_ids ?? ($specsJson['gallery_image_ids'] ?? []);
+        if (!empty($galleryIds) && is_array($galleryIds)) {
+            $assets = MediaAsset::whereIn('id', $galleryIds)->get()->keyBy('id');
+            foreach ($galleryIds as $gId) {
+                if ($asset = $assets->get($gId)) {
+                    $this->gallery_images[] = [
+                        'id'  => $asset->id,
+                        'url' => $asset->url,
+                    ];
+                }
+            }
+        }
     }
 
     public function updatedTitleEn(string $value): void
@@ -289,11 +305,25 @@ class ProductEditor extends Component
         if ($this->mediaPickerTarget === 'featured_image') {
             $this->featured_image_id = $id;
             $this->featured_image_url = $url;
+        } elseif ($this->mediaPickerTarget === 'gallery') {
+            $exists = collect($this->gallery_images)->contains('id', $id);
+            if (!$exists) {
+                $this->gallery_images[] = [
+                    'id'  => $id,
+                    'url' => $url,
+                ];
+            }
         } else {
             $this->brochure_media_id = $id;
             $this->brochure_media_url = $url;
         }
         $this->isMediaPickerOpen = false;
+    }
+
+    public function removeGalleryImage(int $index): void
+    {
+        unset($this->gallery_images[$index]);
+        $this->gallery_images = array_values($this->gallery_images);
     }
 
     public function removeAsset(string $target): void
@@ -345,6 +375,8 @@ class ProductEditor extends Component
             $descPayload[$lang->code] = !empty($dVal) ? $dVal : ($this->description['en'] ?? '');
         }
 
+        $galleryIds = array_values(array_map(fn($item) => (int) $item['id'], $this->gallery_images));
+
         $techSpecsPayload = [
             'category'          => $this->category,
             'brand'             => $this->brand,
@@ -356,6 +388,7 @@ class ProductEditor extends Component
             'summary'           => $summaryPayload,
             'description'       => $descPayload,
             'specs'             => $filteredSpecs,
+            'gallery_image_ids' => $galleryIds,
         ];
 
         if (!empty($this->category)) {
@@ -390,6 +423,7 @@ class ProductEditor extends Component
             'category_id'              => $this->category_id,
             'brand_id'                 => $this->brand_id,
             'featured_image_id'        => $this->featured_image_id,
+            'gallery_image_ids'        => $galleryIds,
             'brochure_media_id'        => $this->brochure_media_id,
             'is_active'                => $this->is_active,
         ];
