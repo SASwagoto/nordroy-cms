@@ -291,4 +291,45 @@ class PageContentManagerTest extends TestCase
         $resetPartners = Setting::getJson('about_partners_list');
         $this->assertCount(4, $resetPartners);
     }
+
+    public function test_admin_can_manage_about_spec_stats_repeater_and_mission_vision_configuration(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Add 3rd spec stat and customize Mission & Vision
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->set('newStatValue', '99.98% Precision')
+            ->set('newStatLabel', 'ISO Dynamic Balancing Grade')
+            ->set('newStatColor', 'rose')
+            ->call('addStat')
+            ->call('toggleStat', 0) // Disable 1st default stat (100k RPM)
+            ->set('content.about_mission_vision_align', 'center')
+            ->set('content.about_mission_vision_style', 'bordered')
+            ->set('content.about_mission_badge', 'Operational Doctrine')
+            ->set('content.about_mission_icon', 'solid:rocket')
+            ->set('content.about_vision_badge', 'Global Footprint 2030')
+            ->call('saveContent')
+            ->assertHasNoErrors();
+
+        $stats = Setting::getJson('about_stats_list');
+        $this->assertCount(3, $stats);
+        $this->assertFalse((bool) $stats[0]['is_active']);
+        $this->assertEquals('99.98% Precision', $stats[2]['value']);
+        $this->assertEquals('rose', $stats[2]['color']);
+
+        $this->assertEquals('center', Setting::get('about_mission_vision_align'));
+        $this->assertEquals('bordered', Setting::get('about_mission_vision_style'));
+        $this->assertEquals('Operational Doctrine', Setting::get('about_mission_badge'));
+
+        // Visit public /about page
+        $response = $this->get(route('about'));
+        $response->assertStatus(200);
+        $response->assertSee('99.98% Precision');
+        $response->assertSee('ISO Dynamic Balancing Grade');
+        $response->assertSee('Operational Doctrine');
+        $response->assertSee('Global Footprint 2030');
+        // The disabled 1st stat should NOT be visible
+        $response->assertDontSee('Balancing Rig Capacity');
+    }
 }

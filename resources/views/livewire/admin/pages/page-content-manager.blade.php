@@ -249,20 +249,90 @@
                                       class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"></textarea>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                            <label class="text-[11px] font-bold uppercase text-slate-400">Spec Stat 1</label>
-                            <input type="text" wire:model="content.about_stat1_value" placeholder="100k RPM"
-                                   class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
-                            <input type="text" wire:model="content.about_stat1_label" placeholder="Balancing Rig Capacity"
-                                   class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                        </div>
+                        <!-- Dynamic Spec Stats Repeater -->
+                        <div class="md:col-span-2 space-y-3 pt-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                                    Technical Specification Stats (Dynamic Repeater)
+                                </label>
+                                <span class="text-[11px] text-slate-500">Unlimited stats. Live toggle &amp; adaptive gapless layout.</span>
+                            </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                            <label class="text-[11px] font-bold uppercase text-slate-400">Spec Stat 2</label>
-                            <input type="text" wire:model="content.about_stat2_value" placeholder="± 0.005mm"
-                                   class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
-                            <input type="text" wire:model="content.about_stat2_label" placeholder="Shaft Run-Out Accuracy"
-                                   class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+                            <!-- Existing Stats List -->
+                            <div class="space-y-2">
+                                @forelse($aboutStats as $idx => $stat)
+                                    <div class="p-3.5 rounded-2xl border {{ !empty($stat['is_active']) ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800' : 'bg-slate-100/60 dark:bg-slate-900/30 border-dashed border-slate-300 dark:border-slate-800 opacity-70' }} flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+                                        <div class="flex items-center gap-2 self-start sm:self-center">
+                                            <button type="button" wire:click="toggleStat({{ $idx }})" 
+                                                    title="Click to toggle display on/off"
+                                                    class="cursor-pointer px-2 py-1 rounded-lg text-[10px] font-bold uppercase transition-all {{ !empty($stat['is_active']) ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500' }}">
+                                                {{ !empty($stat['is_active']) ? 'Active' : 'Disabled' }}
+                                            </button>
+                                        </div>
+
+                                        <div class="flex-1 grid grid-cols-1 sm:grid-cols-12 gap-2 w-full">
+                                            <div class="sm:col-span-4">
+                                                <input type="text" wire:model="aboutStats.{{ $idx }}.value" placeholder="Value (e.g. 100k RPM)"
+                                                       class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono font-bold">
+                                            </div>
+                                            <div class="sm:col-span-5">
+                                                <input type="text" wire:model="aboutStats.{{ $idx }}.label" placeholder="Label (e.g. Balancing Rig Capacity)"
+                                                       class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                                            </div>
+                                            <div class="sm:col-span-3">
+                                                <select wire:model="aboutStats.{{ $idx }}.color"
+                                                        class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                                                    <option value="cyan">Cyan Accent</option>
+                                                    <option value="emerald">Emerald Accent</option>
+                                                    <option value="rose">Rose Accent</option>
+                                                    <option value="amber">Amber Accent</option>
+                                                    <option value="indigo">Indigo Accent</option>
+                                                    <option value="blue">Blue Accent</option>
+                                                    <option value="purple">Purple Accent</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" wire:click="removeStat({{ $idx }})" 
+                                                title="Delete this specification stat"
+                                                class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer transition-colors self-end sm:self-center">
+                                            <x-icon name="solid:trash" class="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                @empty
+                                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 text-center text-xs text-slate-400">
+                                        No spec stats added yet. Add one below.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <!-- Add New Stat Inline -->
+                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Add New Specification Stat</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                                    <input type="text" wire:model="newStatValue" placeholder="Value (e.g. 100k RPM)"
+                                           class="sm:col-span-4 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono font-bold">
+                                    <input type="text" wire:model="newStatLabel" placeholder="Label (e.g. Balancing Rig Capacity)"
+                                           class="sm:col-span-5 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                    <select wire:model="newStatColor"
+                                            class="sm:col-span-3 px-2.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                        <option value="cyan">Cyan Accent</option>
+                                        <option value="emerald">Emerald Accent</option>
+                                        <option value="rose">Rose Accent</option>
+                                        <option value="amber">Amber Accent</option>
+                                        <option value="indigo">Indigo Accent</option>
+                                        <option value="blue">Blue Accent</option>
+                                        <option value="purple">Purple Accent</option>
+                                    </select>
+                                    <div class="sm:col-span-12 flex justify-end">
+                                        <button type="button" wire:click="addStat"
+                                                class="px-4 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center gap-1.5 transition-all">
+                                            <x-icon name="solid:plus" class="w-3.5 h-3.5" />
+                                            <span>Add Spec Stat</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @else
@@ -361,28 +431,131 @@
                     </div>
                 </div>
 
+                <!-- Global Section Visual Settings -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-cyan-500/5 border border-cyan-500/20">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <x-icon name="solid:adjustments-horizontal" class="w-4 h-4 text-cyan-500" />
+                            <span>Card Visual Layout / Alignment</span>
+                        </label>
+                        <select wire:model.live="content.about_mission_vision_align"
+                                class="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            <option value="left">Left Aligned (Classic Corporate Layout)</option>
+                            <option value="center">Center Aligned (Heroic Balanced Alignment)</option>
+                            <option value="horizontal">Horizontal Split (Icon on Left, Content on Right)</option>
+                        </select>
+                        <p class="text-[11px] text-slate-500">Sets the content alignment and layout orientation across both cards.</p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <x-icon name="solid:sparkles" class="w-4 h-4 text-cyan-500" />
+                            <span>Card Visual Theme &amp; Surface</span>
+                        </label>
+                        <select wire:model.live="content.about_mission_vision_style"
+                                class="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            <option value="modern">Modern Glass Card (Clean with Soft Glow)</option>
+                            <option value="bordered">High-Tech Bordered (Sharp with Neon Top Line)</option>
+                            <option value="gradient">Subtle Ambient Gradient (Atmospheric Surface)</option>
+                        </select>
+                        <p class="text-[11px] text-slate-500">Selects border thickness, backdrop gradient, and neon accent lines.</p>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Mission Card Settings -->
                     <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
-                        <div class="font-bold text-xs text-slate-900 dark:text-white">Corporate Mission Details</div>
-                        <div class="space-y-1">
-                            <label class="text-[11px] font-semibold text-slate-500">Mission Title</label>
-                            <input type="text" wire:model="content.about_mission_title" class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
+                            <span class="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <x-icon name="solid:bullseye" class="w-4 h-4 text-cyan-500" />
+                                <span>Corporate Mission Details</span>
+                            </span>
+                            <span class="text-[10px] uppercase font-bold text-cyan-600 dark:text-cyan-400">Card 1</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Badge Text</label>
+                                <input type="text" wire:model="content.about_mission_badge" placeholder="Strategic Purpose"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Accent Color</label>
+                                <select wire:model="content.about_mission_color"
+                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                    <option value="cyan">Cyan</option>
+                                    <option value="emerald">Emerald</option>
+                                    <option value="indigo">Indigo</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="amber">Amber</option>
+                                    <option value="rose">Rose</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Mission Title</label>
+                                <input type="text" wire:model="content.about_mission_title" placeholder="Our Corporate Mission"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Icon Key</label>
+                                <input type="text" wire:model="content.about_mission_icon" placeholder="solid:bullseye"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                            </div>
                         </div>
                         <div class="space-y-1">
                             <label class="text-[11px] font-semibold text-slate-500">Mission Statement</label>
-                            <textarea rows="3" wire:model="content.about_mission_text" class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"></textarea>
+                            <textarea rows="4" wire:model="content.about_mission_text"
+                                      class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"></textarea>
                         </div>
                     </div>
 
+                    <!-- Vision Card Settings -->
                     <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
-                        <div class="font-bold text-xs text-slate-900 dark:text-white">Vision 2030 Details</div>
-                        <div class="space-y-1">
-                            <label class="text-[11px] font-semibold text-slate-500">Vision Title</label>
-                            <input type="text" wire:model="content.about_vision_title" class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
+                            <span class="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <x-icon name="solid:eye" class="w-4 h-4 text-emerald-500" />
+                                <span>Vision 2030 Details</span>
+                            </span>
+                            <span class="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Card 2</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Badge Text</label>
+                                <input type="text" wire:model="content.about_vision_badge" placeholder="Horizon 2030"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Accent Color</label>
+                                <select wire:model="content.about_vision_color"
+                                        class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                    <option value="emerald">Emerald</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="indigo">Indigo</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="amber">Amber</option>
+                                    <option value="rose">Rose</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Vision Title</label>
+                                <input type="text" wire:model="content.about_vision_title" placeholder="Vision 2030"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-semibold text-slate-500">Icon Key</label>
+                                <input type="text" wire:model="content.about_vision_icon" placeholder="solid:eye"
+                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                            </div>
                         </div>
                         <div class="space-y-1">
                             <label class="text-[11px] font-semibold text-slate-500">Vision Statement</label>
-                            <textarea rows="3" wire:model="content.about_vision_text" class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"></textarea>
+                            <textarea rows="4" wire:model="content.about_vision_text"
+                                      class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"></textarea>
                         </div>
                     </div>
                 </div>

@@ -39,6 +39,84 @@
             'ASNT LEVEL III NDT BENCH',
             "LLOYD'S REGISTER STANDARDS",
         ]);
+
+        // Dynamic Overview Spec Stats
+        $rawStats = \App\Models\Setting::getJson('about_stats_list', null);
+        if ($rawStats === null) {
+            $rawStats = [
+                ['value' => \App\Models\Setting::get('about_stat1_value', '100k RPM'), 'label' => \App\Models\Setting::get('about_stat1_label', 'Balancing Rig Capacity'), 'color' => 'cyan', 'is_active' => true],
+                ['value' => \App\Models\Setting::get('about_stat2_value', '± 0.005mm'), 'label' => \App\Models\Setting::get('about_stat2_label', 'Shaft Run-Out Accuracy'), 'color' => 'emerald', 'is_active' => true],
+            ];
+        }
+        $activeStats = collect($rawStats)->filter(fn($s) => !empty($s['is_active']) && $s['is_active'] !== '0' && $s['is_active'] !== false)->values();
+        $statCount = $activeStats->count();
+
+        $statColorClasses = [
+            'cyan'    => 'text-[#003C58] dark:text-cyan-400',
+            'emerald' => 'text-emerald-600 dark:text-emerald-400',
+            'rose'    => 'text-rose-600 dark:text-rose-400',
+            'amber'   => 'text-amber-600 dark:text-amber-400',
+            'indigo'  => 'text-indigo-600 dark:text-indigo-400',
+            'blue'    => 'text-blue-600 dark:text-blue-400',
+            'purple'  => 'text-purple-600 dark:text-purple-400',
+        ];
+
+        // Mission & Vision Configuration
+        $mvAlign = \App\Models\Setting::get('about_mission_vision_align', 'left'); // 'left', 'center', 'horizontal'
+        $mvStyle = \App\Models\Setting::get('about_mission_vision_style', 'modern'); // 'modern', 'bordered', 'gradient'
+
+        $missionBadge = \App\Models\Setting::get('about_mission_badge', 'Strategic Purpose');
+        $missionTitle = \App\Models\Setting::get('about_mission_title', 'Our Corporate Mission');
+        $missionText  = \App\Models\Setting::get('about_mission_text', 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.');
+        $missionIcon  = \App\Models\Setting::get('about_mission_icon', 'solid:bullseye');
+        $missionColor = \App\Models\Setting::get('about_mission_color', 'cyan');
+
+        $visionBadge = \App\Models\Setting::get('about_vision_badge', 'Horizon 2030');
+        $visionTitle = \App\Models\Setting::get('about_vision_title', 'Vision 2030');
+        $visionText  = \App\Models\Setting::get('about_vision_text', "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.");
+        $visionIcon  = \App\Models\Setting::get('about_vision_icon', 'solid:eye');
+        $visionColor = \App\Models\Setting::get('about_vision_color', 'emerald');
+
+        $colorThemes = [
+            'cyan' => [
+                'badge'   => 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20',
+                'icon_bg' => 'bg-[#003C58]/10 dark:bg-cyan-500/15 text-[#003C58] dark:text-cyan-400 border border-cyan-500/20 shadow-xs',
+                'top_bar' => 'before:bg-cyan-500',
+            ],
+            'emerald' => [
+                'badge'   => 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20',
+                'icon_bg' => 'bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs',
+                'top_bar' => 'before:bg-emerald-500',
+            ],
+            'indigo' => [
+                'badge'   => 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20',
+                'icon_bg' => 'bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-xs',
+                'top_bar' => 'before:bg-indigo-500',
+            ],
+            'blue' => [
+                'badge'   => 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20',
+                'icon_bg' => 'bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-xs',
+                'top_bar' => 'before:bg-blue-500',
+            ],
+            'purple' => [
+                'badge'   => 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20',
+                'icon_bg' => 'bg-purple-500/10 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-xs',
+                'top_bar' => 'before:bg-purple-500',
+            ],
+            'amber' => [
+                'badge'   => 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20',
+                'icon_bg' => 'bg-amber-500/10 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-xs',
+                'top_bar' => 'before:bg-amber-500',
+            ],
+            'rose' => [
+                'badge'   => 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20',
+                'icon_bg' => 'bg-rose-500/10 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20 shadow-xs',
+                'top_bar' => 'before:bg-rose-500',
+            ],
+        ];
+
+        $missionTheme = $colorThemes[$missionColor] ?? $colorThemes['cyan'];
+        $visionTheme = $colorThemes[$visionColor] ?? $colorThemes['emerald'];
     @endphp
 
     @if($bgStyle === 'frosted')
@@ -86,24 +164,24 @@
                             <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                 {{ \App\Models\Setting::get('about_overview_p2', 'Our specialized engineering facilities in Chattogram Port and Dhaka are equipped with German Schenck computerized balancing rigs, ultrasonic chemical cleaning lines, and ASNT Level III non-destructive testing benches to ensure that every overhauled component operates at zero deviation from OEM tolerances.') }}
                             </p>
-                            <div class="grid grid-cols-2 gap-4 pt-2">
-                                <div class="p-4 rounded-xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
-                                    <span class="block text-2xl font-black text-[#003C58] dark:text-cyan-400">
-                                        {{ \App\Models\Setting::get('about_stat1_value', '100k RPM') }}
-                                    </span>
-                                    <span class="text-[11px] text-slate-500 font-medium">
-                                        {{ \App\Models\Setting::get('about_stat1_label', 'Balancing Rig Capacity') }}
-                                    </span>
+                            @if($activeStats->isNotEmpty())
+                                <div class="grid {{ $statCount === 1 ? 'grid-cols-1' : ($statCount === 2 ? 'grid-cols-2' : ($statCount === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-2')) }} gap-4 pt-2">
+                                    @foreach($activeStats as $stat)
+                                        @php
+                                            $cKey = $stat['color'] ?? 'cyan';
+                                            $valColorClass = $statColorClasses[$cKey] ?? 'text-[#003C58] dark:text-cyan-400';
+                                        @endphp
+                                        <div class="p-4 rounded-xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-2xs">
+                                            <span class="block text-2xl font-black {{ $valColorClass }} tracking-tight">
+                                                {{ $stat['value'] }}
+                                            </span>
+                                            <span class="text-[11px] text-slate-500 font-medium block mt-0.5">
+                                                {{ $stat['label'] }}
+                                            </span>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <div class="p-4 rounded-xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
-                                    <span class="block text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                                        {{ \App\Models\Setting::get('about_stat2_value', '± 0.005mm') }}
-                                    </span>
-                                    <span class="text-[11px] text-slate-500 font-medium">
-                                        {{ \App\Models\Setting::get('about_stat2_label', 'Shaft Run-Out Accuracy') }}
-                                    </span>
-                                </div>
-                            </div>
+                            @endif
                         </div>
 
                         <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-lg space-y-6">
@@ -134,24 +212,33 @@
                                 {{ \App\Models\Setting::get('about_overview_p2', 'Our specialized engineering facilities in Chattogram Port and Dhaka are equipped with German Schenck computerized balancing rigs, ultrasonic chemical cleaning lines, and ASNT Level III non-destructive testing benches to ensure that every overhauled component operates at zero deviation from OEM tolerances.') }}
                             </p>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto pt-2">
-                            <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="block text-3xl font-black text-[#003C58] dark:text-cyan-400">
-                                    {{ \App\Models\Setting::get('about_stat1_value', '100k RPM') }}
-                                </span>
-                                <span class="text-xs text-slate-500 font-medium mt-1 block">
-                                    {{ \App\Models\Setting::get('about_stat1_label', 'Balancing Rig Capacity') }}
-                                </span>
+                        @if($activeStats->isNotEmpty())
+                            @php
+                                $expandedContainerClass = match(true) {
+                                    $statCount === 1 => 'max-w-xs mx-auto grid-cols-1',
+                                    $statCount === 2 => 'max-w-xl mx-auto grid-cols-1 sm:grid-cols-2',
+                                    $statCount === 3 => 'max-w-3xl mx-auto grid-cols-1 sm:grid-cols-3',
+                                    $statCount === 4 => 'max-w-4xl mx-auto grid-cols-2 sm:grid-cols-4',
+                                    default          => 'max-w-5xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
+                                };
+                            @endphp
+                            <div class="grid {{ $expandedContainerClass }} gap-6 pt-2">
+                                @foreach($activeStats as $stat)
+                                    @php
+                                        $cKey = $stat['color'] ?? 'cyan';
+                                        $valColorClass = $statColorClasses[$cKey] ?? 'text-[#003C58] dark:text-cyan-400';
+                                    @endphp
+                                    <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center shadow-2xs">
+                                        <span class="block text-3xl font-black {{ $valColorClass }} tracking-tight">
+                                            {{ $stat['value'] }}
+                                        </span>
+                                        <span class="text-xs text-slate-500 font-medium mt-1 block">
+                                            {{ $stat['label'] }}
+                                        </span>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="p-6 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center">
-                                <span class="block text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                                    {{ \App\Models\Setting::get('about_stat2_value', '± 0.005mm') }}
-                                </span>
-                                <span class="text-xs text-slate-500 font-medium mt-1 block">
-                                    {{ \App\Models\Setting::get('about_stat2_label', 'Shaft Run-Out Accuracy') }}
-                                </span>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -160,59 +247,148 @@
 
     <!-- Mission & Vision -->
     @if($showMission || $showVision)
+        @php
+            $cardBaseStyle = match($mvStyle) {
+                'bordered' => 'relative bg-white dark:bg-[#081726] border-2 border-slate-200 dark:border-slate-700/80 shadow-md overflow-hidden before:absolute before:top-0 before:left-0 before:right-0 before:h-1.5',
+                'gradient' => 'bg-gradient-to-br from-slate-50 via-white to-cyan-50/20 dark:from-[#0b1b2b] dark:via-[#091827] dark:to-[#042035] border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all',
+                default    => 'bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all',
+            };
+
+            $missionCardClass = "p-8 rounded-3xl {$cardBaseStyle} " . ($mvStyle === 'bordered' ? $missionTheme['top_bar'] : '');
+            $visionCardClass  = "p-8 rounded-3xl {$cardBaseStyle} " . ($mvStyle === 'bordered' ? $visionTheme['top_bar'] : '');
+        @endphp
+
         <section id="mission" class="py-20 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
-                @if($showMission && $showVision)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                                <x-icon name="solid:bullseye" class="w-6 h-6" />
-                            </div>
-                            <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                {{ \App\Models\Setting::get('about_mission_title', 'Our Corporate Mission') }}
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {{ \App\Models\Setting::get('about_mission_text', 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.') }}
-                            </p>
+                <div class="{{ ($showMission && $showVision) ? 'grid grid-cols-1 lg:grid-cols-2 gap-8' : 'max-w-3xl mx-auto' }}">
+                    
+                    {{-- Mission Card --}}
+                    @if($showMission)
+                        <div class="{{ $missionCardClass }}">
+                            @if($mvAlign === 'center')
+                                <div class="space-y-4 text-center flex flex-col items-center">
+                                    <div class="w-14 h-14 rounded-2xl {{ $missionTheme['icon_bg'] }} flex items-center justify-center">
+                                        <x-icon :name="$missionIcon" class="w-7 h-7" />
+                                    </div>
+                                    @if(!empty($missionBadge))
+                                        <span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full {{ $missionTheme['badge'] }}">
+                                            {{ $missionBadge }}
+                                        </span>
+                                    @endif
+                                    <h3 class="text-xl sm:text-2xl font-bold font-heading text-slate-900 dark:text-white">
+                                        {{ $missionTitle }}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
+                                        {{ $missionText }}
+                                    </p>
+                                </div>
+                            @elseif($mvAlign === 'horizontal')
+                                <div class="flex flex-col sm:flex-row items-start gap-5">
+                                    <div class="w-14 h-14 rounded-2xl {{ $missionTheme['icon_bg'] }} flex items-center justify-center shrink-0 mt-0.5">
+                                        <x-icon :name="$missionIcon" class="w-7 h-7" />
+                                    </div>
+                                    <div class="space-y-2 flex-1">
+                                        @if(!empty($missionBadge))
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full {{ $missionTheme['badge'] }} inline-block">
+                                                {{ $missionBadge }}
+                                            </span>
+                                        @endif
+                                        <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
+                                            {{ $missionTitle }}
+                                        </h3>
+                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            {{ $missionText }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Left Aligned (Default) --}}
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl {{ $missionTheme['icon_bg'] }} flex items-center justify-center shrink-0">
+                                            <x-icon :name="$missionIcon" class="w-6 h-6" />
+                                        </div>
+                                        @if(!empty($missionBadge))
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full {{ $missionTheme['badge'] }}">
+                                                {{ $missionBadge }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
+                                        {{ $missionTitle }}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        {{ $missionText }}
+                                    </p>
+                                </div>
+                            @endif
                         </div>
+                    @endif
 
-                        <div class="p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 space-y-4">
-                            <div class="w-12 h-12 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                                <x-icon name="solid:eye" class="w-6 h-6" />
-                            </div>
-                            <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                {{ \App\Models\Setting::get('about_vision_title', 'Vision 2030') }}
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {{ \App\Models\Setting::get('about_vision_text', "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.") }}
-                            </p>
+                    {{-- Vision Card --}}
+                    @if($showVision)
+                        <div class="{{ $visionCardClass }}">
+                            @if($mvAlign === 'center')
+                                <div class="space-y-4 text-center flex flex-col items-center">
+                                    <div class="w-14 h-14 rounded-2xl {{ $visionTheme['icon_bg'] }} flex items-center justify-center">
+                                        <x-icon :name="$visionIcon" class="w-7 h-7" />
+                                    </div>
+                                    @if(!empty($visionBadge))
+                                        <span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full {{ $visionTheme['badge'] }}">
+                                            {{ $visionBadge }}
+                                        </span>
+                                    @endif
+                                    <h3 class="text-xl sm:text-2xl font-bold font-heading text-slate-900 dark:text-white">
+                                        {{ $visionTitle }}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
+                                        {{ $visionText }}
+                                    </p>
+                                </div>
+                            @elseif($mvAlign === 'horizontal')
+                                <div class="flex flex-col sm:flex-row items-start gap-5">
+                                    <div class="w-14 h-14 rounded-2xl {{ $visionTheme['icon_bg'] }} flex items-center justify-center shrink-0 mt-0.5">
+                                        <x-icon :name="$visionIcon" class="w-7 h-7" />
+                                    </div>
+                                    <div class="space-y-2 flex-1">
+                                        @if(!empty($visionBadge))
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full {{ $visionTheme['badge'] }} inline-block">
+                                                {{ $visionBadge }}
+                                            </span>
+                                        @endif
+                                        <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
+                                            {{ $visionTitle }}
+                                        </h3>
+                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            {{ $visionText }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Left Aligned (Default) --}}
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl {{ $visionTheme['icon_bg'] }} flex items-center justify-center shrink-0">
+                                            <x-icon :name="$visionIcon" class="w-6 h-6" />
+                                        </div>
+                                        @if(!empty($visionBadge))
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full {{ $visionTheme['badge'] }}">
+                                                {{ $visionBadge }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
+                                        {{ $visionTitle }}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        {{ $visionText }}
+                                    </p>
+                                </div>
+                            @endif
                         </div>
-                    </div>
-                @elseif($showMission)
-                    <div class="max-w-3xl mx-auto p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 space-y-4">
-                        <div class="w-12 h-12 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                            <x-icon name="solid:bullseye" class="w-6 h-6" />
-                        </div>
-                        <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                            {{ \App\Models\Setting::get('about_mission_title', 'Our Corporate Mission') }}
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            {{ \App\Models\Setting::get('about_mission_text', 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.') }}
-                        </p>
-                    </div>
-                @elseif($showVision)
-                    <div class="max-w-3xl mx-auto p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 space-y-4">
-                        <div class="w-12 h-12 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
-                            <x-icon name="solid:eye" class="w-6 h-6" />
-                        </div>
-                        <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                            {{ \App\Models\Setting::get('about_vision_title', 'Vision 2030') }}
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            {{ \App\Models\Setting::get('about_vision_text', "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.") }}
-                        </p>
-                    </div>
-                @endif
+                    @endif
+
+                </div>
             </div>
         </section>
     @endif

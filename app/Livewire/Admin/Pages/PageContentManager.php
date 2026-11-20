@@ -28,6 +28,11 @@ class PageContentManager extends Component
     public array $aboutCertifications = [];
     public string $newCertName = '';
 
+    public array $aboutStats = [];
+    public string $newStatValue = '';
+    public string $newStatLabel = '';
+    public string $newStatColor = 'cyan';
+
     // Dynamic Pillars: Careers
     public array $careersCultureCards = [];
     public string $newPillarTitle = '';
@@ -75,6 +80,18 @@ class PageContentManager extends Component
 
         $this->aboutPartners = $this->content['about_partners_list'] ?? [];
         $this->aboutCertifications = $this->content['about_cert_list'] ?? [];
+        $this->aboutStats = $this->content['about_stats_list'] ?? [];
+        if (empty($this->aboutStats)) {
+            $val1 = $this->content['about_stat1_value'] ?? '100k RPM';
+            $lbl1 = $this->content['about_stat1_label'] ?? 'Balancing Rig Capacity';
+            $val2 = $this->content['about_stat2_value'] ?? '± 0.005mm';
+            $lbl2 = $this->content['about_stat2_label'] ?? 'Shaft Run-Out Accuracy';
+            $this->aboutStats = [
+                ['id' => 'stat_1', 'value' => $val1, 'label' => $lbl1, 'color' => 'cyan', 'is_active' => true],
+                ['id' => 'stat_2', 'value' => $val2, 'label' => $lbl2, 'color' => 'emerald', 'is_active' => true],
+            ];
+            $this->content['about_stats_list'] = $this->aboutStats;
+        }
         $this->careersCultureCards = $this->content['careers_culture_cards'] ?? [];
         $this->contactFacilities = $this->content['contact_facilities_list'] ?? [];
     }
@@ -84,6 +101,19 @@ class PageContentManager extends Component
         // Enforce Frosted Glass opacity between 10% and 90% (Strictly forbidden: 0% and 100%)
         if (str_ends_with($key, '_header_frosted_opacity')) {
             $this->content[$key] = max(10, min(90, (int) $value));
+        }
+
+        if ($key === 'about_stat1_value' && isset($this->aboutStats[0])) {
+            $this->aboutStats[0]['value'] = $value;
+        }
+        if ($key === 'about_stat1_label' && isset($this->aboutStats[0])) {
+            $this->aboutStats[0]['label'] = $value;
+        }
+        if ($key === 'about_stat2_value' && isset($this->aboutStats[1])) {
+            $this->aboutStats[1]['value'] = $value;
+        }
+        if ($key === 'about_stat2_label' && isset($this->aboutStats[1])) {
+            $this->aboutStats[1]['label'] = $value;
         }
     }
 
@@ -237,12 +267,67 @@ class PageContentManager extends Component
     }
 
     // ==========================================
+    // REPEATER: ABOUT SPEC STATS
+    // ==========================================
+    public function addStat(): void
+    {
+        $value = trim($this->newStatValue);
+        $label = trim($this->newStatLabel);
+
+        if (!empty($value) || !empty($label)) {
+            $this->aboutStats[] = [
+                'id'        => 'stat_' . time() . '_' . rand(10, 99),
+                'value'     => $value,
+                'label'     => $label,
+                'color'     => $this->newStatColor ?: 'cyan',
+                'is_active' => true,
+            ];
+            $this->content['about_stats_list'] = $this->aboutStats;
+            $this->newStatValue = '';
+            $this->newStatLabel = '';
+            $this->newStatColor = 'cyan';
+        }
+    }
+
+    public function removeStat(int $index): void
+    {
+        if (isset($this->aboutStats[$index])) {
+            unset($this->aboutStats[$index]);
+            $this->aboutStats = array_values($this->aboutStats);
+            $this->content['about_stats_list'] = $this->aboutStats;
+        }
+    }
+
+    public function toggleStat(int $index): void
+    {
+        if (isset($this->aboutStats[$index])) {
+            $this->aboutStats[$index]['is_active'] = !($this->aboutStats[$index]['is_active'] ?? true);
+            $this->content['about_stats_list'] = $this->aboutStats;
+        }
+    }
+
+    // ==========================================
     // SAVE PAGE CONTENT
     // ==========================================
     public function saveContent(): void
     {
         $this->content['about_partners_list'] = $this->aboutPartners;
         $this->content['about_cert_list'] = $this->aboutCertifications;
+
+        if (isset($this->content['about_stat1_value']) && isset($this->aboutStats[0])) {
+            $this->aboutStats[0]['value'] = $this->content['about_stat1_value'];
+        }
+        if (isset($this->content['about_stat1_label']) && isset($this->aboutStats[0])) {
+            $this->aboutStats[0]['label'] = $this->content['about_stat1_label'];
+        }
+        if (isset($this->content['about_stat2_value']) && isset($this->aboutStats[1])) {
+            $this->aboutStats[1]['value'] = $this->content['about_stat2_value'];
+        }
+        if (isset($this->content['about_stat2_label']) && isset($this->aboutStats[1])) {
+            $this->aboutStats[1]['label'] = $this->content['about_stat2_label'];
+        }
+
+        $this->content['about_stats_list'] = $this->aboutStats;
         $this->content['careers_culture_cards'] = $this->careersCultureCards;
         $this->content['contact_facilities_list'] = $this->contactFacilities;
 
@@ -310,6 +395,10 @@ class PageContentManager extends Component
             'about_stat1_label'            => 'Balancing Rig Capacity',
             'about_stat2_value'            => '± 0.005mm',
             'about_stat2_label'            => 'Shaft Run-Out Accuracy',
+            'about_stats_list'             => [
+                ['id' => 'stat_1', 'value' => '100k RPM', 'label' => 'Balancing Rig Capacity', 'color' => 'cyan', 'is_active' => true],
+                ['id' => 'stat_2', 'value' => '± 0.005mm', 'label' => 'Shaft Run-Out Accuracy', 'color' => 'emerald', 'is_active' => true],
+            ],
 
             'about_partners_title'         => 'Authorized OEM Partnerships',
             'about_partners_list'          => [
@@ -319,10 +408,20 @@ class PageContentManager extends Component
                 ['brand' => 'Mitsubishi Heavy Industries', 'models' => 'MET-SR, MET-SC & MET-MA models.', 'is_active' => true],
             ],
 
+            'about_mission_badge'          => 'Strategic Purpose',
             'about_mission_title'          => 'Our Corporate Mission',
             'about_mission_text'           => 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.',
+            'about_mission_icon'           => 'solid:bullseye',
+            'about_mission_color'          => 'cyan',
+
+            'about_vision_badge'           => 'Horizon 2030',
             'about_vision_title'           => 'Vision 2030',
             'about_vision_text'            => "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.",
+            'about_vision_icon'            => 'solid:eye',
+            'about_vision_color'           => 'emerald',
+
+            'about_mission_vision_align'   => 'left', // 'left', 'center', 'horizontal'
+            'about_mission_vision_style'   => 'modern', // 'modern', 'bordered', 'gradient'
 
             'about_cert_badge'             => 'Quality Framework',
             'about_cert_title'             => 'International Accreditations & Standards',
