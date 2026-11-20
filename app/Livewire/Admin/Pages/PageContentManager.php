@@ -2,16 +2,25 @@
 
 namespace App\Livewire\Admin\Pages;
 
+use App\Models\CustomIcon;
 use App\Models\Setting;
+use App\Services\IconRegistry;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.admin')]
 #[Title('Static Page Content Studio | Corporate CMS')]
 class PageContentManager extends Component
 {
+    use WithFileUploads;
+
+    // Icon Picker Modal helper states
+    public $modalUploadedFile = null;
+    public ?string $modalTargetField = null;
+    public ?int $modalTargetIndex = null;
     #[Url(as: 'page')]
     public string $activePage = 'about'; // 'about', 'contact', 'careers', 'services', 'products', 'gallery'
 
@@ -264,6 +273,82 @@ class PageContentManager extends Component
             $this->aboutCertifications = array_values($this->aboutCertifications);
             $this->content['about_cert_list'] = $this->aboutCertifications;
         }
+    }
+
+    // ==========================================
+    // ICON PICKER INTEGRATION
+    // ==========================================
+    public function selectIconAsset(string $field, ?int $index = null, string $iconKey = '', ?string $typeField = null): void
+    {
+        if ($field === 'newPillarIcon') {
+            $this->newPillarIcon = $iconKey;
+        } elseif ($index !== null && $field === 'careersCultureCards' && isset($this->careersCultureCards[$index])) {
+            $this->careersCultureCards[$index]['icon'] = $iconKey;
+            $this->content['careers_culture_cards'] = $this->careersCultureCards;
+        } elseif (str_starts_with($field, 'content.')) {
+            $prop = substr($field, 8);
+            $this->content[$prop] = $iconKey;
+        } else {
+            data_set($this, $field, $iconKey);
+        }
+    }
+
+    public function uploadCustomIcon(?string $targetField = null, ?int $targetIndex = null, ?string $targetTypeField = null, string $title = ''): void
+    {
+        if (!$this->modalUploadedFile) return;
+
+        $path = $this->modalUploadedFile->store('custom-icons', 'public');
+        $custom = CustomIcon::create([
+            'title'      => $title ?: 'Uploaded Icon',
+            'type'       => 'image',
+            'file_path'  => $path,
+            'file_name'  => basename($path),
+            'created_by' => auth()->id(),
+        ]);
+
+        IconRegistry::flushCache($custom->id);
+
+        $iconKey = "custom_icon:{$custom->id}";
+        if ($targetField) {
+            $this->selectIconAsset($targetField, $targetIndex, $iconKey, $targetTypeField);
+        }
+
+        $this->dispatch('custom-icon-saved', [
+            'iconId'   => $custom->id,
+            'iconPath' => $iconKey,
+            'iconName' => $custom->title,
+            'isRawSvg' => false,
+            'iconUrl'  => '/storage/' . $path,
+        ]);
+
+        $this->modalUploadedFile = null;
+    }
+
+    public function saveRawSvgIcon(?string $targetField = null, ?int $targetIndex = null, ?string $targetTypeField = null, string $svgCode = '', string $title = ''): void
+    {
+        if (empty($svgCode)) return;
+
+        $custom = CustomIcon::create([
+            'title'      => $title ?: 'Custom SVG Icon',
+            'type'       => 'svg',
+            'svg_code'   => $svgCode,
+            'created_by' => auth()->id(),
+        ]);
+
+        IconRegistry::flushCache($custom->id);
+
+        $iconKey = "raw_svg:{$custom->id}";
+        if ($targetField) {
+            $this->selectIconAsset($targetField, $targetIndex, $iconKey, $targetTypeField);
+        }
+
+        $this->dispatch('custom-icon-saved', [
+            'iconId'   => $custom->id,
+            'iconPath' => $iconKey,
+            'iconName' => $custom->title,
+            'isRawSvg' => true,
+            'rawSvg'   => IconRegistry::cleanSvgMarkup($svgCode),
+        ]);
     }
 
     // ==========================================

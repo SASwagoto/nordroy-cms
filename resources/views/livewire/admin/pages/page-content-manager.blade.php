@@ -499,9 +499,21 @@
                                        class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[11px] font-semibold text-slate-500">Icon Key</label>
-                                <input type="text" wire:model="content.about_mission_icon" placeholder="solid:bullseye"
-                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                <label class="text-[11px] font-semibold text-slate-500">Mission Icon</label>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-[#003C58] dark:text-cyan-400">
+                                        <x-icon :name="$content['about_mission_icon'] ?? 'solid:bullseye'" class="w-4 h-4" />
+                                    </div>
+                                    <input type="text" wire:model.live="content.about_mission_icon" placeholder="solid:bullseye"
+                                           class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                    <button type="button" 
+                                            @click="$dispatch('open-icon-picker', { targetField: 'content.about_mission_icon' })"
+                                            class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center gap-1 shrink-0"
+                                            title="Open Icon Picker">
+                                        <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
+                                        <span>Pick</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-1">
@@ -547,9 +559,21 @@
                                        class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[11px] font-semibold text-slate-500">Icon Key</label>
-                                <input type="text" wire:model="content.about_vision_icon" placeholder="solid:eye"
-                                       class="w-full px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                <label class="text-[11px] font-semibold text-slate-500">Vision Icon</label>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+                                        <x-icon :name="$content['about_vision_icon'] ?? 'solid:eye'" class="w-4 h-4" />
+                                    </div>
+                                    <input type="text" wire:model.live="content.about_vision_icon" placeholder="solid:eye"
+                                           class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                    <button type="button" 
+                                            @click="$dispatch('open-icon-picker', { targetField: 'content.about_vision_icon' })"
+                                            class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center gap-1 shrink-0"
+                                            title="Open Icon Picker">
+                                        <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
+                                        <span>Pick</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-1">
@@ -1063,9 +1087,20 @@
                                         </select>
                                     </div>
                                     <div class="space-y-1">
-                                        <label class="text-[10px] font-semibold text-slate-500">Icon Key</label>
-                                        <input type="text" wire:model="careersCultureCards.{{ $i }}.icon" placeholder="solid:cpu-chip"
-                                               class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-mono">
+                                        <label class="text-[10px] font-semibold text-slate-500">Pillar Icon</label>
+                                        <div class="flex items-center gap-1">
+                                            <div class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-cyan-600 dark:text-cyan-400">
+                                                <x-icon :name="$careersCultureCards[$i]['icon'] ?? 'solid:cpu-chip'" class="w-3.5 h-3.5" />
+                                            </div>
+                                            <input type="text" wire:model.live="careersCultureCards.{{ $i }}.icon" placeholder="solid:cpu-chip"
+                                                   class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-mono">
+                                            <button type="button" 
+                                                    @click="$dispatch('open-icon-picker', { targetField: 'careersCultureCards', targetIndex: {{ $i }} })"
+                                                    class="p-1 rounded-lg text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+                                                    title="Pick Icon">
+                                                <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1079,7 +1114,7 @@
                             <input type="text" wire:model="newPillarTitle" placeholder="Pillar Title (e.g. Rapid Deployment)"
                                    class="sm:col-span-3 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                             <input type="text" wire:model="newPillarDesc" placeholder="Description (e.g. 24h mobilization to port)"
-                                   class="sm:col-span-4 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                   class="sm:col-span-3 px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
                             <select wire:model="newPillarColor" class="sm:col-span-2 px-2 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200">
                                 <option value="cyan">Cyan</option>
                                 <option value="blue">Blue</option>
@@ -1089,8 +1124,19 @@
                                 <option value="indigo">Indigo</option>
                                 <option value="purple">Purple</option>
                             </select>
-                            <input type="text" wire:model="newPillarIcon" placeholder="solid:bolt"
-                                   class="sm:col-span-1 px-2 py-2 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                            <div class="sm:col-span-2 flex items-center gap-1">
+                                <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-cyan-600 dark:text-cyan-400">
+                                    <x-icon :name="$newPillarIcon ?: 'solid:bolt'" class="w-3.5 h-3.5" />
+                                </div>
+                                <input type="text" wire:model.live="newPillarIcon" placeholder="solid:bolt"
+                                       class="w-full px-2 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                <button type="button" 
+                                        @click="$dispatch('open-icon-picker', { targetField: 'newPillarIcon' })"
+                                        class="p-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center shrink-0"
+                                        title="Pick Icon">
+                                    <x-icon name="solid:magnifying-glass" class="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                             <button type="button" wire:click="addPillar"
                                     class="sm:col-span-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 cursor-pointer">
                                 Add Pillar
@@ -1755,4 +1801,7 @@
             <span>Save Changes</span>
         </button>
     </div>
+
+    <!-- Dedicated Interactive Vector Icon Picker Modal -->
+    <x-icon-picker-modal />
 </div>

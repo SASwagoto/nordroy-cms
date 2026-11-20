@@ -331,5 +331,14 @@ class PageContentManagerTest extends TestCase
         $response->assertSee('Global Footprint 2030');
         // The disabled 1st stat should NOT be visible
         $response->assertDontSee('Balancing Rig Capacity');
+
+        // Test selectIconAsset integration with Icon Picker
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->call('selectIconAsset', 'content.about_mission_icon', null, 'solid:shield-halved')
+            ->call('saveContent')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('solid:shield-halved', Setting::get('about_mission_icon'));
     }
 }

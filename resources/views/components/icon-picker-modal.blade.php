@@ -693,7 +693,7 @@
                 this.targetTypeField = detail.targetTypeField || null;
                 this.targetIndex = detail.targetIndex ?? null;
                 
-                if (this.$wire) {
+                if (this.$wire && typeof this.$wire.modalTargetField !== 'undefined') {
                     this.$wire.set('modalTargetField', this.targetField);
                     this.$wire.set('modalTargetIndex', this.targetIndex);
                 }
