@@ -224,7 +224,7 @@ Route::get('/contact', function () {
 
 Route::get('/careers', function () {
     $jobs = \App\Models\JobPosting::active()->get();
-    $departments = \App\Models\JobPosting::active()->select('department')->distinct()->pluck('department')->filter()->values();
+    $departments = $jobs->pluck('department')->unique()->filter()->values();
     return view('pages.careers', [
         'jobs'        => $jobs,
         'departments' => $departments,

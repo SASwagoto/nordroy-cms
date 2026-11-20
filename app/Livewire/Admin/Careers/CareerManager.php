@@ -582,7 +582,7 @@ class CareerManager extends Component
         $fields = JobFormField::orderBy('order', 'asc')->get();
 
         // 4. Counts & Departments list
-        $allDepartments = JobPosting::select('department')->distinct()->pluck('department')->filter()->values();
+        $allDepartments = JobPosting::pluck('department')->unique()->filter()->values();
         $allJobPostings = JobPosting::select('id', 'title')->orderBy('title')->get();
 
         $appCounts = [
