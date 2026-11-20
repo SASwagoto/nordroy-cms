@@ -500,19 +500,36 @@
                             </div>
                             <div class="space-y-1">
                                 <label class="text-[11px] font-semibold text-slate-500">Mission Icon</label>
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-[#003C58] dark:text-cyan-400">
-                                        <x-icon :name="$content['about_mission_icon'] ?? 'solid:bullseye'" class="w-4 h-4" />
+                                <div x-data="{
+                                        iconVal: @entangle('content.about_mission_icon'),
+                                        get iconUrl() {
+                                            if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/bullseye.svg';
+                                            if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                            }
+                                            if (this.iconVal.includes(':')) {
+                                                const p = this.iconVal.split(':');
+                                                return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                            }
+                                            return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                        }
+                                     }"
+                                     @click="$dispatch('open-icon-picker', { targetField: 'content.about_mission_icon' })"
+                                     class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 dark:hover:border-cyan-400 cursor-pointer transition-all shadow-2xs group">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-1.5 group-hover:scale-105 transition-transform text-[#003C58] dark:text-cyan-400">
+                                        <img :src="iconUrl" :alt="iconVal" class="w-5 h-5 object-contain dark:invert" 
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                        <div style="display:none;" class="w-5 h-5 items-center justify-center">
+                                            <x-icon :name="$content['about_mission_icon'] ?? 'solid:bullseye'" class="w-5 h-5" />
+                                        </div>
                                     </div>
-                                    <input type="text" wire:model.live="content.about_mission_icon" placeholder="solid:bullseye"
-                                           class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
-                                    <button type="button" 
-                                            @click="$dispatch('open-icon-picker', { targetField: 'content.about_mission_icon' })"
-                                            class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center gap-1 shrink-0"
-                                            title="Open Icon Picker">
-                                        <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
-                                        <span>Pick</span>
-                                    </button>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="block text-xs font-mono font-bold text-slate-900 dark:text-white truncate" x-text="iconVal || 'solid:bullseye'"></span>
+                                        <span class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold group-hover:underline">Click to change icon</span>
+                                    </div>
+                                    <div class="text-slate-400 group-hover:text-cyan-500 transition-colors pr-1">
+                                        <x-icon name="solid:arrows-up-down" class="w-3.5 h-3.5" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -560,19 +577,36 @@
                             </div>
                             <div class="space-y-1">
                                 <label class="text-[11px] font-semibold text-slate-500">Vision Icon</label>
-                                <div class="flex items-center gap-1.5">
-                                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
-                                        <x-icon :name="$content['about_vision_icon'] ?? 'solid:eye'" class="w-4 h-4" />
+                                <div x-data="{
+                                        iconVal: @entangle('content.about_vision_icon'),
+                                        get iconUrl() {
+                                            if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/eye.svg';
+                                            if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                            }
+                                            if (this.iconVal.includes(':')) {
+                                                const p = this.iconVal.split(':');
+                                                return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                            }
+                                            return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                        }
+                                     }"
+                                     @click="$dispatch('open-icon-picker', { targetField: 'content.about_vision_icon' })"
+                                     class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-400 cursor-pointer transition-all shadow-2xs group">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-1.5 group-hover:scale-105 transition-transform text-emerald-600 dark:text-emerald-400">
+                                        <img :src="iconUrl" :alt="iconVal" class="w-5 h-5 object-contain dark:invert" 
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                        <div style="display:none;" class="w-5 h-5 items-center justify-center">
+                                            <x-icon :name="$content['about_vision_icon'] ?? 'solid:eye'" class="w-5 h-5" />
+                                        </div>
                                     </div>
-                                    <input type="text" wire:model.live="content.about_vision_icon" placeholder="solid:eye"
-                                           class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
-                                    <button type="button" 
-                                            @click="$dispatch('open-icon-picker', { targetField: 'content.about_vision_icon' })"
-                                            class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center gap-1 shrink-0"
-                                            title="Open Icon Picker">
-                                        <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
-                                        <span>Pick</span>
-                                    </button>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="block text-xs font-mono font-bold text-slate-900 dark:text-white truncate" x-text="iconVal || 'solid:eye'"></span>
+                                        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold group-hover:underline">Click to change icon</span>
+                                    </div>
+                                    <div class="text-slate-400 group-hover:text-emerald-500 transition-colors pr-1">
+                                        <x-icon name="solid:arrows-up-down" class="w-3.5 h-3.5" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1088,18 +1122,32 @@
                                     </div>
                                     <div class="space-y-1">
                                         <label class="text-[10px] font-semibold text-slate-500">Pillar Icon</label>
-                                        <div class="flex items-center gap-1">
-                                            <div class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-cyan-600 dark:text-cyan-400">
-                                                <x-icon :name="$careersCultureCards[$i]['icon'] ?? 'solid:cpu-chip'" class="w-3.5 h-3.5" />
+                                        <div x-data="{
+                                                iconVal: @entangle('careersCultureCards.'.$i.'.icon'),
+                                                get iconUrl() {
+                                                    if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/cpu-chip.svg';
+                                                    if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                        return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                    }
+                                                    if (this.iconVal.includes(':')) {
+                                                        const p = this.iconVal.split(':');
+                                                        return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                    }
+                                                    return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                                }
+                                             }"
+                                             @click="$dispatch('open-icon-picker', { targetField: 'careersCultureCards', targetIndex: {{ $i }} })"
+                                             class="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group">
+                                            
+                                            <div class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-1 group-hover:scale-105 transition-transform text-cyan-600 dark:text-cyan-400">
+                                                <img :src="iconUrl" :alt="iconVal" class="w-4 h-4 object-contain dark:invert" 
+                                                     onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                                <div style="display:none;" class="w-4 h-4 items-center justify-center">
+                                                    <x-icon :name="$careersCultureCards[$i]['icon'] ?? 'solid:cpu-chip'" class="w-4 h-4" />
+                                                </div>
                                             </div>
-                                            <input type="text" wire:model.live="careersCultureCards.{{ $i }}.icon" placeholder="solid:cpu-chip"
-                                                   class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-mono">
-                                            <button type="button" 
-                                                    @click="$dispatch('open-icon-picker', { targetField: 'careersCultureCards', targetIndex: {{ $i }} })"
-                                                    class="p-1 rounded-lg text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 cursor-pointer"
-                                                    title="Pick Icon">
-                                                <x-icon name="solid:magnifying-glass" class="w-3 h-3" />
-                                            </button>
+                                            <span class="text-[11px] font-mono text-slate-700 dark:text-slate-300 truncate flex-1" x-text="iconVal || 'solid:cpu-chip'"></span>
+                                            <span class="text-[10px] text-cyan-500 font-bold pr-1">Change</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1124,18 +1172,34 @@
                                 <option value="indigo">Indigo</option>
                                 <option value="purple">Purple</option>
                             </select>
-                            <div class="sm:col-span-2 flex items-center gap-1">
-                                <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 text-cyan-600 dark:text-cyan-400">
-                                    <x-icon :name="$newPillarIcon ?: 'solid:bolt'" class="w-3.5 h-3.5" />
+                            <div class="sm:col-span-2">
+                                <div x-data="{
+                                        iconVal: @entangle('newPillarIcon'),
+                                        get iconUrl() {
+                                            if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/bolt.svg';
+                                            if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                            }
+                                            if (this.iconVal.includes(':')) {
+                                                const p = this.iconVal.split(':');
+                                                return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                            }
+                                            return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                        }
+                                     }"
+                                     @click="$dispatch('open-icon-picker', { targetField: 'newPillarIcon' })"
+                                     class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[38px]">
+                                    
+                                    <div class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-1 group-hover:scale-105 transition-transform text-cyan-600 dark:text-cyan-400">
+                                        <img :src="iconUrl" :alt="iconVal" class="w-4 h-4 object-contain dark:invert" 
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                        <div style="display:none;" class="w-4 h-4 items-center justify-center">
+                                            <x-icon :name="$newPillarIcon ?: 'solid:bolt'" class="w-4 h-4" />
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-mono text-slate-800 dark:text-slate-200 truncate flex-1" x-text="iconVal || 'solid:bolt'"></span>
+                                    <span class="text-[10px] text-cyan-500 font-bold">Pick</span>
                                 </div>
-                                <input type="text" wire:model.live="newPillarIcon" placeholder="solid:bolt"
-                                       class="w-full px-2 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
-                                <button type="button" 
-                                        @click="$dispatch('open-icon-picker', { targetField: 'newPillarIcon' })"
-                                        class="p-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 cursor-pointer flex items-center shrink-0"
-                                        title="Pick Icon">
-                                    <x-icon name="solid:magnifying-glass" class="w-3.5 h-3.5" />
-                                </button>
                             </div>
                             <button type="button" wire:click="addPillar"
                                     class="sm:col-span-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 cursor-pointer">

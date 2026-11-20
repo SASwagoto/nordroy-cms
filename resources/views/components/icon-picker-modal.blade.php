@@ -269,14 +269,7 @@
                                 </button>
 
                                 <button type="button"
-                                        @click.stop="$dispatch('open-confirm-dialog', {
-                                            title: 'Delete Custom Icon',
-                                            message: 'Permanently remove \'' + icon.name + '\' from library?',
-                                            type: 'danger',
-                                            confirmButtonText: 'Delete Icon',
-                                            method: 'deleteCustomIcon',
-                                            params: [icon.id]
-                                        })"
+                                        @click.stop="confirmDelete(icon)"
                                         title="Delete icon"
                                         class="absolute top-1.5 right-1.5 p-1 rounded-lg bg-rose-500 text-white opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-xs">
                                     <x-icon name="solid:trash" class="w-3 h-3" />
@@ -732,6 +725,24 @@
                 }
             },
 
+            confirmDelete(icon) {
+                if (!icon) return;
+                if (confirm('Permanently remove \'' + (icon.name || 'this icon') + '\' from library?')) {
+                    this.deleteCustomIcon(icon.id);
+                }
+            },
+
+            async deleteCustomIcon(iconId) {
+                if (this.$wire && typeof this.$wire.deleteCustomIcon === 'function') {
+                    try {
+                        await this.$wire.deleteCustomIcon(iconId);
+                    } catch(e) {
+                        console.error('Delete error:', e);
+                    }
+                }
+                this.customIcons = this.customIcons.filter(i => i.id !== iconId);
+            },
+
             handleCustomIconDeleted(detail) {
                 detail = detail || {};
                 this.customIcons = this.customIcons.filter(i => i.id !== detail.iconId && i.path !== detail.iconPath);
@@ -739,19 +750,17 @@
 
             selectIcon(iconId) {
                 if (this.targetField && this.$wire) {
-                    if (typeof this.$wire.selectIconAsset === 'function') {
-                        this.$wire.selectIconAsset(this.targetField, this.targetIndex, iconId, this.targetTypeField);
-                    } else if (this.targetIndex !== null) {
-                        this.$wire.set(`${this.targetField}.${this.targetIndex}.icon`, iconId);
-                        if (this.targetTypeField) {
-                            const isCustom = iconId.startsWith('storage/') || iconId.startsWith('http') || iconId.startsWith('raw_svg:');
-                            this.$wire.set(`${this.targetField}.${this.targetIndex}.${this.targetTypeField}`, isCustom ? 'upload' : 'library');
-                            if (isCustom) {
-                                this.$wire.set(`${this.targetField}.${this.targetIndex}.custom_path`, iconId);
-                            }
+                    if (this.targetIndex !== null) {
+                        if (typeof this.$wire.selectIconAsset === 'function') {
+                            this.$wire.selectIconAsset(this.targetField, this.targetIndex, iconId, this.targetTypeField);
+                        } else {
+                            this.$wire.set(`${this.targetField}.${this.targetIndex}.icon`, iconId);
                         }
                     } else {
                         this.$wire.set(this.targetField, iconId);
+                        if (typeof this.$wire.selectIconAsset === 'function') {
+                            this.$wire.selectIconAsset(this.targetField, null, iconId, this.targetTypeField);
+                        }
                     }
                 }
                 this.closeModal();

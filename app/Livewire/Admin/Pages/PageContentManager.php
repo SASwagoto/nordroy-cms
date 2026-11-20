@@ -351,6 +351,26 @@ class PageContentManager extends Component
         ]);
     }
 
+    public function deleteCustomIcon(int $id): void
+    {
+        $icon = CustomIcon::find($id);
+        if ($icon) {
+            if ($icon->file_path && !str_starts_with($icon->file_path, 'http')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($icon->file_path);
+            }
+            $iconPath = $icon->type === 'svg' ? "raw_svg:{$icon->id}" : ($icon->file_path ?: "custom_icon:{$icon->id}");
+            $iconId = $icon->id;
+            $icon->delete();
+
+            IconRegistry::flushCache($iconId);
+
+            $this->dispatch('custom-icon-deleted', [
+                'iconId'   => $iconId,
+                'iconPath' => $iconPath,
+            ]);
+        }
+    }
+
     // ==========================================
     // REPEATER: ABOUT SPEC STATS
     // ==========================================

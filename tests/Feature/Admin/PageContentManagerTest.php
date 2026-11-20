@@ -340,5 +340,21 @@ class PageContentManagerTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertEquals('solid:shield-halved', Setting::get('about_mission_icon'));
+
+        // Test custom icon creation and deletion
+        $testSvg = '<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>';
+        $comp = Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->call('saveRawSvgIcon', 'content.about_mission_icon', null, null, $testSvg, 'Custom Home SVG')
+            ->assertDispatched('custom-icon-saved');
+
+        $customIcon = \App\Models\CustomIcon::where('title', 'Custom Home SVG')->first();
+        $this->assertNotNull($customIcon);
+
+        // Test deleteCustomIcon
+        $comp->call('deleteCustomIcon', $customIcon->id)
+            ->assertDispatched('custom-icon-deleted');
+
+        $this->assertDatabaseMissing('custom_icons', ['id' => $customIcon->id]);
     }
 }
