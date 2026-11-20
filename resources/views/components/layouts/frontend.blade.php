@@ -512,7 +512,13 @@
                         </div>
                     </div>
 
-                    <!-- 6. Contact Link -->
+                    <!-- 6. Careers Link -->
+                    <a href="{{ route('careers') }}" 
+                       class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('careers*') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
+                        {{ __('Careers') }}
+                    </a>
+
+                    <!-- 7. Contact Link -->
                     <a href="{{ route('contact') }}" 
                        class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('contact') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
                         {{ __('Contact') }}
@@ -682,6 +688,11 @@
                             </div>
                         </div>
 
+                        <a href="{{ route('careers') }}" @click="mobileNavOpen = false" 
+                           class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('careers*') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
+                            {{ __('Careers') }}
+                        </a>
+
                         <a href="{{ route('contact') }}" @click="mobileNavOpen = false" 
                            class="block py-2.5 px-3 rounded-xl text-slate-800 dark:text-slate-200 hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('contact') ? 'bg-slate-100 dark:bg-slate-800 font-bold text-[#003C58] dark:text-cyan-400' : '' }}">
                             {{ __('Contact') }}
@@ -755,7 +766,7 @@
                             <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">CHRA Replacement Cartridges</a></li>
                             <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Nozzle Rings &amp; Diffusers</a></li>
                             <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Hydrodynamic Bearing Bushes</a></li>
-                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Complete OEM Catalog &rarr;</a></li>
+                            <li><a href="{{ route('careers') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors font-semibold text-cyan-600 dark:text-cyan-400">Careers &amp; Opportunities &rarr;</a></li>
                         </ul>
                     </div>
 
@@ -796,7 +807,10 @@
                 <!-- Bottom Copyright Strip -->
                 <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
                     <p>&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}. All rights reserved. Maritime Engineering &amp; Industrial Overhauls.</p>
-                    <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-5 flex-wrap">
+                        <a href="{{ route('careers') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Careers</a>
+                        <a href="{{ route('photo-gallery') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Photo Gallery</a>
+                        <a href="{{ route('video-gallery') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Video Gallery</a>
                         <span class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             ISO 9001:2015 &amp; DNV Certified

@@ -50,6 +50,19 @@
             <x-icon name="solid:video" class="w-4 h-4" />
             <span>Video Gallery</span>
         </a>
+        <a href="{{ route('admin.careers') }}" wire:navigate
+            class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.careers*') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
+            <span class="flex items-center gap-3">
+                <x-icon name="solid:briefcase" class="w-4 h-4" />
+                <span>Careers &amp; Hiring</span>
+            </span>
+            @php $newAppsCount = \App\Models\JobApplication::where('status', 'new')->count(); @endphp
+            @if ($newAppsCount > 0)
+                <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-rose-500 text-white">
+                    {{ $newAppsCount }}
+                </span>
+            @endif
+        </a>
     </nav>
 </div>
 

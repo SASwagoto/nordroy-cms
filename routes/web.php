@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\Access\AccessManager;
+use App\Livewire\Admin\Careers\CareerManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Enquiries\RfqFormBuilder;
 use App\Livewire\Admin\Gallery\GalleryManager;
@@ -221,6 +222,15 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
+Route::get('/careers', function () {
+    $jobs = \App\Models\JobPosting::active()->get();
+    $departments = \App\Models\JobPosting::active()->select('department')->distinct()->pluck('department')->filter()->values();
+    return view('pages.careers', [
+        'jobs'        => $jobs,
+        'departments' => $departments,
+    ]);
+})->name('careers');
+
 Route::get('/photo-gallery', function (Request $request) {
     $albumSlug = $request->query('album');
     $albums = \App\Models\GalleryAlbum::active()
@@ -342,6 +352,11 @@ Route::middleware([
     Route::get('/enquiries/form-builder', RfqFormBuilder::class)
         ->middleware('permission:enquiries.view')
         ->name('enquiries.form-builder');
+
+    // Careers & Talent Acquisition Desk
+    Route::get('/careers', CareerManager::class)
+        ->middleware('permission:enquiries.view')
+        ->name('careers');
 
     // Access Control Studio (Users & Permissions)
     Route::get('/access', AccessManager::class)
