@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }} - Authentication</title>
+    @php
+        $emptyDocTitle = html_entity_decode(strip_tags(\App\Models\Setting::get('site_name', 'Nordroy CMS') . ' - Authentication'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    @endphp
+    <title>{!! $emptyDocTitle !!}</title>
 
     <!-- Dynamic Favicon (Adaptive Light & Dark Mode) -->
     @php

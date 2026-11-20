@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Dashboard' }} | {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}</title>
+    @php
+        $siteName = \App\Models\Setting::get('site_name', 'Nordroy CMS');
+        $adminDocTitle = ($title ?? 'Dashboard');
+        if (!str_contains($adminDocTitle, $siteName)) {
+            $adminDocTitle .= ' | ' . $siteName;
+        }
+        $cleanAdminTitle = html_entity_decode(strip_tags($adminDocTitle), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    @endphp
+    <title>{!! $cleanAdminTitle !!}</title>
 
     <!-- Dynamic Favicon (Adaptive Light & Dark Mode) -->
     @php
@@ -31,10 +39,22 @@
                 document.documentElement.style.colorScheme = 'dark';
             }
         }
+        function sanitizeDocumentTitle() {
+            if (document.title && document.title.includes('&amp;')) {
+                document.title = document.title.replace(/&amp;/g, '&');
+            }
+        }
         applyNordroyAdminTheme();
-        document.addEventListener('livewire:init', applyNordroyAdminTheme);
+        sanitizeDocumentTitle();
+        document.addEventListener('livewire:init', function() {
+            applyNordroyAdminTheme();
+            sanitizeDocumentTitle();
+        });
         document.addEventListener('livewire:navigating', applyNordroyAdminTheme);
-        document.addEventListener('livewire:navigated', applyNordroyAdminTheme);
+        document.addEventListener('livewire:navigated', function() {
+            applyNordroyAdminTheme();
+            sanitizeDocumentTitle();
+        });
     </script>
 
     <style>

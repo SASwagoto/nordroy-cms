@@ -1,4 +1,4 @@
-<x-layouts.frontend :title="\App\Models\Setting::get('products_hero_title', __('Marine Turbocharger Spare Parts & Industrial Products')) . ' | ' . \App\Models\Setting::get('site_name', 'Nordroy Marine')">
+<x-layouts.frontend :title="\App\Models\Setting::get('products_hero_title', __('Marine Turbocharger Spare Parts & Industrial Products'))">
 
     @php
         $bgStyle = \App\Models\Setting::get('products_header_bg', 'transparent');

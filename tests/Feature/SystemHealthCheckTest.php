@@ -103,4 +103,33 @@ class SystemHealthCheckTest extends TestCase
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
     }
+
+    public function test_page_title_renders_clean_ampersand_without_html_entity_escaping(): void
+    {
+        // Set a site name and title containing ampersand
+        \App\Models\Setting::set('site_name', 'Nordroy & Co Marine');
+        \App\Models\Setting::set('contact_hero_title', 'Contact & 24/7 Port Duty Desk');
+
+        $response = $this->get('/contact');
+        $response->assertStatus(200);
+
+        $html = $response->getContent();
+        preg_match('/<title>(.*?)<\/title>/s', $html, $matches);
+        $this->assertNotEmpty($matches, 'Title tag should exist in HTML response');
+
+        $titleContent = $matches[1];
+        // Title should contain literal '&' and NOT encoded '&amp;'
+        $this->assertStringContainsString('&', $titleContent);
+        $this->assertStringNotContainsString('&amp;', $titleContent);
+
+        // Test admin title with ampersand
+        $this->actingAs($this->admin);
+        $adminResponse = $this->get(route('admin.careers'));
+        $adminResponse->assertStatus(200);
+
+        $adminHtml = $adminResponse->getContent();
+        preg_match('/<title>(.*?)<\/title>/s', $adminHtml, $adminMatches);
+        $this->assertNotEmpty($adminMatches, 'Admin title tag should exist');
+        $this->assertStringNotContainsString('&amp;', $adminMatches[1]);
+    }
 }

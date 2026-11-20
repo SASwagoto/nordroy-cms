@@ -9,7 +9,12 @@
         $siteName = \App\Models\Setting::get('site_name', 'Nordroy Marine & Turbochargers');
         $siteTagline = \App\Models\Setting::get('site_tagline', 'Authorized Multi-Brand Turbocharger Overhauls & Maritime Engineering');
         $defaultTitle = \App\Models\Setting::get('seo_meta_title') ?: ($siteName . ' | ' . $siteTagline);
-        $pageTitle = (isset($title) && !empty($title)) ? ($title . ' | ' . $siteName) : $defaultTitle;
+        if (isset($title) && !empty($title)) {
+            $rawPageTitle = str_contains($title, $siteName) ? $title : ($title . ' | ' . $siteName);
+        } else {
+            $rawPageTitle = $defaultTitle;
+        }
+        $pageTitle = html_entity_decode(strip_tags($rawPageTitle), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         
         $metaDescription = \App\Models\Setting::get('seo_meta_description', 'Authorized multi-brand marine turbocharger overhauls, high-speed dynamic balancing, cartridge reconditioning, and 24/7 port emergency flying squads in Bangladesh.');
         $metaKeywords = \App\Models\Setting::get('seo_meta_keywords', 'marine turbocharger, dynamic balancing, turbocharger overhaul, chittagong port, maritime engineering, cartridge rebuilding, nordroy');
@@ -29,7 +34,7 @@
         $canonicalUrl = url()->current();
     @endphp
 
-    <title>{{ $pageTitle }}</title>
+    <title>{!! $pageTitle !!}</title>
 
     <!-- Primary Search Engine Meta Tags -->
     <meta name="title" content="{{ $pageTitle }}">
@@ -79,6 +84,15 @@
                 document.documentElement.classList.add('dark');
             }
         })();
+
+        function sanitizeDocumentTitle() {
+            if (document.title && document.title.includes('&amp;')) {
+                document.title = document.title.replace(/&amp;/g, '&');
+            }
+        }
+        sanitizeDocumentTitle();
+        document.addEventListener('livewire:init', sanitizeDocumentTitle);
+        document.addEventListener('livewire:navigated', sanitizeDocumentTitle);
 
         var _lastThemeToggle = 0;
         window.toggleSiteTheme = function(e) {
