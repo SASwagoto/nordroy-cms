@@ -2,14 +2,52 @@
 
     @php
         $bgStyle = \App\Models\Setting::get('photo_gallery_header_bg', 'transparent');
+        $frostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('photo_gallery_header_frosted_opacity', 80)));
+        $opacityDecimal = $frostedOpacity / 100;
+
+        $customLightBg = \App\Models\Setting::get('photo_gallery_light_bg', '#ffffff');
+        $customDarkBg = \App\Models\Setting::get('photo_gallery_dark_bg', '#07131e');
+        $customLightText = \App\Models\Setting::get('photo_gallery_light_text', '#0f172a');
+        $customDarkText = \App\Models\Setting::get('photo_gallery_dark_text', '#f8fafc');
+
         $headerBgClasses = match($bgStyle) {
-            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'frosted'  => 'header-frosted-photos backdrop-blur-md',
             'solid'    => 'bg-white dark:bg-[#07131e]',
             'slate'    => 'bg-slate-100 dark:bg-slate-900',
             'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            'custom'   => 'header-custom-photos',
             default    => 'bg-transparent',
         };
+
+        // Layout & Display Controls
+        $colsSetting = \App\Models\Setting::get('photo_gallery_grid_cols', '4');
+        $perPage = \App\Models\Setting::get('photo_gallery_per_page', '24');
+        $showAlbums = (bool) \App\Models\Setting::get('photo_gallery_show_albums', true);
+        $showCaptions = (bool) \App\Models\Setting::get('photo_gallery_show_captions', true);
+
+        $gridColsClass = match($colsSetting) {
+            '2'     => 'grid-cols-1 sm:grid-cols-2',
+            '3'     => 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
+            '5'     => 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
+            default => 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+        };
+
+        $photosToDisplay = ($perPage !== 'all') ? $photos->take((int) $perPage) : $photos;
     @endphp
+
+    @if($bgStyle === 'frosted')
+        <style>
+            .header-frosted-photos { background-color: rgba(255, 255, 255, {{ $opacityDecimal }}); }
+            .dark .header-frosted-photos { background-color: rgba(7, 19, 30, {{ $opacityDecimal }}); }
+        </style>
+    @elseif($bgStyle === 'custom')
+        <style>
+            .header-custom-photos { background-color: {{ $customLightBg }}; color: {{ $customLightText }}; }
+            .header-custom-photos h1, .header-custom-photos p { color: {{ $customLightText }}; }
+            .dark .header-custom-photos { background-color: {{ $customDarkBg }}; color: {{ $customDarkText }}; }
+            .dark .header-custom-photos h1, .dark .header-custom-photos p { color: {{ $customDarkText }}; }
+        </style>
+    @endif
 
     <!-- Alpine State Container for Album Filtering & Fullscreen Lightbox -->
     <div x-data="{
@@ -24,7 +62,7 @@
             lightboxPhotos: [],
 
             init() {
-                this.lightboxPhotos = @js($photos->map(fn($p) => [
+                this.lightboxPhotos = @js($photosToDisplay->map(fn($p) => [
                     'id'      => $p->id,
                     'url'     => $p->image_url,
                     'title'   => $p->display_title,
@@ -82,7 +120,7 @@
                                 {{ \App\Models\Setting::get('photo_gallery_badge', __('Visual Showcase')) }}
                             </span>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                &bull; {{ $photos->count() }} {{ __('Curated Photos') }}
+                                &bull; {{ $photosToDisplay->count() }} {{ __('Curated Photos') }}
                             </span>
                         </div>
 
@@ -104,15 +142,15 @@
                     </div>
                 </div>
 
-                <!-- Album / Category Filter Pills -->
-                @if($albums->count() > 0)
+                <!-- Album / Category Filter Pills (Conditional) -->
+                @if($showAlbums && $albums->count() > 0)
                     <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">{{ __('Filter Album:') }}</span>
                         
                         <button type="button" @click="activeAlbum = 'all'"
                                 class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
                                 :class="activeAlbum === 'all' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'">
-                            {{ __('All Photos') }} ({{ $photos->count() }})
+                            {{ __('All Photos') }} ({{ $photosToDisplay->count() }})
                         </button>
 
                         @foreach($albums as $album)
@@ -136,9 +174,9 @@
         <section class="py-12 sm:py-16 bg-slate-50 dark:bg-[#06121d] border-b border-slate-200 dark:border-slate-800 transition-colors min-h-[60vh]">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
 
-                @if($photos->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        @foreach($photos as $index => $photo)
+                @if($photosToDisplay->count() > 0)
+                    <div class="grid {{ $gridColsClass }} gap-6">
+                        @foreach($photosToDisplay as $index => $photo)
                             <div wire:key="public-photo-{{ $photo->id }}"
                                  x-show="activeAlbum === 'all' || activeAlbum === '{{ $photo->album?->slug }}'"
                                  @click="openLightbox({{ $index }})"
@@ -163,16 +201,18 @@
                                     @endif
                                 </div>
 
-                                <div class="p-4 space-y-1">
-                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">
-                                        {{ $photo->display_title }}
-                                    </h3>
-                                    @if(!empty($photo->display_caption))
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                                            {{ $photo->display_caption }}
-                                        </p>
-                                    @endif
-                                </div>
+                                @if($showCaptions)
+                                    <div class="p-4 space-y-1">
+                                        <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                            {{ $photo->display_title }}
+                                        </h3>
+                                        @if(!empty($photo->display_caption))
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                                                {{ $photo->display_caption }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                @endif
 
                             </div>
                         @endforeach

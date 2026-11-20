@@ -2,11 +2,20 @@
 
     @php
         $bgStyle = \App\Models\Setting::get('careers_header_bg', 'transparent');
+        $frostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('careers_header_frosted_opacity', 80)));
+        $opacityDecimal = $frostedOpacity / 100;
+
+        $customLightBg = \App\Models\Setting::get('careers_header_light_bg', '#ffffff');
+        $customDarkBg = \App\Models\Setting::get('careers_header_dark_bg', '#07131e');
+        $customLightText = \App\Models\Setting::get('careers_header_light_text', '#0f172a');
+        $customDarkText = \App\Models\Setting::get('careers_header_dark_text', '#f8fafc');
+
         $headerBgClasses = match($bgStyle) {
-            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'frosted'  => 'header-frosted-careers backdrop-blur-md',
             'solid'    => 'bg-white dark:bg-[#07131e]',
             'slate'    => 'bg-slate-100 dark:bg-slate-900',
             'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            'custom'   => 'header-custom-careers',
             default    => 'bg-transparent',
         };
 
@@ -46,6 +55,20 @@
             'purple'  => ['icon' => 'text-purple-500', 'badge' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'],
         ];
     @endphp
+
+    @if($bgStyle === 'frosted')
+        <style>
+            .header-frosted-careers { background-color: rgba(255, 255, 255, {{ $opacityDecimal }}); }
+            .dark .header-frosted-careers { background-color: rgba(7, 19, 30, {{ $opacityDecimal }}); }
+        </style>
+    @elseif($bgStyle === 'custom')
+        <style>
+            .header-custom-careers { background-color: {{ $customLightBg }}; color: {{ $customLightText }}; }
+            .header-custom-careers h1, .header-custom-careers p { color: {{ $customLightText }}; }
+            .dark .header-custom-careers { background-color: {{ $customDarkBg }}; color: {{ $customDarkText }}; }
+            .dark .header-custom-careers h1, .dark .header-custom-careers p { color: {{ $customDarkText }}; }
+        </style>
+    @endif
 
     <!-- Alpine Container for Filter & Detail Drawer / Modal -->
     <div x-data="{

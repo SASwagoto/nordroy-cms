@@ -2,11 +2,20 @@
     
     @php
         $bgStyle = \App\Models\Setting::get('about_header_bg', 'transparent');
+        $frostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('about_header_frosted_opacity', 80)));
+        $opacityDecimal = $frostedOpacity / 100;
+
+        $customLightBg = \App\Models\Setting::get('about_header_light_bg', '#ffffff');
+        $customDarkBg = \App\Models\Setting::get('about_header_dark_bg', '#07131e');
+        $customLightText = \App\Models\Setting::get('about_header_light_text', '#0f172a');
+        $customDarkText = \App\Models\Setting::get('about_header_dark_text', '#f8fafc');
+
         $headerBgClasses = match($bgStyle) {
-            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'frosted'  => 'header-frosted-about backdrop-blur-md',
             'solid'    => 'bg-white dark:bg-[#07131e]',
             'slate'    => 'bg-slate-100 dark:bg-slate-900',
             'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            'custom'   => 'header-custom-about',
             default    => 'bg-transparent',
         };
 
@@ -31,6 +40,20 @@
             "LLOYD'S REGISTER STANDARDS",
         ]);
     @endphp
+
+    @if($bgStyle === 'frosted')
+        <style>
+            .header-frosted-about { background-color: rgba(255, 255, 255, {{ $opacityDecimal }}); }
+            .dark .header-frosted-about { background-color: rgba(7, 19, 30, {{ $opacityDecimal }}); }
+        </style>
+    @elseif($bgStyle === 'custom')
+        <style>
+            .header-custom-about { background-color: {{ $customLightBg }}; color: {{ $customLightText }}; }
+            .header-custom-about h1, .header-custom-about p { color: {{ $customLightText }}; }
+            .dark .header-custom-about { background-color: {{ $customDarkBg }}; color: {{ $customDarkText }}; }
+            .dark .header-custom-about h1, .dark .header-custom-about p { color: {{ $customDarkText }}; }
+        </style>
+    @endif
 
     <!-- Hero Header -->
     <div class="py-16 sm:py-24 {{ $headerBgClasses }} border-b border-slate-200/80 dark:border-slate-800 transition-colors">

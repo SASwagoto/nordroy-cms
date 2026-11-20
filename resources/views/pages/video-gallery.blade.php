@@ -2,14 +2,52 @@
 
     @php
         $bgStyle = \App\Models\Setting::get('video_gallery_header_bg', 'transparent');
+        $frostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('video_gallery_header_frosted_opacity', 80)));
+        $opacityDecimal = $frostedOpacity / 100;
+
+        $customLightBg = \App\Models\Setting::get('video_gallery_light_bg', '#ffffff');
+        $customDarkBg = \App\Models\Setting::get('video_gallery_dark_bg', '#07131e');
+        $customLightText = \App\Models\Setting::get('video_gallery_light_text', '#0f172a');
+        $customDarkText = \App\Models\Setting::get('video_gallery_dark_text', '#f8fafc');
+
         $headerBgClasses = match($bgStyle) {
-            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'frosted'  => 'header-frosted-videos backdrop-blur-md',
             'solid'    => 'bg-white dark:bg-[#07131e]',
             'slate'    => 'bg-slate-100 dark:bg-slate-900',
             'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            'custom'   => 'header-custom-videos',
             default    => 'bg-transparent',
         };
+
+        // Layout & Display Controls
+        $colsSetting = \App\Models\Setting::get('video_gallery_grid_cols', '3');
+        $perPage = \App\Models\Setting::get('video_gallery_per_page', '12');
+        $showAlbums = (bool) \App\Models\Setting::get('video_gallery_show_albums', true);
+        $showPlayBtn = (bool) \App\Models\Setting::get('video_gallery_show_play_btn', true);
+
+        $gridColsClass = match($colsSetting) {
+            '1'     => 'grid-cols-1 max-w-4xl mx-auto',
+            '2'     => 'grid-cols-1 md:grid-cols-2',
+            '4'     => 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+            default => 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+        };
+
+        $videosToDisplay = ($perPage !== 'all') ? $videos->take((int) $perPage) : $videos;
     @endphp
+
+    @if($bgStyle === 'frosted')
+        <style>
+            .header-frosted-videos { background-color: rgba(255, 255, 255, {{ $opacityDecimal }}); }
+            .dark .header-frosted-videos { background-color: rgba(7, 19, 30, {{ $opacityDecimal }}); }
+        </style>
+    @elseif($bgStyle === 'custom')
+        <style>
+            .header-custom-videos { background-color: {{ $customLightBg }}; color: {{ $customLightText }}; }
+            .header-custom-videos h1, .header-custom-videos p { color: {{ $customLightText }}; }
+            .dark .header-custom-videos { background-color: {{ $customDarkBg }}; color: {{ $customDarkText }}; }
+            .dark .header-custom-videos h1, .dark .header-custom-videos p { color: {{ $customDarkText }}; }
+        </style>
+    @endif
 
     <!-- Alpine State Container for Video Filtering & Responsive Popup Player -->
     <div x-data="{
@@ -54,7 +92,7 @@
                                 {{ \App\Models\Setting::get('video_gallery_badge', __('Video Showcase')) }}
                             </span>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                &bull; {{ $videos->count() }} {{ __('Curated Videos') }}
+                                &bull; {{ $videosToDisplay->count() }} {{ __('Curated Videos') }}
                             </span>
                         </div>
 
@@ -76,15 +114,15 @@
                     </div>
                 </div>
 
-                <!-- Video Album / Category Filter Pills -->
-                @if($albums->count() > 0)
+                <!-- Album / Category Filter Pills (Conditional) -->
+                @if($showAlbums && $albums->count() > 0)
                     <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">{{ __('Filter Album:') }}</span>
 
                         <button type="button" @click="activeAlbum = 'all'"
                                 class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
                                 :class="activeAlbum === 'all' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'">
-                            {{ __('All Videos') }} ({{ $videos->count() }})
+                            {{ __('All Videos') }} ({{ $videosToDisplay->count() }})
                         </button>
 
                         @foreach($albums as $album)
@@ -108,9 +146,9 @@
         <section class="py-12 sm:py-16 bg-slate-50 dark:bg-[#06121d] border-b border-slate-200 dark:border-slate-800 transition-colors min-h-[60vh]">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
 
-                @if($videos->count() > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                        @foreach($videos as $video)
+                @if($videosToDisplay->count() > 0)
+                    <div class="grid {{ $gridColsClass }} gap-6 sm:gap-8">
+                        @foreach($videosToDisplay as $video)
                             <div wire:key="public-video-{{ $video->id }}"
                                  x-show="activeAlbum === 'all' || activeAlbum === '{{ $video->album?->slug }}'"
                                  class="group rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-xl transition-all flex flex-col">
@@ -125,14 +163,16 @@
                                     <!-- Dark Gradient Overlay -->
                                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/30"></div>
 
-                                    <!-- YouTube Pulsing Play Button -->
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <div class="w-14 h-14 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-xl group-hover:scale-115 group-hover:bg-rose-600 transition-all">
-                                            <x-icon name="solid:play" class="w-6 h-6 fill-current ml-0.5" />
+                                    <!-- YouTube Pulsing Play Button (Conditional) -->
+                                    @if($showPlayBtn)
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-14 h-14 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-xl group-hover:scale-115 group-hover:bg-rose-600 transition-all">
+                                                <x-icon name="solid:play" class="w-6 h-6 fill-current ml-0.5" />
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
 
-                                    <!-- Badges: Album & YouTube -->
+                                    <!-- Badges: Album & HD -->
                                     <div class="absolute top-3 left-3 flex items-center gap-1.5">
                                         @if($video->album)
                                             <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-black/75 text-white backdrop-blur-xs">

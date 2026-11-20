@@ -2,20 +2,71 @@
     
     @php
         $bgStyle = \App\Models\Setting::get('contact_header_bg', 'transparent');
+        $frostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('contact_header_frosted_opacity', 80)));
+        $opacityDecimal = $frostedOpacity / 100;
+
+        $customLightBg = \App\Models\Setting::get('contact_header_light_bg', '#ffffff');
+        $customDarkBg = \App\Models\Setting::get('contact_header_dark_bg', '#07131e');
+        $customLightText = \App\Models\Setting::get('contact_header_light_text', '#0f172a');
+        $customDarkText = \App\Models\Setting::get('contact_header_dark_text', '#f8fafc');
+
         $headerBgClasses = match($bgStyle) {
-            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'frosted'  => 'header-frosted-contact backdrop-blur-md',
             'solid'    => 'bg-white dark:bg-[#07131e]',
             'slate'    => 'bg-slate-100 dark:bg-slate-900',
             'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            'custom'   => 'header-custom-contact',
             default    => 'bg-transparent',
         };
 
-        $showPort = (bool) \App\Models\Setting::get('contact_show_port_facility', true);
-        $showHQ = (bool) \App\Models\Setting::get('contact_show_hq_facility', true);
+        // Load Dynamic Facilities (Fallback to legacy keys if array not populated yet)
+        $rawFacilities = \App\Models\Setting::getJson('contact_facilities_list', [
+            [
+                'id'        => 'facility_port',
+                'badge'     => \App\Models\Setting::get('contact_port_badge', 'Primary Workshop Facility'),
+                'title'     => \App\Models\Setting::get('contact_port_title', 'Chattogram Port Workshop'),
+                'address'   => \App\Models\Setting::get('contact_port_address', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.'),
+                'desc'      => \App\Models\Setting::get('contact_port_desc', 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.'),
+                'phone'     => \App\Models\Setting::get('contact_port_phone', '+880 1800-000000'),
+                'email'     => \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com'),
+                'emergency' => '',
+                'is_active' => (bool) \App\Models\Setting::get('contact_show_port_facility', true),
+            ],
+            [
+                'id'        => 'facility_hq',
+                'badge'     => \App\Models\Setting::get('contact_hq_badge', 'Corporate Headquarters'),
+                'title'     => \App\Models\Setting::get('contact_hq_title', 'Dhaka Corporate HQ'),
+                'address'   => \App\Models\Setting::get('contact_hq_address', 'Gulshan Industrial Area, Dhaka, Bangladesh.'),
+                'desc'      => '',
+                'phone'     => \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000'),
+                'email'     => \App\Models\Setting::get('contact_hq_email', 'operations@nordroy.com'),
+                'emergency' => \App\Models\Setting::get('contact_emergency_note', '24/7 Port Helpline & Deep Anchorage Flying Squad Available Worldwide.'),
+                'is_active' => (bool) \App\Models\Setting::get('contact_show_hq_facility', true),
+            ],
+        ]);
+
+        $activeFacilities = collect($rawFacilities)->filter(function($fac) {
+            return !empty($fac['is_active']) && $fac['is_active'] !== '0' && $fac['is_active'] !== false;
+        })->values();
+
+        $facilityCount = $activeFacilities->count();
         $showEmergency = (bool) \App\Models\Setting::get('contact_show_emergency', true);
         $showRFQ = (bool) \App\Models\Setting::get('contact_show_rfq_form', true);
-        $hasOffices = ($showPort || $showHQ);
     @endphp
+
+    @if($bgStyle === 'frosted')
+        <style>
+            .header-frosted-contact { background-color: rgba(255, 255, 255, {{ $opacityDecimal }}); }
+            .dark .header-frosted-contact { background-color: rgba(7, 19, 30, {{ $opacityDecimal }}); }
+        </style>
+    @elseif($bgStyle === 'custom')
+        <style>
+            .header-custom-contact { background-color: {{ $customLightBg }}; color: {{ $customLightText }}; }
+            .header-custom-contact h1, .header-custom-contact p { color: {{ $customLightText }}; }
+            .dark .header-custom-contact { background-color: {{ $customDarkBg }}; color: {{ $customDarkText }}; }
+            .dark .header-custom-contact h1, .dark .header-custom-contact p { color: {{ $customDarkText }}; }
+        </style>
+    @endif
 
     <!-- Hero Header -->
     <div class="py-16 sm:py-24 {{ $headerBgClasses }} border-b border-slate-200/80 dark:border-slate-800 transition-colors">
@@ -32,66 +83,58 @@
         </div>
     </div>
 
-    <!-- Contact & RFQ Grid -->
-    @if($hasOffices || $showRFQ)
+    <!-- Contact & RFQ Grid (Adaptive Gapless Layout) -->
+    @if($facilityCount > 0 || $showRFQ)
         <section id="rfq" class="py-20 bg-slate-50 dark:bg-[#06121d]">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
-                @if($hasOffices && $showRFQ)
-                    <!-- Standard 2-Column Split: Offices on Left (5 cols), RFQ on Right (7 cols) -->
+                @if($facilityCount > 0 && $showRFQ)
+                    <!-- Standard 2-Column Split: Facilities on Left (5 cols), RFQ on Right (7 cols) -->
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                         
-                        <!-- Left: Offices & Hotlines -->
+                        <!-- Left: Facilities List (Supports any number of offices!) -->
                         <div class="lg:col-span-5 space-y-6">
-                            @if($showPort)
+                            @foreach($activeFacilities as $fac)
                                 <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                                    <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                        {{ \App\Models\Setting::get('contact_port_badge', 'Primary Workshop Facility') }}
-                                    </span>
+                                    @if(!empty($fac['badge']))
+                                        <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
+                                            {{ $fac['badge'] }}
+                                        </span>
+                                    @endif
                                     <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                        {{ \App\Models\Setting::get('contact_port_title', 'Chattogram Port Workshop') }}
+                                        {{ $fac['title'] }}
                                     </h3>
-                                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                        {{ \App\Models\Setting::get('contact_port_address', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.') }}<br>
-                                        {{ \App\Models\Setting::get('contact_port_desc', 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.') }}
-                                    </p>
-                                    <div class="pt-2 text-xs space-y-2 font-mono">
-                                        <div class="text-[#003C58] dark:text-cyan-400 font-bold">
-                                            Duty Superintendent: <a href="tel:{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}</a>
+                                    @if(!empty($fac['address']) || !empty($fac['desc']))
+                                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            @if(!empty($fac['address']))
+                                                {{ $fac['address'] }}<br>
+                                            @endif
+                                            @if(!empty($fac['desc']))
+                                                {{ $fac['desc'] }}
+                                            @endif
+                                        </p>
+                                    @endif
+                                    @if(!empty($fac['phone']) || !empty($fac['email']))
+                                        <div class="pt-2 text-xs space-y-2 font-mono">
+                                            @if(!empty($fac['phone']))
+                                                <div class="text-[#003C58] dark:text-cyan-400 font-bold">
+                                                    Duty Superintendent: <a href="tel:{{ $fac['phone'] }}" class="hover:underline">{{ $fac['phone'] }}</a>
+                                                </div>
+                                            @endif
+                                            @if(!empty($fac['email']))
+                                                <div class="text-slate-500">
+                                                    Email: <a href="mailto:{{ $fac['email'] }}" class="hover:underline">{{ $fac['email'] }}</a>
+                                                </div>
+                                            @endif
                                         </div>
-                                        <div class="text-slate-500">
-                                            Email: <a href="mailto:{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            @if($showHQ)
-                                <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                                    <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                        {{ \App\Models\Setting::get('contact_hq_badge', 'Corporate Headquarters') }}
-                                    </span>
-                                    <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                        {{ \App\Models\Setting::get('contact_hq_title', 'Dhaka Corporate HQ') }}
-                                    </h3>
-                                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                        {{ \App\Models\Setting::get('contact_hq_address', \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh.')) }}
-                                    </p>
-                                    <div class="pt-2 text-xs space-y-2 font-mono">
-                                        <div class="text-slate-700 dark:text-slate-300">
-                                            Desk: <a href="tel:{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}</a>
-                                        </div>
-                                        <div class="text-slate-500">
-                                            Email: <a href="mailto:{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}</a>
-                                        </div>
-                                    </div>
-                                    @if($showEmergency && ($emergencyNote = \App\Models\Setting::get('contact_emergency_note')))
+                                    @endif
+                                    @if($showEmergency && !empty($fac['emergency']))
                                         <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
-                                            &bull; {{ $emergencyNote }}
+                                            &bull; {{ $fac['emergency'] }}
                                         </div>
                                     @endif
                                 </div>
-                            @endif
+                            @endforeach
                         </div>
 
                         <!-- Right: RFQ Form (7 cols) -->
@@ -108,105 +151,59 @@
 
                     </div>
 
-                @elseif($hasOffices && !$showRFQ)
-                    <!-- Gapless Adaptive Layout: Offices Only (Centered, No Blank Right Column!) -->
-                    @if($showPort && $showHQ)
-                        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <!-- Port Card -->
-                            <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                                <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                    {{ \App\Models\Setting::get('contact_port_badge', 'Primary Workshop Facility') }}
-                                </span>
-                                <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                    {{ \App\Models\Setting::get('contact_port_title', 'Chattogram Port Workshop') }}
-                                </h3>
-                                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {{ \App\Models\Setting::get('contact_port_address', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.') }}<br>
-                                    {{ \App\Models\Setting::get('contact_port_desc', 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.') }}
-                                </p>
-                                <div class="pt-2 text-xs space-y-2 font-mono">
-                                    <div class="text-[#003C58] dark:text-cyan-400 font-bold">
-                                        Duty Superintendent: <a href="tel:{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}</a>
-                                    </div>
-                                    <div class="text-slate-500">
-                                        Email: <a href="mailto:{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}</a>
-                                    </div>
-                                </div>
-                            </div>
+                @elseif($facilityCount > 0 && !$showRFQ)
+                    <!-- Gapless Adaptive Layout: Facilities Only (Centered, No Blank Right Column!) -->
+                    @php
+                        $colsClass = match(true) {
+                            $facilityCount === 1 => 'max-w-2xl mx-auto grid-cols-1',
+                            $facilityCount === 2 => 'max-w-5xl mx-auto grid-cols-1 md:grid-cols-2',
+                            default              => 'max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+                        };
+                    @endphp
 
-                            <!-- HQ Card -->
+                    <div class="grid {{ $colsClass }} gap-8">
+                        @foreach($activeFacilities as $fac)
                             <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                                <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                    {{ \App\Models\Setting::get('contact_hq_badge', 'Corporate Headquarters') }}
-                                </span>
+                                @if(!empty($fac['badge']))
+                                    <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
+                                        {{ $fac['badge'] }}
+                                    </span>
+                                @endif
                                 <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                    {{ \App\Models\Setting::get('contact_hq_title', 'Dhaka Corporate HQ') }}
+                                    {{ $fac['title'] }}
                                 </h3>
-                                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {{ \App\Models\Setting::get('contact_hq_address', \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh.')) }}
-                                </p>
-                                <div class="pt-2 text-xs space-y-2 font-mono">
-                                    <div class="text-slate-700 dark:text-slate-300">
-                                        Desk: <a href="tel:{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}</a>
+                                @if(!empty($fac['address']) || !empty($fac['desc']))
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        @if(!empty($fac['address']))
+                                            {{ $fac['address'] }}<br>
+                                        @endif
+                                        @if(!empty($fac['desc']))
+                                            {{ $fac['desc'] }}
+                                        @endif
+                                    </p>
+                                @endif
+                                @if(!empty($fac['phone']) || !empty($fac['email']))
+                                    <div class="pt-2 text-xs space-y-2 font-mono">
+                                        @if(!empty($fac['phone']))
+                                            <div class="text-[#003C58] dark:text-cyan-400 font-bold">
+                                                Duty Superintendent: <a href="tel:{{ $fac['phone'] }}" class="hover:underline">{{ $fac['phone'] }}</a>
+                                            </div>
+                                        @endif
+                                        @if(!empty($fac['email']))
+                                            <div class="text-slate-500">
+                                                Email: <a href="mailto:{{ $fac['email'] }}" class="hover:underline">{{ $fac['email'] }}</a>
+                                            </div>
+                                        @endif
                                     </div>
-                                    <div class="text-slate-500">
-                                        Email: <a href="mailto:{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}</a>
-                                    </div>
-                                </div>
-                                @if($showEmergency && ($emergencyNote = \App\Models\Setting::get('contact_emergency_note')))
+                                @endif
+                                @if($showEmergency && !empty($fac['emergency']))
                                     <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
-                                        &bull; {{ $emergencyNote }}
+                                        &bull; {{ $fac['emergency'] }}
                                     </div>
                                 @endif
                             </div>
-                        </div>
-                    @elseif($showPort)
-                        <div class="max-w-2xl mx-auto p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                            <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                {{ \App\Models\Setting::get('contact_port_badge', 'Primary Workshop Facility') }}
-                            </span>
-                            <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                {{ \App\Models\Setting::get('contact_port_title', 'Chattogram Port Workshop') }}
-                            </h3>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {{ \App\Models\Setting::get('contact_port_address', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.') }}<br>
-                                {{ \App\Models\Setting::get('contact_port_desc', 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.') }}
-                            </p>
-                            <div class="pt-2 text-xs space-y-2 font-mono">
-                                <div class="text-[#003C58] dark:text-cyan-400 font-bold">
-                                    Duty Superintendent: <a href="tel:{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_phone', '+880 1800-000000') }}</a>
-                                </div>
-                                <div class="text-slate-500">
-                                    Email: <a href="mailto:{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_port_email', 'port.ops@nordroy.com') }}</a>
-                                </div>
-                            </div>
-                        </div>
-                    @elseif($showHQ)
-                        <div class="max-w-2xl mx-auto p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                            <span class="text-xs font-bold uppercase tracking-widest text-[#003C58] dark:text-cyan-400">
-                                {{ \App\Models\Setting::get('contact_hq_badge', 'Corporate Headquarters') }}
-                            </span>
-                            <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">
-                                {{ \App\Models\Setting::get('contact_hq_title', 'Dhaka Corporate HQ') }}
-                            </h3>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                                {{ \App\Models\Setting::get('contact_hq_address', \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh.')) }}
-                            </p>
-                            <div class="pt-2 text-xs space-y-2 font-mono">
-                                <div class="text-slate-700 dark:text-slate-300">
-                                    Desk: <a href="tel:{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_phone', '+880 1700-000000') }}</a>
-                                </div>
-                                <div class="text-slate-500">
-                                    Email: <a href="mailto:{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}" class="hover:underline">{{ \App\Models\Setting::get('contact_hq_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com')) }}</a>
-                                </div>
-                            </div>
-                            @if($showEmergency && ($emergencyNote = \App\Models\Setting::get('contact_emergency_note')))
-                                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
-                                    &bull; {{ $emergencyNote }}
-                                </div>
-                            @endif
-                        </div>
-                    @endif
+                        @endforeach
+                    </div>
 
                 @else
                     <!-- Gapless Adaptive Layout: RFQ Lead Form Only (Centered, No Blank Left Column!) -->

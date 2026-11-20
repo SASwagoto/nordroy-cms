@@ -93,27 +93,37 @@ class PageContentManagerTest extends TestCase
         $response->assertSee('Our Corporate Mission');
     }
 
-    public function test_admin_can_update_contact_page_and_toggle_rfq_and_offices(): void
+    public function test_admin_can_manage_contact_facilities_repeater_and_toggle_real_time(): void
     {
         $this->actingAs($this->admin);
 
-        Livewire::test(PageContentManager::class)
+        // Add 3rd facility and toggle 1st facility
+        $comp = Livewire::test(PageContentManager::class)
             ->call('setPage', 'contact')
-            ->set('content.contact_port_title', 'Chattogram Advanced Marine Turbine Yard')
-            ->set('content.contact_port_phone', '+880 1899-999999')
+            ->set('newFacilityBadge', 'Middle East Hub')
+            ->set('newFacilityTitle', 'Dubai Maritime Port Facility')
+            ->set('newFacilityAddress', 'Dubai Maritime City, UAE')
+            ->set('newFacilityPhone', '+971 4000-0000')
+            ->set('newFacilityEmail', 'dubai.desk@nordroy.com')
+            ->call('addFacility')
+            ->call('toggleFacility', 0) // Real-time toggle off Port Workshop
             ->call('saveContent');
 
-        $this->assertEquals('Chattogram Advanced Marine Turbine Yard', Setting::get('contact_port_title'));
+        $facilities = Setting::getJson('contact_facilities_list');
+        $this->assertCount(3, $facilities);
+        $this->assertFalse((bool) $facilities[0]['is_active']);
+        $this->assertEquals('Dubai Maritime Port Facility', $facilities[2]['title']);
 
+        // Check on frontend /contact
         $response = $this->get(route('contact'));
         $response->assertStatus(200);
-        $response->assertSee('Chattogram Advanced Marine Turbine Yard');
-        $response->assertSee('+880 1899-999999');
+        $response->assertSee('Dubai Maritime Port Facility');
+        $response->assertSee('+971 4000-0000');
+        // The first toggled off workshop email should not be rendered
+        $response->assertDontSee('port.ops@nordroy.com');
 
         // Test hiding RFQ form on contact page
-        Livewire::test(PageContentManager::class)
-            ->call('setPage', 'contact')
-            ->set('content.contact_show_rfq_form', false)
+        $comp->set('content.contact_show_rfq_form', false)
             ->call('saveContent');
 
         $this->assertFalse((bool) Setting::get('contact_show_rfq_form'));
@@ -121,7 +131,41 @@ class PageContentManagerTest extends TestCase
         $responseNoRFQ = $this->get(route('contact'));
         $responseNoRFQ->assertStatus(200);
         $responseNoRFQ->assertDontSee('Request Quotation / Port Squad');
-        $responseNoRFQ->assertSee('Chattogram Advanced Marine Turbine Yard');
+        $responseNoRFQ->assertSee('Dubai Maritime Port Facility');
+    }
+
+    public function test_frosted_glass_opacity_is_clamped_and_never_zero_or_hundred(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Test 0 gets clamped to 10
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->set('content.about_header_bg', 'frosted')
+            ->set('content.about_header_frosted_opacity', 0)
+            ->call('saveContent');
+
+        $this->assertEquals(10, (int) Setting::get('about_header_frosted_opacity'));
+
+        // Test 100 gets clamped to 90
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->set('content.about_header_frosted_opacity', 100)
+            ->call('saveContent');
+
+        $this->assertEquals(90, (int) Setting::get('about_header_frosted_opacity'));
+
+        // Test safe value (e.g. 65)
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'about')
+            ->set('content.about_header_frosted_opacity', 65)
+            ->call('saveContent');
+
+        $this->assertEquals(65, (int) Setting::get('about_header_frosted_opacity'));
+
+        $response = $this->get(route('about'));
+        $response->assertStatus(200);
+        $response->assertSee('rgba(255, 255, 255, 0.65)');
     }
 
     public function test_admin_can_manage_careers_dynamic_pillars_and_colors(): void
@@ -184,6 +228,43 @@ class PageContentManagerTest extends TestCase
         $careersResponse = $this->get(route('careers'));
         $careersResponse->assertStatus(200);
         $careersResponse->assertSee('bg-slate-100');
+    }
+
+    public function test_admin_can_configure_services_products_and_gallery_settings(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(PageContentManager::class)
+            ->call('setPage', 'services')
+            ->set('content.services_grid_cols', '2')
+            ->set('content.services_per_page', '6')
+            ->set('content.services_show_quote_btn', false)
+            ->call('saveContent')
+            ->call('setPage', 'products')
+            ->set('content.products_grid_cols', '3')
+            ->set('content.products_per_page', '8')
+            ->set('content.products_show_search', false)
+            ->call('saveContent')
+            ->call('setPage', 'gallery')
+            ->set('content.photo_gallery_grid_cols', '3')
+            ->set('content.video_gallery_grid_cols', '2')
+            ->call('saveContent');
+
+        $this->assertEquals('2', Setting::get('services_grid_cols'));
+        $this->assertEquals('6', Setting::get('services_per_page'));
+        $this->assertFalse((bool) Setting::get('services_show_quote_btn'));
+
+        $this->assertEquals('3', Setting::get('products_grid_cols'));
+        $this->assertEquals('8', Setting::get('products_per_page'));
+        $this->assertFalse((bool) Setting::get('products_show_search'));
+
+        $this->assertEquals('3', Setting::get('photo_gallery_grid_cols'));
+        $this->assertEquals('2', Setting::get('video_gallery_grid_cols'));
+
+        // Visit /products page and verify search bar is hidden
+        $productsResp = $this->get(route('products'));
+        $productsResp->assertStatus(200);
+        $productsResp->assertDontSee('Search by Part # or Model...');
     }
 
     public function test_admin_can_manage_partners_repeater_and_reset_defaults(): void
