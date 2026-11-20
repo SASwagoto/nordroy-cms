@@ -3,6 +3,8 @@
 use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
 use App\Livewire\Admin\Gallery\GalleryManager;
+use App\Livewire\Admin\Gallery\PhotoGalleryManager;
+use App\Livewire\Admin\Gallery\VideoGalleryManager;
 use App\Livewire\Admin\Languages\LanguageManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
@@ -218,11 +220,13 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
-Route::get('/gallery', function (Request $request) {
+Route::get('/photo-gallery', function (Request $request) {
     $albumSlug = $request->query('album');
-    $type = $request->query('type', 'all');
-
-    $albums = \App\Models\GalleryAlbum::active()->orderBy('order')->withCount(['photos', 'videos'])->get();
+    $albums = \App\Models\GalleryAlbum::active()
+        ->whereIn('type', ['all', 'photo'])
+        ->orderBy('order')
+        ->withCount('photos')
+        ->get();
 
     $currentAlbum = null;
     if ($albumSlug) {
@@ -230,24 +234,48 @@ Route::get('/gallery', function (Request $request) {
     }
 
     $photosQuery = \App\Models\PhotoGallery::active()->with(['media', 'album']);
-    $videosQuery = \App\Models\VideoGallery::active()->with(['thumbnail', 'album']);
-
     if ($currentAlbum) {
         $photosQuery->where('album_id', $currentAlbum->id);
-        $videosQuery->where('album_id', $currentAlbum->id);
     }
-
     $photos = $photosQuery->orderBy('order')->get();
-    $videos = $videosQuery->orderBy('order')->get();
 
-    return view('pages.gallery', [
+    return view('pages.photo-gallery', [
         'albums'       => $albums,
         'currentAlbum' => $currentAlbum,
         'photos'       => $photos,
-        'videos'       => $videos,
-        'currentType'  => $type,
     ]);
-})->name('gallery');
+})->name('photo-gallery');
+
+Route::get('/video-gallery', function (Request $request) {
+    $albumSlug = $request->query('album');
+    $albums = \App\Models\GalleryAlbum::active()
+        ->whereIn('type', ['all', 'video'])
+        ->orderBy('order')
+        ->withCount('videos')
+        ->get();
+
+    $currentAlbum = null;
+    if ($albumSlug) {
+        $currentAlbum = \App\Models\GalleryAlbum::active()->where('slug', $albumSlug)->first();
+    }
+
+    $videosQuery = \App\Models\VideoGallery::active()->with(['thumbnail', 'album']);
+    if ($currentAlbum) {
+        $videosQuery->where('album_id', $currentAlbum->id);
+    }
+    $videos = $videosQuery->orderBy('order')->get();
+
+    return view('pages.video-gallery', [
+        'albums'       => $albums,
+        'currentAlbum' => $currentAlbum,
+        'videos'       => $videos,
+    ]);
+})->name('video-gallery');
+
+// Backward compatibility redirects
+Route::redirect('/gallery', '/photo-gallery')->name('gallery');
+Route::redirect('/gallery/photos', '/photo-gallery');
+Route::redirect('/gallery/videos', '/video-gallery');
 
 /*
 |--------------------------------------------------------------------------
@@ -356,10 +384,17 @@ Route::middleware([
         ->middleware('permission:products.view')
         ->name('products.edit');
 
-    // Visual Media Gallery & Video Showcase
-    Route::get('/gallery', GalleryManager::class)
+    // Visual Photo Gallery & Video Gallery
+    Route::get('/photo-gallery', PhotoGalleryManager::class)
         ->middleware('permission:media.view')
-        ->name('gallery');
+        ->name('photo-gallery');
+
+    Route::get('/video-gallery', VideoGalleryManager::class)
+        ->middleware('permission:media.view')
+        ->name('video-gallery');
+
+    // Legacy admin gallery route redirect
+    Route::redirect('/gallery', '/admin/photo-gallery')->name('gallery');
 
     // Localization & Multi-Language Studio
     Route::get('/languages', LanguageManager::class)

@@ -40,10 +40,15 @@
             </svg>
             Products & Parts
         </a>
-        <a href="{{ route('admin.gallery') }}" wire:navigate
-            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.gallery*') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
-            <x-icon name="solid:photo-film" class="w-4 h-4" />
-            <span>Media Gallery</span>
+        <a href="{{ route('admin.photo-gallery') }}" wire:navigate
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.photo-gallery*') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
+            <x-icon name="solid:images" class="w-4 h-4" />
+            <span>Photo Gallery</span>
+        </a>
+        <a href="{{ route('admin.video-gallery') }}" wire:navigate
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.video-gallery*') ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }} transition-colors">
+            <x-icon name="solid:video" class="w-4 h-4" />
+            <span>Video Gallery</span>
         </a>
     </nav>
 </div>
