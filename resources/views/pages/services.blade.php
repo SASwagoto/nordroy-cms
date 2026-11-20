@@ -1,16 +1,16 @@
-<x-layouts.frontend title="Precision Overhaul Services & Dynamic Balancing">
+<x-layouts.frontend :title="\App\Models\Setting::get('services_hero_title', 'Precision Overhaul Services & Dynamic Balancing')">
     
     <!-- Hero Header (Transparent so background video is visible behind the title) -->
     <div class="py-16 sm:py-24 bg-transparent border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
             <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
-                Technical Capabilities
+                {{ \App\Models\Setting::get('services_badge', 'Technical Capabilities') }}
             </span>
             <h1 class="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white mt-4 leading-tight drop-shadow-xs">
-                Precision Overhaul Services &amp; Port Flying Squads.
+                {{ \App\Models\Setting::get('services_hero_title', 'Precision Overhaul Services & Port Flying Squads.') }}
             </h1>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl mt-4 leading-relaxed font-medium">
-                Operating with calibrated German balancing rigs and certified marine engineers to guarantee that every turbocharger overhaul achieves maximum boost pressure and zero vibration.
+                {{ \App\Models\Setting::get('services_hero_subtitle', 'Operating with calibrated German balancing rigs and certified marine engineers to guarantee that every turbocharger overhaul achieves maximum boost pressure and zero vibration.') }}
             </p>
         </div>
     </div>

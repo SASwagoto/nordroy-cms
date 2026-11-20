@@ -68,7 +68,7 @@
                     <div class="space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#003C58]/10 dark:bg-cyan-500/10 text-[#003C58] dark:text-cyan-400 border border-[#003C58]/20 dark:border-cyan-500/20">
-                                {{ __('Visual Showcase') }}
+                                {{ \App\Models\Setting::get('photo_gallery_badge', __('Visual Showcase')) }}
                             </span>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 &bull; {{ $photos->count() }} {{ __('Curated Photos') }}
@@ -76,10 +76,10 @@
                         </div>
 
                         <h1 class="text-3xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight">
-                            {{ __('Marine Engineering & Overhaul Photo Gallery') }}
+                            {{ \App\Models\Setting::get('photo_gallery_title', __('Marine Engineering & Overhaul Photo Gallery')) }}
                         </h1>
                         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-                            {{ __('Photographic documentation of our dynamic balancing procedures, high-precision rotor overhauls, ultrasonic chemical decarbonization, and emergency ship engine room interventions.') }}
+                            {{ \App\Models\Setting::get('photo_gallery_subtitle', __('Photographic documentation of our dynamic balancing procedures, high-precision rotor overhauls, ultrasonic chemical decarbonization, and emergency ship engine room interventions.')) }}
                         </p>
                     </div>
 

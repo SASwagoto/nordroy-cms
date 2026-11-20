@@ -40,7 +40,7 @@
                     <div class="space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                                {{ __('Video Showcase') }}
+                                {{ \App\Models\Setting::get('video_gallery_badge', __('Video Showcase')) }}
                             </span>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                                 &bull; {{ $videos->count() }} {{ __('Curated Videos') }}
@@ -48,10 +48,10 @@
                         </div>
 
                         <h1 class="text-3xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight">
-                            {{ __('Marine Engineering & Turbocharger Video Gallery') }}
+                            {{ \App\Models\Setting::get('video_gallery_title', __('Marine Engineering & Turbocharger Video Gallery')) }}
                         </h1>
                         <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-                            {{ __('Watch live recorded procedures of dynamic balancing, complete turbocharger overhauls, shipyard flying squad interventions, and workshop precision engineering.') }}
+                            {{ \App\Models\Setting::get('video_gallery_subtitle', __('Watch live recorded procedures of dynamic balancing, complete turbocharger overhauls, shipyard flying squad interventions, and workshop precision engineering.')) }}
                         </p>
                     </div>
 

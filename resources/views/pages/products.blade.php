@@ -1,16 +1,16 @@
-<x-layouts.frontend :title="__('Marine Turbocharger Spare Parts & Industrial Products') . ' | ' . \App\Models\Setting::get('site_name', 'Nordroy Marine')">
+<x-layouts.frontend :title="\App\Models\Setting::get('products_hero_title', __('Marine Turbocharger Spare Parts & Industrial Products')) . ' | ' . \App\Models\Setting::get('site_name', 'Nordroy Marine')">
 
     <!-- Hero Header -->
     <div class="py-16 sm:py-24 bg-transparent border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
             <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
-                {{ __('Genuine OEM & Precision Parts') }}
+                {{ \App\Models\Setting::get('products_badge', __('Genuine OEM & Precision Parts')) }}
             </span>
             <h1 class="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white mt-4 leading-tight">
-                {{ __('Marine Turbocharger Spare Parts & Assemblies.') }}
+                {{ \App\Models\Setting::get('products_hero_title', __('Marine Turbocharger Spare Parts & Assemblies.')) }}
             </h1>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl mt-4 leading-relaxed font-medium">
-                {{ __('Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.') }}
+                {{ \App\Models\Setting::get('products_hero_subtitle', __('Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.')) }}
             </p>
         </div>
     </div>

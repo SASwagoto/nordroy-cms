@@ -10,6 +10,7 @@ use App\Livewire\Admin\Gallery\VideoGalleryManager;
 use App\Livewire\Admin\Languages\LanguageManager;
 use App\Livewire\Admin\Media\MediaManager;
 use App\Livewire\Admin\Menus\MenuManager;
+use App\Livewire\Admin\Pages\PageContentManager;
 use App\Livewire\Admin\Products\ProductEditor;
 use App\Livewire\Admin\Products\ProductManager;
 use App\Livewire\Admin\Services\ServiceEditor;
@@ -343,6 +344,11 @@ Route::middleware([
     Route::get('/settings', SettingsManager::class)
         ->middleware('permission:settings.manage')
         ->name('settings');
+
+    // Static Page Content Studio
+    Route::get('/page-content', PageContentManager::class)
+        ->middleware('permission:settings.manage')
+        ->name('pages.content');
 
     // Inquiries & RFQ Duty Desk
     Route::get('/enquiries', EnquiryManager::class)

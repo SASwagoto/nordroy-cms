@@ -27,52 +27,65 @@
                     <!-- Clean Corporate Badges (NO generic pulsing dots) -->
                     <div class="flex flex-wrap items-center gap-2.5">
                         <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                            Authorized Multi-Brand Turbocharger Engineering
+                            {{ \App\Models\Setting::get('home_hero_badge1', 'Authorized Multi-Brand Turbocharger Engineering') }}
                         </span>
                         <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-white dark:bg-[#0a1926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            ISO 9001:2015 &bull; DNV Certified
+                            {{ \App\Models\Setting::get('home_hero_badge2', 'ISO 9001:2015 • DNV Certified') }}
                         </span>
                     </div>
 
                     <!-- Main Headline (Bespoke Human Typography, No AI Text Gradients) -->
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight font-heading text-slate-900 dark:text-white drop-shadow-xs">
-                        Precision <span class="text-[#003C58] dark:text-cyan-400">Turbocharger Overhauls</span> &amp; Marine Propulsion Support.
+                        {{ \App\Models\Setting::get('home_hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.') }}
                     </h1>
 
                     <!-- Technical Subtitle -->
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl font-body font-medium">
-                        Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil &amp; gas terminals.
+                        {{ \App\Models\Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.') }}
                     </p>
 
                     <!-- Dual Call-to-Action Buttons -->
                     <div class="flex flex-wrap items-center gap-4 pt-2">
-                        <a href="{{ route('services') }}" 
+                        <a href="{{ \App\Models\Setting::get('home_hero_cta1_url', route('services')) }}" 
                            class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-lg active:scale-95 transition-all"
                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
-                            <span>Explore Overhaul Services</span>
+                            <span>{{ \App\Models\Setting::get('home_hero_cta1_text', 'Explore Overhaul Services') }}</span>
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
 
-                        <a href="{{ route('contact') }}#rfq" 
+                        <a href="{{ \App\Models\Setting::get('home_hero_cta2_url', route('contact') . '#rfq') }}" 
                            class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
                            style="border-radius: var(--button-radius);">
-                            <span>Request Instant RFQ</span>
+                            <span>{{ \App\Models\Setting::get('home_hero_cta2_text', 'Request Instant RFQ') }}</span>
                         </a>
                     </div>
 
                     <!-- Key Technical Highlights Strip -->
                     <div class="pt-6 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-3 gap-4 text-xs">
                         <div>
-                            <span class="block text-2xl sm:text-3xl font-black text-[#003C58] dark:text-cyan-400 font-heading">100,000</span>
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">RPM Dynamic Balancing</span>
+                            <span class="block text-2xl sm:text-3xl font-black text-[#003C58] dark:text-cyan-400 font-heading">
+                                {{ \App\Models\Setting::get('home_metric1_value', '100,000') }}
+                            </span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                {{ \App\Models\Setting::get('home_metric1_label', 'RPM Dynamic Balancing') }}
+                            </span>
                         </div>
                         <div>
-                            <span class="block text-2xl sm:text-3xl font-black text-slate-800 dark:text-white font-heading">24/7/365</span>
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Flying Squads to Port</span>
+                            <span class="block text-2xl sm:text-3xl font-black text-slate-800 dark:text-white font-heading">
+                                {{ \App\Models\Setting::get('home_metric2_value', '24/7/365') }}
+                            </span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                {{ \App\Models\Setting::get('home_metric2_label', 'Flying Squads to Port') }}
+                            </span>
                         </div>
                         <div>
-                            <span class="block text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-heading">100%</span>
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Calibrated OEM Specs</span>
+                            <span class="block text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-heading">
+                                {{ \App\Models\Setting::get('home_metric3_value', '10,000+') }}
+                            </span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                {{ \App\Models\Setting::get('home_metric3_label', 'OEM Spares in Stock') }}
+                            </span>
+                        </div>
                         </div>
                     </div>
 

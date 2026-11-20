@@ -35,7 +35,7 @@
                 <div class="max-w-4xl space-y-4">
                     <div class="flex items-center gap-2">
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#003C58]/10 dark:bg-cyan-500/10 text-[#003C58] dark:text-cyan-400 border border-[#003C58]/20 dark:border-cyan-500/20">
-                            {{ __('Talent & Engineering Careers') }}
+                            {{ \App\Models\Setting::get('careers_badge', 'Talent & Engineering Careers') }}
                         </span>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             &bull; {{ $jobs->count() }} {{ __('Open Vacancies') }}
@@ -43,38 +43,30 @@
                     </div>
 
                     <h1 class="text-3xl sm:text-5xl font-black font-heading tracking-tight text-slate-900 dark:text-white leading-tight">
-                        {{ __('Build Your Career in High-Precision Turbomachinery') }}
+                        {{ \App\Models\Setting::get('careers_hero_title', 'Build Your Career in High-Precision Turbomachinery') }}
                     </h1>
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {{ __('Join our world-class marine engineering team in Chattogram & Dhaka. Operate hard-bearing dynamic balancing benches up to 100,000 RPM, board international ocean-going vessels at outer anchorage, and service heavy multi-brand industrial turbochargers.') }}
+                        {{ \App\Models\Setting::get('careers_hero_subtitle', 'Join our world-class marine engineering team in Chattogram & Dhaka. Operate hard-bearing dynamic balancing benches up to 100,000 RPM, board international ocean-going vessels at outer anchorage, and service heavy multi-brand industrial turbochargers.') }}
                     </p>
                 </div>
 
                 <!-- Engineering Culture Highlights -->
+                @php
+                    $cultureCards = \App\Models\Setting::getJson('careers_culture_cards', [
+                        ['icon' => 'solid:cpu-chip', 'title' => 'Precision Instruments', 'desc' => 'Schenck balancing, NDT testing & 5-axis CAD/CAM benches.'],
+                        ['icon' => 'solid:lifebuoy', 'title' => 'Offshore Flying Squads', 'desc' => 'Deep sea anchorage interventions with safety per-diem allowances.'],
+                        ['icon' => 'solid:academic-cap', 'title' => 'OEM Certifications', 'desc' => 'Continuous training programs on ABB, MAN, and Napier series.'],
+                        ['icon' => 'solid:shield-check', 'title' => 'Health & Safety (HSE)', 'desc' => 'Full medical coverage, offshore insurance, and performance bonuses.'],
+                    ]);
+                @endphp
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                        <x-icon name="solid:cpu-chip" class="w-5 h-5 text-[#003C58] dark:text-cyan-400" />
-                        <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ __('Precision Instruments') }}</h4>
-                        <p class="text-[11px] text-slate-500">{{ __('Schenck balancing, NDT testing & 5-axis CAD/CAM benches.') }}</p>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                        <x-icon name="solid:lifebuoy" class="w-5 h-5 text-rose-500" />
-                        <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ __('Offshore Flying Squads') }}</h4>
-                        <p class="text-[11px] text-slate-500">{{ __('Deep sea anchorage interventions with safety per-diem allowances.') }}</p>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                        <x-icon name="solid:academic-cap" class="w-5 h-5 text-emerald-500" />
-                        <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ __('OEM Certifications') }}</h4>
-                        <p class="text-[11px] text-slate-500">{{ __('Continuous training programs on ABB, MAN, and Napier series.') }}</p>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                        <x-icon name="solid:shield-check" class="w-5 h-5 text-indigo-500" />
-                        <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ __('Health & Safety (HSE)') }}</h4>
-                        <p class="text-[11px] text-slate-500">{{ __('Full medical coverage, offshore insurance, and performance bonuses.') }}</p>
-                    </div>
+                    @foreach($cultureCards as $idx => $card)
+                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                            <x-icon :name="$card['icon'] ?? 'solid:shield-check'" class="w-5 h-5 text-cyan-500" />
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ $card['title'] }}</h4>
+                            <p class="text-[11px] text-slate-500">{{ $card['desc'] }}</p>
+                        </div>
+                    @endforeach
                 </div>
 
             </div>
@@ -198,22 +190,26 @@
             <div class="max-w-4xl mx-auto px-4 sm:px-8 space-y-6 text-center">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                     <x-icon name="solid:user-plus" class="w-3.5 h-3.5" />
-                    <span>{{ __('Spontaneous Application') }}</span>
+                    <span>{{ \App\Models\Setting::get('careers_spontaneous_badge', 'Spontaneous Application') }}</span>
                 </div>
 
                 <div class="space-y-2">
                     <h2 class="text-2xl sm:text-4xl font-black font-heading text-slate-900 dark:text-white">
-                        {{ __('Don\'t See Your Specific Maritime Specialty?') }}
+                        {{ \App\Models\Setting::get('careers_spontaneous_title', "Don't See Your Specific Maritime Specialty?") }}
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                        {{ __('We are continuously recruiting certified marine superintendents, non-destructive testing (NDT) metallurgists, and sea-going flying squad fitters. Submit your CV directly to our general engineering talent pool.') }}
+                        {{ \App\Models\Setting::get('careers_spontaneous_desc', 'We are continuously recruiting certified marine superintendents, non-destructive testing (NDT) metallurgists, and sea-going flying squad fitters. Submit your CV directly to our general engineering talent pool.') }}
                     </p>
                 </div>
 
                 <div class="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-left shadow-xs">
                     <div class="pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ __('Submit General Candidate Credentials') }}</h3>
-                        <p class="text-xs text-slate-400">{{ __('Complete the form below to enter Nordroy Marine talent repository.') }}</p>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+                            {{ \App\Models\Setting::get('careers_form_title', 'Submit General Candidate Credentials') }}
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            {{ \App\Models\Setting::get('careers_form_subtitle', 'Complete the form below to enter Nordroy Marine talent repository.') }}
+                        </p>
                     </div>
 
                     <livewire:frontend.job-application-form :job-id="null" />
