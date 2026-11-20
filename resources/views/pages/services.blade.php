@@ -1,7 +1,18 @@
 <x-layouts.frontend :title="\App\Models\Setting::get('services_hero_title', 'Precision Overhaul Services & Dynamic Balancing')">
     
-    <!-- Hero Header (Transparent so background video is visible behind the title) -->
-    <div class="py-16 sm:py-24 bg-transparent border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+    @php
+        $bgStyle = \App\Models\Setting::get('services_header_bg', 'transparent');
+        $headerBgClasses = match($bgStyle) {
+            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'solid'    => 'bg-white dark:bg-[#07131e]',
+            'slate'    => 'bg-slate-100 dark:bg-slate-900',
+            'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            default    => 'bg-transparent',
+        };
+    @endphp
+
+    <!-- Hero Header -->
+    <div class="py-16 sm:py-24 {{ $headerBgClasses }} border-b border-slate-200/80 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
             <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-white dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
                 {{ \App\Models\Setting::get('services_badge', 'Technical Capabilities') }}

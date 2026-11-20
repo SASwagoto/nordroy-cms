@@ -1,5 +1,16 @@
 <x-layouts.frontend title="{{ __('Photo Gallery') }} | Nordroy Marine">
 
+    @php
+        $bgStyle = \App\Models\Setting::get('photo_gallery_header_bg', 'transparent');
+        $headerBgClasses = match($bgStyle) {
+            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'solid'    => 'bg-white dark:bg-[#07131e]',
+            'slate'    => 'bg-slate-100 dark:bg-slate-900',
+            'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            default    => 'bg-transparent',
+        };
+    @endphp
+
     <!-- Alpine State Container for Album Filtering & Fullscreen Lightbox -->
     <div x-data="{
             activeAlbum: '{{ $currentAlbum?->slug ?? 'all' }}',
@@ -54,7 +65,7 @@
          @keydown.arrow-left.window="if(isLightboxOpen) prevPhoto()">
 
         <!-- Hero Header -->
-        <section class="pt-24 pb-10 sm:pt-28 sm:pb-14 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <section class="pt-24 pb-10 sm:pt-28 sm:pb-14 {{ $headerBgClasses }} border-b border-slate-200 dark:border-slate-800 transition-colors">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 space-y-4">
                 
                 <!-- Breadcrumbs -->

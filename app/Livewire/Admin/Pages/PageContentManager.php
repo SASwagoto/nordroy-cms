@@ -13,10 +13,10 @@ use Livewire\Component;
 class PageContentManager extends Component
 {
     #[Url(as: 'page')]
-    public string $activePage = 'about'; // 'about', 'contact', 'careers', 'home', 'services', 'products', 'gallery'
+    public string $activePage = 'about'; // 'about', 'contact', 'careers', 'services', 'products', 'gallery'
 
     /**
-     * Dictionary of editable page contents
+     * Dictionary of editable page contents and toggles
      */
     public array $content = [];
 
@@ -28,7 +28,12 @@ class PageContentManager extends Component
     public array $aboutCertifications = [];
     public string $newCertName = '';
 
+    // Dynamic Pillars (Add / Remove / Toggle / Color)
     public array $careersCultureCards = [];
+    public string $newPillarTitle = '';
+    public string $newPillarDesc = '';
+    public string $newPillarIcon = 'solid:shield-check';
+    public string $newPillarColor = 'cyan';
 
     public function mount(): void
     {
@@ -37,7 +42,7 @@ class PageContentManager extends Component
 
     public function setPage(string $page): void
     {
-        if (in_array($page, ['about', 'contact', 'careers', 'home', 'services', 'products', 'gallery'])) {
+        if (in_array($page, ['about', 'contact', 'careers', 'services', 'products', 'gallery'])) {
             $this->activePage = $page;
             $this->loadPageContent();
         }
@@ -50,6 +55,9 @@ class PageContentManager extends Component
         foreach ($defaults as $key => $defaultVal) {
             if (is_array($defaultVal)) {
                 $this->content[$key] = Setting::getJson($key, $defaultVal);
+            } elseif (is_bool($defaultVal)) {
+                $val = Setting::get($key);
+                $this->content[$key] = ($val === null) ? $defaultVal : (bool) $val;
             } else {
                 $this->content[$key] = Setting::get($key, $defaultVal);
             }
@@ -61,7 +69,50 @@ class PageContentManager extends Component
     }
 
     // ==========================================
-    // REPEATER ACTIONS: ABOUT PARTNERS
+    // REPEATER: DYNAMIC CAREER PILLARS
+    // ==========================================
+    public function addPillar(): void
+    {
+        $title = trim($this->newPillarTitle);
+        $desc = trim($this->newPillarDesc);
+
+        if (!empty($title)) {
+            $this->careersCultureCards[] = [
+                'id'        => 'pillar_' . time() . '_' . rand(10, 99),
+                'title'     => $title,
+                'desc'      => $desc,
+                'icon'      => $this->newPillarIcon ?: 'solid:check-circle',
+                'color'     => $this->newPillarColor ?: 'cyan',
+                'is_active' => true,
+            ];
+            $this->content['careers_culture_cards'] = $this->careersCultureCards;
+
+            $this->newPillarTitle = '';
+            $this->newPillarDesc = '';
+            $this->newPillarIcon = 'solid:shield-check';
+            $this->newPillarColor = 'cyan';
+        }
+    }
+
+    public function removePillar(int $index): void
+    {
+        if (isset($this->careersCultureCards[$index])) {
+            unset($this->careersCultureCards[$index]);
+            $this->careersCultureCards = array_values($this->careersCultureCards);
+            $this->content['careers_culture_cards'] = $this->careersCultureCards;
+        }
+    }
+
+    public function togglePillar(int $index): void
+    {
+        if (isset($this->careersCultureCards[$index])) {
+            $this->careersCultureCards[$index]['is_active'] = !($this->careersCultureCards[$index]['is_active'] ?? true);
+            $this->content['careers_culture_cards'] = $this->careersCultureCards;
+        }
+    }
+
+    // ==========================================
+    // REPEATER: ABOUT OEM PARTNERS
     // ==========================================
     public function addPartner(): void
     {
@@ -70,8 +121,9 @@ class PageContentManager extends Component
 
         if (!empty($brand)) {
             $this->aboutPartners[] = [
-                'brand'  => $brand,
-                'models' => $models,
+                'brand'     => $brand,
+                'models'    => $models,
+                'is_active' => true,
             ];
             $this->content['about_partners_list'] = $this->aboutPartners;
             $this->newPartnerBrand = '';
@@ -88,8 +140,16 @@ class PageContentManager extends Component
         }
     }
 
+    public function togglePartner(int $index): void
+    {
+        if (isset($this->aboutPartners[$index])) {
+            $this->aboutPartners[$index]['is_active'] = !($this->aboutPartners[$index]['is_active'] ?? true);
+            $this->content['about_partners_list'] = $this->aboutPartners;
+        }
+    }
+
     // ==========================================
-    // REPEATER ACTIONS: ABOUT CERTIFICATIONS
+    // REPEATER: ABOUT CERTIFICATIONS
     // ==========================================
     public function addCertification(): void
     {
@@ -122,12 +182,14 @@ class PageContentManager extends Component
         $group = 'page_' . $this->activePage;
 
         foreach ($this->content as $key => $val) {
-            Setting::set($key, $val, $group, is_array($val) ? 'json' : 'text');
+            $type = is_array($val) ? 'json' : (is_bool($val) ? 'boolean' : 'text');
+            $valToStore = is_bool($val) ? ($val ? '1' : '0') : $val;
+            Setting::set($key, $valToStore, $group, $type);
         }
 
         Setting::flushCache();
 
-        session()->flash('message', "Content for '" . ucfirst($this->activePage) . "' page updated successfully.");
+        session()->flash('message', "Content and layout settings for '" . ucfirst($this->activePage) . "' page updated successfully.");
     }
 
     public function resetToDefaults(): void
@@ -135,47 +197,57 @@ class PageContentManager extends Component
         $defaults = $this->getDefaults();
 
         foreach ($defaults as $key => $val) {
-            Setting::set($key, $val, 'page_' . $this->activePage, is_array($val) ? 'json' : 'text');
+            $type = is_array($val) ? 'json' : (is_bool($val) ? 'boolean' : 'text');
+            $valToStore = is_bool($val) ? ($val ? '1' : '0') : $val;
+            Setting::set($key, $valToStore, 'page_' . $this->activePage, $type);
         }
 
         Setting::flushCache();
         $this->loadPageContent();
 
-        session()->flash('message', "Default corporate copy restored for '" . ucfirst($this->activePage) . "' page.");
+        session()->flash('message', "Default corporate copy and section toggles restored for '" . ucfirst($this->activePage) . "' page.");
     }
 
     private function getDefaults(): array
     {
         return [
             // ==================== ABOUT US ====================
-            'about_badge'           => 'About Nordroy Group',
-            'about_hero_title'      => 'A Legacy of Maritime Precision & Heavy Industrial Power.',
-            'about_hero_subtitle'   => 'Operating at the nexus of international shipping lanes and heavy industrial power utilities, Nordroy Marine & Turbochargers delivers certified multi-brand turbomachinery maintenance, NDT metallurgical verification, and prompt port dispatch.',
+            'about_header_bg'           => 'transparent', // 'transparent', 'frosted', 'solid', 'slate', 'gradient'
+            'about_badge'               => 'About Nordroy Group',
+            'about_hero_title'          => 'A Legacy of Maritime Precision & Heavy Industrial Power.',
+            'about_hero_subtitle'       => 'Operating at the nexus of international shipping lanes and heavy industrial power utilities, Nordroy Marine & Turbochargers delivers certified multi-brand turbomachinery maintenance, NDT metallurgical verification, and prompt port dispatch.',
             
-            'about_overview_title'  => 'Engineered for High-Pressure Environments',
-            'about_overview_p1'     => 'Modern exhaust gas turbochargers spin upwards of 100,000 RPM at temperatures exceeding 650°C. Even microscopic unbalance or metallurgical fatigue can trigger catastrophic engine failure and vessel arrest at port.',
-            'about_overview_p2'     => 'Our specialized engineering facilities in Chattogram Port and Dhaka are equipped with German Schenck computerized balancing rigs, ultrasonic chemical cleaning lines, and ASNT Level III non-destructive testing benches to ensure that every overhauled component operates at zero deviation from OEM tolerances.',
-            'about_stat1_value'     => '100k RPM',
-            'about_stat1_label'     => 'Balancing Rig Capacity',
-            'about_stat2_value'     => '± 0.005mm',
-            'about_stat2_label'     => 'Shaft Run-Out Accuracy',
+            // Section toggles for About
+            'about_show_overview'       => true,
+            'about_show_partners'       => true,
+            'about_show_mission'        => true,
+            'about_show_vision'         => true,
+            'about_show_certifications' => true,
 
-            'about_partners_title'  => 'Authorized OEM Partnerships',
-            'about_partners_list'   => [
-                ['brand' => 'Accelleron (ABB)', 'models' => 'VTR, TPL, TPS, A100 & TPR series overhauls.'],
-                ['brand' => 'MAN Energy Solutions', 'models' => 'NR, NA, TCR, TCA & radial designs.'],
-                ['brand' => 'KBB', 'models' => 'M40, R-series, and HPR industrial compressors.'],
-                ['brand' => 'Mitsubishi Heavy Industries', 'models' => 'MET-SR, MET-SC & MET-MA models.'],
+            'about_overview_title'      => 'Engineered for High-Pressure Environments',
+            'about_overview_p1'         => 'Modern exhaust gas turbochargers spin upwards of 100,000 RPM at temperatures exceeding 650°C. Even microscopic unbalance or metallurgical fatigue can trigger catastrophic engine failure and vessel arrest at port.',
+            'about_overview_p2'         => 'Our specialized engineering facilities in Chattogram Port and Dhaka are equipped with German Schenck computerized balancing rigs, ultrasonic chemical cleaning lines, and ASNT Level III non-destructive testing benches to ensure that every overhauled component operates at zero deviation from OEM tolerances.',
+            'about_stat1_value'         => '100k RPM',
+            'about_stat1_label'         => 'Balancing Rig Capacity',
+            'about_stat2_value'         => '± 0.005mm',
+            'about_stat2_label'         => 'Shaft Run-Out Accuracy',
+
+            'about_partners_title'      => 'Authorized OEM Partnerships',
+            'about_partners_list'       => [
+                ['brand' => 'Accelleron (ABB)', 'models' => 'VTR, TPL, TPS, A100 & TPR series overhauls.', 'is_active' => true],
+                ['brand' => 'MAN Energy Solutions', 'models' => 'NR, NA, TCR, TCA & radial designs.', 'is_active' => true],
+                ['brand' => 'KBB', 'models' => 'M40, R-series, and HPR industrial compressors.', 'is_active' => true],
+                ['brand' => 'Mitsubishi Heavy Industries', 'models' => 'MET-SR, MET-SC & MET-MA models.', 'is_active' => true],
             ],
 
-            'about_mission_title'   => 'Our Corporate Mission',
-            'about_mission_text'    => 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.',
-            'about_vision_title'    => 'Vision 2030',
-            'about_vision_text'     => "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.",
+            'about_mission_title'       => 'Our Corporate Mission',
+            'about_mission_text'        => 'To protect commercial maritime operations and heavy industrial power grids from catastrophic machinery downtime by delivering rapid, certified, and fully calibrated turbocharger overhauls with complete engineering integrity.',
+            'about_vision_title'        => 'Vision 2030',
+            'about_vision_text'         => "To serve as South Asia's pre-eminent center of excellence for turbomachinery dynamics, setting new industry standards in decarbonization retrofits, bio-fuel turbine adaptations, and robotic welding restoration.",
 
-            'about_cert_badge'      => 'Quality Framework',
-            'about_cert_title'      => 'International Accreditations & Standards',
-            'about_cert_list'       => [
+            'about_cert_badge'          => 'Quality Framework',
+            'about_cert_title'          => 'International Accreditations & Standards',
+            'about_cert_list'           => [
                 'ISO 9001:2015 CERTIFIED',
                 'DNV CLASSIFIED FACILITY',
                 'ASNT LEVEL III NDT BENCH',
@@ -183,50 +255,73 @@ class PageContentManager extends Component
             ],
 
             // ==================== CONTACT US ====================
-            'contact_badge'         => 'Port Response & Headquarters',
-            'contact_hero_title'    => 'Contact & 24/7 Marine Duty Desk.',
-            'contact_hero_subtitle' => 'Connect directly with our port superintendent engineers for immediate vessel assistance, dynamic balancing bookings, and genuine spare parts quotes.',
+            'contact_header_bg'         => 'transparent',
+            'contact_badge'             => 'Port Response & Headquarters',
+            'contact_hero_title'        => 'Contact & 24/7 Marine Duty Desk.',
+            'contact_hero_subtitle'     => 'Connect directly with our port superintendent engineers for immediate vessel assistance, dynamic balancing bookings, and genuine spare parts quotes.',
             
-            'contact_port_badge'    => 'Primary Workshop Facility',
-            'contact_port_title'    => 'Chattogram Port Workshop',
-            'contact_port_address'  => 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.',
-            'contact_port_desc'     => 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.',
-            'contact_port_phone'    => '+880 1800-000000',
-            'contact_port_email'    => 'port.ops@nordroy.com',
+            // Section & Card toggles for Contact
+            'contact_show_port_facility'=> true,
+            'contact_show_hq_facility'  => true,
+            'contact_show_emergency'    => true,
+            'contact_show_rfq_form'     => true,
 
-            'contact_hq_badge'      => 'Corporate Headquarters',
-            'contact_hq_title'      => 'Dhaka Corporate HQ',
-            'contact_hq_address'    => 'Gulshan Industrial Area, Dhaka, Bangladesh.',
-            'contact_hq_phone'      => '+880 1700-000000',
-            'contact_hq_email'      => 'operations@nordroy.com',
-            'contact_emergency_note'=> '24/7 Port Helpline & Deep Anchorage Flying Squad Available Worldwide.',
-            'contact_maps_url'      => 'https://maps.google.com',
+            'contact_port_badge'        => 'Primary Workshop Facility',
+            'contact_port_title'        => 'Chattogram Port Workshop',
+            'contact_port_address'      => 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.',
+            'contact_port_desc'         => 'Equipped with heavy overhead gantry cranes, Schenck dynamic balancing benches, and ultrasonic clean bays.',
+            'contact_port_phone'        => '+880 1800-000000',
+            'contact_port_email'        => 'port.ops@nordroy.com',
+
+            'contact_hq_badge'          => 'Corporate Headquarters',
+            'contact_hq_title'          => 'Dhaka Corporate HQ',
+            'contact_hq_address'        => 'Gulshan Industrial Area, Dhaka, Bangladesh.',
+            'contact_hq_phone'          => '+880 1700-000000',
+            'contact_hq_email'          => 'operations@nordroy.com',
+            'contact_emergency_note'    => '24/7 Port Helpline & Deep Anchorage Flying Squad Available Worldwide.',
 
             // ==================== CAREERS ====================
-            'careers_badge'         => 'Talent & Engineering Careers',
-            'careers_hero_title'    => 'Build Your Career in High-Precision Turbomachinery',
-            'careers_hero_subtitle' => 'Join our world-class marine engineering team in Chattogram & Dhaka. Operate hard-bearing dynamic balancing benches up to 100,000 RPM, board international ocean-going vessels at outer anchorage, and service heavy multi-brand industrial turbochargers.',
+            'careers_header_bg'         => 'transparent',
+            'careers_badge'             => 'Talent & Engineering Careers',
+            'careers_hero_title'        => 'Build Your Career in High-Precision Turbomachinery',
+            'careers_hero_subtitle'     => 'Join our world-class marine engineering team in Chattogram & Dhaka. Operate hard-bearing dynamic balancing benches up to 100,000 RPM, board international ocean-going vessels at outer anchorage, and service heavy multi-brand industrial turbochargers.',
             
-            'careers_culture_cards' => [
+            // Section toggles for Careers
+            'careers_show_culture'      => true,
+            'careers_show_spontaneous'  => true,
+
+            'careers_culture_cards'     => [
                 [
-                    'icon'  => 'solid:cpu-chip',
-                    'title' => 'Precision Instruments',
-                    'desc'  => 'Schenck balancing, NDT testing & 5-axis CAD/CAM benches.',
+                    'id'        => 'pillar_1',
+                    'icon'      => 'solid:cpu-chip',
+                    'title'     => 'Precision Instruments',
+                    'desc'      => 'Schenck balancing, NDT testing & 5-axis CAD/CAM benches.',
+                    'color'     => 'cyan',
+                    'is_active' => true,
                 ],
                 [
-                    'icon'  => 'solid:lifebuoy',
-                    'title' => 'Offshore Flying Squads',
-                    'desc'  => 'Deep sea anchorage interventions with safety per-diem allowances.',
+                    'id'        => 'pillar_2',
+                    'icon'      => 'solid:lifebuoy',
+                    'title'     => 'Offshore Flying Squads',
+                    'desc'      => 'Deep sea anchorage interventions with safety per-diem allowances.',
+                    'color'     => 'rose',
+                    'is_active' => true,
                 ],
                 [
-                    'icon'  => 'solid:academic-cap',
-                    'title' => 'OEM Certifications',
-                    'desc'  => 'Continuous training programs on ABB, MAN, and Napier series.',
+                    'id'        => 'pillar_3',
+                    'icon'      => 'solid:academic-cap',
+                    'title'     => 'OEM Certifications',
+                    'desc'      => 'Continuous training programs on ABB, MAN, and Napier series.',
+                    'color'     => 'emerald',
+                    'is_active' => true,
                 ],
                 [
-                    'icon'  => 'solid:shield-check',
-                    'title' => 'Health & Safety (HSE)',
-                    'desc'  => 'Full medical coverage, offshore insurance, and performance bonuses.',
+                    'id'        => 'pillar_4',
+                    'icon'      => 'solid:shield-check',
+                    'title'     => 'Health & Safety (HSE)',
+                    'desc'      => 'Full medical coverage, offshore insurance, and performance bonuses.',
+                    'color'     => 'indigo',
+                    'is_active' => true,
                 ],
             ],
 
@@ -236,41 +331,28 @@ class PageContentManager extends Component
             'careers_form_title'        => 'Submit General Candidate Credentials',
             'careers_form_subtitle'     => 'Complete the form below to enter Nordroy Marine talent repository.',
 
-            // ==================== HOME PAGE ====================
-            'home_hero_badge1'      => 'Authorized Multi-Brand Turbocharger Engineering',
-            'home_hero_badge2'      => 'ISO 9001:2015 • DNV Certified',
-            'home_hero_title'       => 'Precision Turbocharger Overhauls & Marine Propulsion Support.',
-            'home_hero_subtitle'    => 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.',
-            'home_hero_cta1_text'   => 'Explore Overhaul Services',
-            'home_hero_cta1_url'    => '/services',
-            'home_hero_cta2_text'   => 'Request Instant RFQ',
-            'home_hero_cta2_url'    => '/contact#rfq',
-
-            'home_metric1_value'    => '100,000',
-            'home_metric1_label'    => 'RPM Dynamic Balancing',
-            'home_metric2_value'    => '24/7/365',
-            'home_metric2_label'    => 'Emergency Port Flying Squads',
-            'home_metric3_value'    => '10,000+',
-            'home_metric3_label'    => 'OEM Spares in Stock',
-
             // ==================== SERVICES ====================
-            'services_badge'        => 'Technical Capabilities',
-            'services_hero_title'   => 'Precision Overhaul Services & Port Flying Squads.',
-            'services_hero_subtitle'=> 'Operating with calibrated German balancing rigs and certified marine engineers to guarantee that every turbocharger overhaul achieves maximum boost pressure and zero vibration.',
+            'services_header_bg'        => 'transparent',
+            'services_badge'            => 'Technical Capabilities',
+            'services_hero_title'       => 'Precision Overhaul Services & Port Flying Squads.',
+            'services_hero_subtitle'    => 'Operating with calibrated German balancing rigs and certified marine engineers to guarantee that every turbocharger overhaul achieves maximum boost pressure and zero vibration.',
 
             // ==================== PRODUCTS ====================
-            'products_badge'        => 'Genuine OEM & Precision Parts',
-            'products_hero_title'   => 'Marine Turbocharger Spare Parts & Assemblies.',
-            'products_hero_subtitle'=> 'Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.',
+            'products_header_bg'        => 'transparent',
+            'products_badge'            => 'Genuine OEM & Precision Parts',
+            'products_hero_title'       => 'Marine Turbocharger Spare Parts & Assemblies.',
+            'products_hero_subtitle'    => 'Comprehensive inventory of genuine OEM turbocharger spare parts, complete factory-balanced rotating cartridges (CHRA), turbine blades, and high-precision nozzle rings backed by 12 months marine class warranty.',
 
             // ==================== GALLERY ====================
-            'photo_gallery_badge'   => 'Visual Engineering Archive',
-            'photo_gallery_title'   => 'Overhaul Workshops & Maritime Operations Gallery.',
-            'photo_gallery_subtitle'=> 'Inspection records, Schenck balancing operations, turbine blading overhauls, and deep-sea flying squad interventions documented from our ports.',
+            'photo_gallery_header_bg'   => 'transparent',
+            'photo_gallery_badge'       => 'Visual Engineering Archive',
+            'photo_gallery_title'       => 'Overhaul Workshops & Maritime Operations Gallery.',
+            'photo_gallery_subtitle'    => 'Inspection records, Schenck balancing operations, turbine blading overhauls, and deep-sea flying squad interventions documented from our ports.',
             
-            'video_gallery_badge'   => 'Technical Video Archive',
-            'video_gallery_title'   => 'Turbocharger Maintenance & Workshop Procedures.',
-            'video_gallery_subtitle'=> 'Watch dynamic balancing procedures, high-speed spin tests, and ultrasonic cleaning walkthroughs directly from our engineering team.',
+            'video_gallery_header_bg'   => 'transparent',
+            'video_gallery_badge'       => 'Technical Video Archive',
+            'video_gallery_title'       => 'Turbocharger Maintenance & Workshop Procedures.',
+            'video_gallery_subtitle'    => 'Watch dynamic balancing procedures, high-speed spin tests, and ultrasonic cleaning walkthroughs directly from our engineering team.',
         ];
     }
 

@@ -1,5 +1,52 @@
 <x-layouts.frontend title="{{ __('Careers & Marine Engineering Vacancies') }} | Nordroy Marine">
 
+    @php
+        $bgStyle = \App\Models\Setting::get('careers_header_bg', 'transparent');
+        $headerBgClasses = match($bgStyle) {
+            'frosted'  => 'bg-white/80 dark:bg-[#07131e]/80 backdrop-blur-md',
+            'solid'    => 'bg-white dark:bg-[#07131e]',
+            'slate'    => 'bg-slate-100 dark:bg-slate-900',
+            'gradient' => 'bg-gradient-to-b from-slate-100/90 via-slate-50/50 to-transparent dark:from-[#0b1b2b] dark:via-[#07131e]/60 dark:to-transparent',
+            default    => 'bg-transparent',
+        };
+
+        $showCulture = (bool) \App\Models\Setting::get('careers_show_culture', true);
+        $showSpontaneous = (bool) \App\Models\Setting::get('careers_show_spontaneous', true);
+
+        $rawCultureCards = \App\Models\Setting::getJson('careers_culture_cards', [
+            ['id' => 'pillar_1', 'icon' => 'solid:cpu-chip', 'title' => 'Precision Instruments', 'desc' => 'Schenck balancing, NDT testing & 5-axis CAD/CAM benches.', 'color' => 'cyan', 'is_active' => true],
+            ['id' => 'pillar_2', 'icon' => 'solid:lifebuoy', 'title' => 'Offshore Flying Squads', 'desc' => 'Deep sea anchorage interventions with safety per-diem allowances.', 'color' => 'rose', 'is_active' => true],
+            ['id' => 'pillar_3', 'icon' => 'solid:academic-cap', 'title' => 'OEM Certifications', 'desc' => 'Continuous training programs on ABB, MAN, and Napier series.', 'color' => 'emerald', 'is_active' => true],
+            ['id' => 'pillar_4', 'icon' => 'solid:shield-check', 'title' => 'Health & Safety (HSE)', 'desc' => 'Full medical coverage, offshore insurance, and performance bonuses.', 'color' => 'indigo', 'is_active' => true],
+        ]);
+
+        $activePillars = collect($rawCultureCards)->filter(function($card) {
+            return !empty($card['is_active']) && $card['is_active'] !== '0' && $card['is_active'] !== false;
+        })->values();
+
+        $pillarCount = $activePillars->count();
+
+        // Dynamically compute grid class so NO SLOTS OR GAPS ARE LEFT EMPTY
+        $gridColsClass = match(true) {
+            $pillarCount === 1 => 'max-w-md mx-auto grid-cols-1',
+            $pillarCount === 2 => 'max-w-3xl mx-auto grid-cols-1 sm:grid-cols-2',
+            $pillarCount === 3 => 'max-w-5xl mx-auto grid-cols-1 sm:grid-cols-3',
+            $pillarCount === 4 => 'grid-cols-2 md:grid-cols-4',
+            $pillarCount === 5 => 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
+            default            => 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
+        };
+
+        $colorStyles = [
+            'cyan'    => ['icon' => 'text-cyan-500', 'badge' => 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20'],
+            'emerald' => ['icon' => 'text-emerald-500', 'badge' => 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'],
+            'rose'    => ['icon' => 'text-rose-500', 'badge' => 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'],
+            'amber'   => ['icon' => 'text-amber-500', 'badge' => 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'],
+            'indigo'  => ['icon' => 'text-indigo-500', 'badge' => 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20'],
+            'blue'    => ['icon' => 'text-blue-500', 'badge' => 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'],
+            'purple'  => ['icon' => 'text-purple-500', 'badge' => 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'],
+        ];
+    @endphp
+
     <!-- Alpine Container for Filter & Detail Drawer / Modal -->
     <div x-data="{
             activeDept: 'all',
@@ -22,7 +69,7 @@
          @keydown.escape.window="closeJobModal()">
 
         <!-- Hero Header -->
-        <section class="pt-24 pb-14 sm:pt-28 sm:pb-18 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <section class="pt-24 pb-14 sm:pt-28 sm:pb-18 {{ $headerBgClasses }} border-b border-slate-200 dark:border-slate-800 transition-colors">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8 space-y-6">
                 
                 <!-- Breadcrumbs -->
@@ -50,24 +97,24 @@
                     </p>
                 </div>
 
-                <!-- Engineering Culture Highlights -->
-                @php
-                    $cultureCards = \App\Models\Setting::getJson('careers_culture_cards', [
-                        ['icon' => 'solid:cpu-chip', 'title' => 'Precision Instruments', 'desc' => 'Schenck balancing, NDT testing & 5-axis CAD/CAM benches.'],
-                        ['icon' => 'solid:lifebuoy', 'title' => 'Offshore Flying Squads', 'desc' => 'Deep sea anchorage interventions with safety per-diem allowances.'],
-                        ['icon' => 'solid:academic-cap', 'title' => 'OEM Certifications', 'desc' => 'Continuous training programs on ABB, MAN, and Napier series.'],
-                        ['icon' => 'solid:shield-check', 'title' => 'Health & Safety (HSE)', 'desc' => 'Full medical coverage, offshore insurance, and performance bonuses.'],
-                    ]);
-                @endphp
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    @foreach($cultureCards as $idx => $card)
-                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1">
-                            <x-icon :name="$card['icon'] ?? 'solid:shield-check'" class="w-5 h-5 text-cyan-500" />
-                            <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ $card['title'] }}</h4>
-                            <p class="text-[11px] text-slate-500">{{ $card['desc'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
+                <!-- Engineering Culture Highlights (Dynamic Gapless Grid & Colors) -->
+                @if($showCulture && $pillarCount > 0)
+                    <div class="grid {{ $gridColsClass }} gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+                        @foreach($activePillars as $card)
+                            @php
+                                $colorKey = $card['color'] ?? 'cyan';
+                                $theme = $colorStyles[$colorKey] ?? $colorStyles['cyan'];
+                            @endphp
+                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1.5 transition-all hover:border-slate-300 dark:hover:border-slate-700">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center {{ $theme['badge'] }} mb-2">
+                                    <x-icon :name="$card['icon'] ?? 'solid:shield-check'" class="w-4 h-4 {{ $theme['icon'] }}" />
+                                </div>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{ $card['title'] }}</h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{{ $card['desc'] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
 
             </div>
         </section>
@@ -186,36 +233,38 @@
         </section>
 
         <!-- General Talent Pool / Spontaneous Application Section -->
-        <section class="py-14 sm:py-20 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800 transition-colors">
-            <div class="max-w-4xl mx-auto px-4 sm:px-8 space-y-6 text-center">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                    <x-icon name="solid:user-plus" class="w-3.5 h-3.5" />
-                    <span>{{ \App\Models\Setting::get('careers_spontaneous_badge', 'Spontaneous Application') }}</span>
-                </div>
+        @if($showSpontaneous)
+            <section class="py-14 sm:py-20 bg-white dark:bg-[#07131e] border-b border-slate-200 dark:border-slate-800 transition-colors">
+                <div class="max-w-4xl mx-auto px-4 sm:px-8 space-y-6 text-center">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        <x-icon name="solid:user-plus" class="w-3.5 h-3.5" />
+                        <span>{{ \App\Models\Setting::get('careers_spontaneous_badge', 'Spontaneous Application') }}</span>
+                    </div>
 
-                <div class="space-y-2">
-                    <h2 class="text-2xl sm:text-4xl font-black font-heading text-slate-900 dark:text-white">
-                        {{ \App\Models\Setting::get('careers_spontaneous_title', "Don't See Your Specific Maritime Specialty?") }}
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                        {{ \App\Models\Setting::get('careers_spontaneous_desc', 'We are continuously recruiting certified marine superintendents, non-destructive testing (NDT) metallurgists, and sea-going flying squad fitters. Submit your CV directly to our general engineering talent pool.') }}
-                    </p>
-                </div>
-
-                <div class="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-left shadow-xs">
-                    <div class="pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">
-                            {{ \App\Models\Setting::get('careers_form_title', 'Submit General Candidate Credentials') }}
-                        </h3>
-                        <p class="text-xs text-slate-400">
-                            {{ \App\Models\Setting::get('careers_form_subtitle', 'Complete the form below to enter Nordroy Marine talent repository.') }}
+                    <div class="space-y-2">
+                        <h2 class="text-2xl sm:text-4xl font-black font-heading text-slate-900 dark:text-white">
+                            {{ \App\Models\Setting::get('careers_spontaneous_title', "Don't See Your Specific Maritime Specialty?") }}
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                            {{ \App\Models\Setting::get('careers_spontaneous_desc', 'We are continuously recruiting certified marine superintendents, non-destructive testing (NDT) metallurgists, and sea-going flying squad fitters. Submit your CV directly to our general engineering talent pool.') }}
                         </p>
                     </div>
 
-                    <livewire:frontend.job-application-form :job-id="null" />
+                    <div class="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-left shadow-xs">
+                        <div class="pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+                                {{ \App\Models\Setting::get('careers_form_title', 'Submit General Candidate Credentials') }}
+                            </h3>
+                            <p class="text-xs text-slate-400">
+                                {{ \App\Models\Setting::get('careers_form_subtitle', 'Complete the form below to enter Nordroy Marine talent repository.') }}
+                            </p>
+                        </div>
+
+                        <livewire:frontend.job-application-form :job-id="null" />
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @endif
 
         <!-- ==================== JOB DETAILS & DIRECT APPLY MODAL ==================== -->
         <div x-show="isModalOpen" 
