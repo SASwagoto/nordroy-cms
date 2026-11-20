@@ -3,55 +3,87 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Enquiry;
+use App\Models\RfqFormField;
 use Livewire\Component;
 
 class RfqLeadForm extends Component
 {
-    public string $full_name = '';
-    public string $email = '';
-    public string $phone = '';
-    public string $company = '';
-    public string $vessel_plant_name = '';
-    public string $turbocharger_model = '';
-    public string $port_location = 'Chattogram Port';
-    public string $service_required = 'Complete Overhaul & Dynamic Balancing';
-    public string $urgency = 'Standard Scheduled Maintenance';
-    public string $message = '';
+    /**
+     * Dynamic Form Data State indexed by field key
+     */
+    public array $formData = [];
 
-    // Honeypot field for anti-bot spam prevention
+    /**
+     * Anti-bot honeypot field
+     */
     public string $extra_honey = '';
 
     public bool $isSubmitted = false;
     public ?string $referenceCode = null;
     public ?array $submittedData = null;
+    public ?string $service = null;
+
+    public function mount(?string $service = null): void
+    {
+        $this->service = $service;
+        RfqFormField::seedDefaultsIfEmpty();
+
+        $fields = RfqFormField::active()->get();
+        foreach ($fields as $field) {
+            $default = $field->default_value ?? '';
+            
+            // If service passed into component, prefill matching service/product field
+            if ($service && in_array($field->name, ['service_required', 'service', 'product'])) {
+                $default = $service;
+            }
+
+            if ($field->type === 'checkbox') {
+                $this->formData[$field->name] = (bool) $default;
+            } else {
+                $this->formData[$field->name] = $default;
+            }
+        }
+    }
 
     protected function rules(): array
     {
-        return [
-            'full_name'          => 'required|string|min:3|max:150',
-            'email'              => 'required|email:filter|max:150',
-            'phone'              => 'required|string|min:7|max:50',
-            'company'            => 'nullable|string|max:150',
-            'vessel_plant_name'  => 'required|string|min:2|max:150',
-            'turbocharger_model' => 'required|string|min:2|max:150',
-            'port_location'      => 'required|string|max:100',
-            'service_required'   => 'required|string|max:150',
-            'urgency'            => 'required|string|max:100',
-            'message'            => 'required|string|min:10|max:3000',
-        ];
+        $fields = RfqFormField::active()->get();
+        $rules = [];
+
+        foreach ($fields as $field) {
+            $key = 'formData.' . $field->name;
+            $r = [];
+
+            if ($field->is_required) {
+                $r[] = 'required';
+            } else {
+                $r[] = 'nullable';
+            }
+
+            match ($field->type) {
+                'email'    => $r[] = 'email:filter|max:150',
+                'number'   => $r[] = 'numeric',
+                'date'     => $r[] = 'date',
+                'textarea' => $r[] = 'string|min:5|max:5000',
+                'tel'      => $r[] = 'string|min:6|max:50',
+                'checkbox' => $r[] = 'boolean',
+                default    => $r[] = 'string|max:255',
+            };
+
+            $rules[$key] = implode('|', $r);
+        }
+
+        return $rules;
     }
 
-    protected function messages(): array
+    protected function validationAttributes(): array
     {
-        return [
-            'full_name.required'          => 'Please provide the contact person / chief engineer name.',
-            'email.required'              => 'A valid technical or corporate email address is required.',
-            'phone.required'              => 'Direct phone or WhatsApp number is required for urgent port dispatch.',
-            'vessel_plant_name.required'  => 'Please specify the vessel name (e.g. M/V Nordroy) or industrial plant unit.',
-            'turbocharger_model.required' => 'Please enter the turbocharger manufacturer & model (e.g. ABB TPL-77, MAN TCR22).',
-            'message.required'            => 'Please describe the symptoms, required scope, or observed vibrations.',
-            'message.min'                 => 'Please provide at least a brief technical description (minimum 10 characters).',
-        ];
+        $fields = RfqFormField::active()->get();
+        $attrs = [];
+        foreach ($fields as $field) {
+            $attrs['formData.' . $field->name] = $field->label;
+        }
+        return $attrs;
     }
 
     public function submitRfq(): void
@@ -63,66 +95,121 @@ class RfqLeadForm extends Component
             return;
         }
 
-        $validated = $this->validate();
+        $this->validate();
+
+        $fields = RfqFormField::active()->get();
+
+        // Extract primary contact fields for the core columns in enquiries table
+        $fullName = $this->formData['full_name'] 
+            ?? $this->formData['name'] 
+            ?? $this->formData['contact_person'] 
+            ?? 'Valued Maritime Client';
+
+        $email = $this->formData['email'] 
+            ?? $this->formData['contact_email'] 
+            ?? 'inquiry@nordroy.com';
+
+        $phone = $this->formData['phone'] 
+            ?? $this->formData['whatsapp'] 
+            ?? $this->formData['tel'] 
+            ?? 'N/A';
+
+        $company = $this->formData['company'] 
+            ?? $this->formData['organization'] 
+            ?? '';
+
+        $message = $this->formData['message'] 
+            ?? $this->formData['comments'] 
+            ?? $this->formData['symptoms'] 
+            ?? 'Technical RFQ Inquiry transmitted via web portal.';
+
+        $serviceRequired = $this->formData['service_required'] 
+            ?? $this->formData['service'] 
+            ?? ($this->service ?: 'Marine Engineering Overhaul');
+
+        $vessel = $this->formData['vessel_plant_name'] 
+            ?? $this->formData['vessel_name'] 
+            ?? '';
+
+        $model = $this->formData['turbocharger_model'] 
+            ?? $this->formData['equipment_model'] 
+            ?? '';
+
+        // Formulate dynamic subject
+        $subject = "RFQ: {$serviceRequired}";
+        if (!empty($vessel)) {
+            $subject .= " - {$vessel}";
+        }
+        if (!empty($model)) {
+            $subject .= " ({$model})";
+        }
+
+        // Build structured dynamic payload
+        $payloadFields = [];
+        foreach ($fields as $f) {
+            $val = $this->formData[$f->name] ?? null;
+            $payloadFields[] = [
+                'name'  => $f->name,
+                'label' => $f->label,
+                'type'  => $f->type,
+                'value' => $val,
+            ];
+        }
+
+        $payload = [
+            'fields'             => $payloadFields,
+            'raw'                => $this->formData,
+            'vessel_plant_name'  => $vessel,
+            'turbocharger_model' => $model,
+            'port_location'      => $this->formData['port_location'] ?? 'Chattogram Port',
+            'service_required'   => $serviceRequired,
+            'urgency'            => $this->formData['urgency'] ?? 'Standard Scheduled Maintenance',
+            'submitted_at'       => now()->toIso8601String(),
+        ];
 
         $enquiry = Enquiry::create([
             'type'       => 'quotation',
-            'full_name'  => trim($validated['full_name']),
-            'email'      => trim(strtolower($validated['email'])),
-            'phone'      => trim($validated['phone']),
-            'company'    => trim($validated['company'] ?? ''),
-            'subject'    => "RFQ: {$validated['service_required']} - {$validated['vessel_plant_name']} ({$validated['turbocharger_model']})",
-            'message'    => trim($validated['message']),
-            'payload'    => [
-                'vessel_plant_name'  => trim($validated['vessel_plant_name']),
-                'turbocharger_model' => trim($validated['turbocharger_model']),
-                'port_location'      => trim($validated['port_location']),
-                'service_required'   => trim($validated['service_required']),
-                'urgency'            => trim($validated['urgency']),
-                'submitted_at'       => now()->toIso8601String(),
-            ],
+            'full_name'  => trim($fullName),
+            'email'      => trim(strtolower($email)),
+            'phone'      => trim($phone),
+            'company'    => trim($company),
+            'subject'    => trim($subject),
+            'message'    => trim($message),
+            'payload'    => $payload,
             'ip_address' => request()->ip(),
             'status'     => 'new',
         ]);
 
         $this->referenceCode = sprintf('NRQ-%s-%04d', date('Y'), $enquiry->id);
-
-        $this->submittedData = [
-            'vessel'  => $validated['vessel_plant_name'],
-            'model'   => $validated['turbocharger_model'],
-            'port'    => $validated['port_location'],
-            'service' => $validated['service_required'],
-            'urgency' => $validated['urgency'],
-            'name'    => $validated['full_name'],
-            'email'   => $validated['email'],
-        ];
-
+        $this->submittedData = $payloadFields;
         $this->isSubmitted = true;
     }
 
     public function resetForm(): void
     {
-        $this->reset([
-            'full_name',
-            'email',
-            'phone',
-            'company',
-            'vessel_plant_name',
-            'turbocharger_model',
-            'message',
-            'extra_honey',
-            'isSubmitted',
-            'referenceCode',
-            'submittedData',
-        ]);
-        $this->port_location = 'Chattogram Port';
-        $this->service_required = 'Complete Overhaul & Dynamic Balancing';
-        $this->urgency = 'Standard Scheduled Maintenance';
+        $this->isSubmitted = false;
+        $this->referenceCode = null;
+        $this->submittedData = null;
+        $this->extra_honey = '';
+        
+        $fields = RfqFormField::active()->get();
+        foreach ($fields as $field) {
+            $default = $field->default_value ?? '';
+            if ($this->service && in_array($field->name, ['service_required', 'service', 'product'])) {
+                $default = $this->service;
+            }
+            $this->formData[$field->name] = ($field->type === 'checkbox') ? (bool)$default : $default;
+        }
+
         $this->resetValidation();
     }
 
     public function render()
     {
-        return view('livewire.frontend.rfq-lead-form');
+        $fields = RfqFormField::active()->get();
+
+        return view('livewire.frontend.rfq-lead-form', [
+            'fields' => $fields,
+        ]);
     }
 }

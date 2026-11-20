@@ -17,6 +17,12 @@
         </div>
 
         <div class="flex items-center gap-2">
+            <a href="{{ route('admin.enquiries.form-builder') }}" 
+               class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer">
+                <x-icon name="solid:adjustments-horizontal" class="w-3.5 h-3.5" />
+                <span>RFQ Form Builder</span>
+            </a>
+
             @if ($counts['new'] > 0)
                 <button type="button" 
                         wire:click="markAllAsRead" 
@@ -376,35 +382,55 @@
                     </div>
 
                     <!-- Technical Specs HUD -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
-                            <span class="block text-[10px] font-mono uppercase text-slate-400">Equipment / Model:</span>
-                            <span class="text-xs font-bold font-mono text-slate-900 dark:text-white mt-0.5 block truncate">
-                                {{ $p['turbocharger_model'] ?? 'N/A' }}
+                    @if(isset($p['fields']) && is_array($p['fields']))
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
+                                Dynamic RFQ Specifications:
                             </span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                @foreach($p['fields'] as $fld)
+                                    @if(isset($fld['value']) && $fld['value'] !== '' && $fld['value'] !== null && ($fld['type'] ?? '') !== 'textarea')
+                                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
+                                            <span class="block text-[10px] font-mono uppercase text-slate-400 truncate">{{ $fld['label'] ?? $fld['name'] }}:</span>
+                                            <span class="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block truncate">
+                                                {{ is_bool($fld['value']) ? ($fld['value'] ? 'Yes' : 'No') : $fld['value'] }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
+                    @else
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
+                                <span class="block text-[10px] font-mono uppercase text-slate-400">Equipment / Model:</span>
+                                <span class="text-xs font-bold font-mono text-slate-900 dark:text-white mt-0.5 block truncate">
+                                    {{ $p['turbocharger_model'] ?? 'N/A' }}
+                                </span>
+                            </div>
 
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
-                            <span class="block text-[10px] font-mono uppercase text-slate-400">Port / Facility:</span>
-                            <span class="text-xs font-bold text-[#003C58] dark:text-cyan-400 mt-0.5 block truncate">
-                                {{ $p['port_location'] ?? 'Chattogram' }}
-                            </span>
-                        </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
+                                <span class="block text-[10px] font-mono uppercase text-slate-400">Port / Facility:</span>
+                                <span class="text-xs font-bold text-[#003C58] dark:text-cyan-400 mt-0.5 block truncate">
+                                    {{ $p['port_location'] ?? 'Chattogram' }}
+                                </span>
+                            </div>
 
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
-                            <span class="block text-[10px] font-mono uppercase text-slate-400">Urgency Level:</span>
-                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400 mt-0.5 block truncate">
-                                {{ $p['urgency'] ?? 'Standard' }}
-                            </span>
-                        </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
+                                <span class="block text-[10px] font-mono uppercase text-slate-400">Urgency Level:</span>
+                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 mt-0.5 block truncate">
+                                    {{ $p['urgency'] ?? 'Standard' }}
+                                </span>
+                            </div>
 
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
-                            <span class="block text-[10px] font-mono uppercase text-slate-400">Required Service:</span>
-                            <span class="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block truncate">
-                                {{ $p['service_required'] ?? $selectedEnquiry->subject }}
-                            </span>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800">
+                                <span class="block text-[10px] font-mono uppercase text-slate-400">Required Service:</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block truncate">
+                                    {{ $p['service_required'] ?? $selectedEnquiry->subject }}
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Technical Notes & Symptoms -->
                     <div class="space-y-2">

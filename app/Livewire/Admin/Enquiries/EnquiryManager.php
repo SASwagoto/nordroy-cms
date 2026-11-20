@@ -108,7 +108,7 @@ class EnquiryManager extends Component
             $handle = fopen('php://output', 'w');
             fputcsv($handle, [
                 'ID', 'Date', 'Type', 'Status', 'Client Name', 'Company', 'Email', 'Phone',
-                'Vessel/Plant', 'Equipment/Model', 'Port/Location', 'Service Required', 'Urgency', 'Subject', 'Message'
+                'Vessel/Plant', 'Equipment/Model', 'Port/Location', 'Service Required', 'Urgency', 'Subject', 'Message', 'Custom Specs'
             ]);
 
             $query = Enquiry::latest();
@@ -122,6 +122,18 @@ class EnquiryManager extends Component
             $query->chunk(100, function ($enquiries) use ($handle) {
                 foreach ($enquiries as $e) {
                     $payload = is_array($e->payload) ? $e->payload : [];
+                    $customSpecs = '';
+                    if (isset($payload['fields']) && is_array($payload['fields'])) {
+                        $parts = [];
+                        foreach ($payload['fields'] as $fld) {
+                            if (isset($fld['value']) && $fld['value'] !== '' && ($fld['type'] ?? '') !== 'textarea') {
+                                $v = is_bool($fld['value']) ? ($fld['value'] ? 'Yes' : 'No') : $fld['value'];
+                                $parts[] = "{$fld['label']}: {$v}";
+                            }
+                        }
+                        $customSpecs = implode('; ', $parts);
+                    }
+
                     fputcsv($handle, [
                         $e->id,
                         $e->created_at->format('Y-m-d H:i:s'),
@@ -138,6 +150,7 @@ class EnquiryManager extends Component
                         $payload['urgency'] ?? '',
                         $e->subject,
                         $e->message,
+                        $customSpecs,
                     ]);
                 }
             });

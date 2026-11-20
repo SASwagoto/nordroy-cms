@@ -14,40 +14,37 @@
                     <span class="tracking-wider">{{ $referenceCode }}</span>
                 </span>
                 <h3 class="text-xl sm:text-2xl font-bold font-heading text-slate-900 dark:text-white pt-2">
-                    Technical RFQ Successfully Transmitted
+                    {{ __('Technical RFQ Successfully Transmitted') }}
                 </h3>
                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
-                    Our duty marine engineering superintendents and flying squad coordinators at Chattogram &amp; Mongla have received your inquiry.
+                    {{ __('Our duty marine engineering superintendents and flying squad coordinators at Chattogram & Mongla have received your inquiry.') }}
                 </p>
             </div>
 
-            <!-- Response SLA Indicator -->
-            <div class="max-w-md mx-auto p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-left space-y-2 text-xs">
-                <div class="flex items-center justify-between text-[11px] font-mono">
-                    <span class="text-slate-500 dark:text-slate-400 uppercase">Duty Desk Protocol:</span>
+            <!-- Dynamic Response SLA & Transmission Summary -->
+            <div class="max-w-xl mx-auto p-4 sm:p-5 rounded-xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-left space-y-3 text-xs shadow-xs">
+                <div class="flex items-center justify-between text-[11px] font-mono pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400 uppercase font-semibold">{{ __('Duty Desk Protocol:') }}</span>
                     <span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Response within 45 Mins
+                        {{ __('Response within 45 Mins') }}
                     </span>
                 </div>
-                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 font-mono text-[11px]">
-                    <div>
-                        <span class="text-slate-400 block text-[10px]">VESSEL / PLANT:</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">{{ $submittedData['vessel'] ?? '' }}</span>
+
+                @if(!empty($submittedData))
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 font-mono text-[11px]">
+                        @foreach($submittedData as $item)
+                            @if(!empty($item['value']) && $item['type'] !== 'textarea')
+                                <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800">
+                                    <span class="text-slate-400 block text-[10px] uppercase truncate">{{ $item['label'] }}:</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">
+                                        {{ is_bool($item['value']) ? ($item['value'] ? 'Yes' : 'No') : $item['value'] }}
+                                    </span>
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px]">EQUIPMENT:</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">{{ $submittedData['model'] ?? '' }}</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px]">LOCATION:</span>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">{{ $submittedData['port'] ?? '' }}</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px]">URGENCY:</span>
-                        <span class="font-bold text-amber-600 dark:text-amber-400 truncate block">{{ $submittedData['urgency'] ?? '' }}</span>
-                    </div>
-                </div>
+                @endif
             </div>
 
             <div class="pt-2">
@@ -57,13 +54,13 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    <span>Submit Another Inquiry</span>
+                    <span>{{ __('Submit Another Inquiry') }}</span>
                 </button>
             </div>
         </div>
 
     @else
-        <!-- ACTIVE FORM -->
+        <!-- ACTIVE DYNAMIC FORM -->
         <form wire:submit.prevent="submitRfq" class="space-y-4">
             
             <!-- Honeypot -->
@@ -71,165 +68,106 @@
                 <input type="text" wire:model="extra_honey" tabindex="-1" autocomplete="off" />
             </div>
 
-            <!-- Row 1: Contact Personnel -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Contact Person / Superintendent <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           wire:model="full_name" 
-                           placeholder="Capt. / Engr. Full Name" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('full_name') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                    @error('full_name')
-                        <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+            <!-- Dynamic 12-Column Grid Container -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                @foreach($fields as $field)
+                    @php
+                        $colSpan = match((int) $field->width) {
+                            3 => 'col-span-1 md:col-span-3',
+                            4 => 'col-span-1 md:col-span-4',
+                            6 => 'col-span-1 md:col-span-6',
+                            default => 'col-span-1 md:col-span-12',
+                        };
+                        $errorKey = 'formData.' . $field->name;
+                    @endphp
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Corporate / Shipping Line Company
-                    </label>
-                    <input type="text" 
-                           wire:model="company" 
-                           placeholder="e.g. Pacific Bulk Logistics Ltd." 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                </div>
-            </div>
+                    <div wire:key="rfq-input-{{ $field->id }}" class="{{ $colSpan }}">
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            {{ $field->label }}
+                            @if($field->is_required)
+                                <span class="text-rose-500">*</span>
+                            @endif
+                        </label>
 
-            <!-- Row 2: Communication Channels -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Technical Email <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="email" 
-                           wire:model="email" 
-                           placeholder="technical.ops@shipping-company.com" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('email') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                    @error('email')
-                        <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+                        @if($field->type === 'textarea')
+                            <textarea wire:model="formData.{{ $field->name }}" 
+                                      rows="3" 
+                                      placeholder="{{ $field->placeholder }}" 
+                                      class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error($errorKey) border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors"></textarea>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Phone / WhatsApp (Direct Dispatch) <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           wire:model="phone" 
-                           placeholder="+880 1800-000000 / International format" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('phone') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                    @error('phone')
-                        <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
+                        @elseif($field->type === 'select')
+                            <select wire:model="formData.{{ $field->name }}" 
+                                    class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error($errorKey) border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors">
+                                <option value="">{{ $field->placeholder ?: 'Select ' . $field->label }}</option>
+                                @foreach($field->options ?? [] as $opt)
+                                    <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                                @endforeach
+                            </select>
 
-            <!-- Row 3: Vessel & Equipment Identification -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Vessel / Power Plant Name <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           wire:model="vessel_plant_name" 
-                           placeholder="e.g. M/V Nordroy Carrier or Unit 3 Turbine" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('vessel_plant_name') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                    @error('vessel_plant_name')
-                        <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+                        @elseif($field->type === 'radio')
+                            <div class="flex flex-wrap gap-4 pt-1.5">
+                                @foreach($field->options ?? [] as $opt)
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
+                                        <input type="radio" 
+                                               wire:model="formData.{{ $field->name }}" 
+                                               value="{{ $opt['value'] }}" 
+                                               class="text-[#003C58] focus:ring-0">
+                                        <span>{{ $opt['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Turbocharger Model &amp; Serial <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           wire:model="turbocharger_model" 
-                           placeholder="e.g. ABB TPL-77, MAN TCR22, Napier NA297" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('turbocharger_model') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                    @error('turbocharger_model')
-                        <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
+                        @elseif($field->type === 'checkbox')
+                            <div class="pt-2">
+                                <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300">
+                                    <input type="checkbox" 
+                                           wire:model="formData.{{ $field->name }}" 
+                                           class="rounded text-[#003C58] focus:ring-0">
+                                    <span>{{ $field->placeholder ?: $field->label }}</span>
+                                </label>
+                            </div>
 
-            <!-- Row 4: Operational Coordinates -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Port / Facility Location <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="text" 
-                           wire:model="port_location" 
-                           placeholder="Chattogram / Mongla / Anchorage" 
-                           class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
-                </div>
+                        @else
+                            <input type="{{ $field->type }}" 
+                                   wire:model="formData.{{ $field->name }}" 
+                                   placeholder="{{ $field->placeholder }}" 
+                                   class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error($errorKey) border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors" />
+                        @endif
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Required Service <span class="text-rose-500">*</span>
-                    </label>
-                    <select wire:model="service_required" 
-                            class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors">
-                        <option value="Complete Overhaul & Dynamic Balancing">Complete Overhaul &amp; Dynamic Balancing</option>
-                        <option value="CHRA Cartridge Exchange">CHRA Cartridge Exchange</option>
-                        <option value="Emergency Flying Squad to Vessel">Emergency Flying Squad to Vessel</option>
-                        <option value="Spare Parts Purchase">Spare Parts Purchase</option>
-                        <option value="NDT Metallurgical Inspection">NDT Metallurgical Inspection</option>
-                        <option value="Retrofit & Performance Upgrade">Retrofit &amp; Performance Upgrade</option>
-                    </select>
-                </div>
+                        @error($errorKey)
+                            <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
+                        @enderror
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Urgency Level <span class="text-rose-500">*</span>
-                    </label>
-                    <select wire:model="urgency" 
-                            class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors">
-                        <option value="Standard Scheduled Maintenance">Standard Scheduled Maintenance</option>
-                        <option value="Urgent Port Call (Within 48h)">Urgent Port Call (Within 48h)</option>
-                        <option value="Emergency Vessel Blackout / AOG">Emergency Vessel Blackout / AOG</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Technical Symptoms -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Technical Symptoms &amp; Observed Issues <span class="text-rose-500">*</span>
-                </label>
-                <textarea wire:model="message" 
-                          rows="3" 
-                          placeholder="Describe symptoms (e.g. abnormal vibration levels > 10 mm/s RMS, oil leaks at exhaust casing, high exhaust gas temps, surging under load)..." 
-                          class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border @error('message') border-rose-500 @else border-slate-200 dark:border-slate-800 @enderror text-slate-900 dark:text-white focus:ring-2 focus:ring-[#003C58]/40 focus:outline-none transition-colors"></textarea>
-                @error('message')
-                    <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span>
-                @enderror
+                        @if(!empty($field->help_text))
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">{{ $field->help_text }}</span>
+                        @endif
+                    </div>
+                @endforeach
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" 
-                    wire:loading.attr="disabled" 
-                    class="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-70"
-                    style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
-                
-                <span wire:loading.remove wire:target="submitRfq" class="inline-flex items-center justify-center gap-2 whitespace-nowrap">
-                    <svg class="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                    <span>Transmit RFQ to 24/7 Port Duty Desk</span>
-                </span>
+            <div class="pt-2">
+                <button type="submit" 
+                        wire:loading.attr="disabled" 
+                        class="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 group disabled:opacity-70"
+                        style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
+                    
+                    <span wire:loading.remove wire:target="submitRfq" class="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                        <svg class="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                        <span>{{ __('Transmit RFQ to 24/7 Port Duty Desk') }}</span>
+                    </span>
 
-                <span wire:loading.inline-flex wire:target="submitRfq" class="items-center justify-center gap-2 whitespace-nowrap" style="display: none;">
-                    <svg class="w-4 h-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Encoding &amp; Transmitting Inquiry...</span>
-                </span>
-            </button>
+                    <span wire:loading.inline-flex wire:target="submitRfq" class="items-center justify-center gap-2 whitespace-nowrap" style="display: none;">
+                        <svg class="w-4 h-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>{{ __('Encoding & Transmitting Inquiry...') }}</span>
+                    </span>
+                </button>
+            </div>
         </form>
     @endif
 </div>

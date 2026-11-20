@@ -2,6 +2,7 @@
 
 use App\Livewire\Admin\Access\AccessManager;
 use App\Livewire\Admin\Enquiries\EnquiryManager;
+use App\Livewire\Admin\Enquiries\RfqFormBuilder;
 use App\Livewire\Admin\Gallery\GalleryManager;
 use App\Livewire\Admin\Gallery\PhotoGalleryManager;
 use App\Livewire\Admin\Gallery\VideoGalleryManager;
@@ -337,6 +338,10 @@ Route::middleware([
     Route::get('/enquiries', EnquiryManager::class)
         ->middleware('permission:enquiries.view')
         ->name('enquiries');
+
+    Route::get('/enquiries/form-builder', RfqFormBuilder::class)
+        ->middleware('permission:enquiries.view')
+        ->name('enquiries.form-builder');
 
     // Access Control Studio (Users & Permissions)
     Route::get('/access', AccessManager::class)
