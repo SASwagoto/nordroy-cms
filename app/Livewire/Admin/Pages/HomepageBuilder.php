@@ -70,6 +70,7 @@ class HomepageBuilder extends Component
     public bool $topbar_show_portal = true;
     public string $topbar_portal_text = 'Admin Portal →';
     public string $topbar_portal_url = '/admin/dashboard';
+    public string $topbar_portal_link_type = 'internal'; // 'internal', 'external'
 
     // Modular Custom Topbar Items Repeater
     public array $topbar_custom_items = [];
@@ -78,6 +79,7 @@ class HomepageBuilder extends Component
     public string $newCustomIcon = 'solid:info';
     public string $newCustomUrl = '';
     public string $newCustomTarget = '_self'; // '_self', '_blank'
+    public string $newCustomLinkType = 'internal'; // 'internal', 'external'
 
     // ==========================================
     // MAIN NAVBAR STATE (Header Row 2)
@@ -114,6 +116,7 @@ class HomepageBuilder extends Component
     public bool $header_cta_enabled = true;
     public string $header_cta_text = 'Request RFQ';
     public string $header_cta_url = '/contact#rfq';
+    public string $header_cta_link_type = 'internal'; // 'internal', 'external'
     public string $header_cta_icon = 'solid:clipboard-document-list';
     public string $header_cta_style = 'primary_gradient'; // 'primary_gradient', 'outline', 'solid_dark'
 
@@ -159,6 +162,7 @@ class HomepageBuilder extends Component
         $this->topbar_show_portal   = (bool) Setting::get('header_topbar_show_portal', true);
         $this->topbar_portal_text   = Setting::get('header_topbar_portal_text', 'Admin Portal →');
         $this->topbar_portal_url    = Setting::get('header_topbar_portal_url', '/admin/dashboard');
+        $this->topbar_portal_link_type = (str_starts_with($this->topbar_portal_url, 'http://') || str_starts_with($this->topbar_portal_url, 'https://')) ? 'external' : 'internal';
 
         // Custom Topbar Items
         $storedCustomItems = Setting::get('header_topbar_custom_items');
@@ -206,6 +210,7 @@ class HomepageBuilder extends Component
         $this->header_cta_enabled       = (bool) Setting::get('header_cta_enabled', true);
         $this->header_cta_text          = Setting::get('header_cta_text', 'Request RFQ');
         $this->header_cta_url           = Setting::get('header_cta_url', '/contact#rfq');
+        $this->header_cta_link_type     = (str_starts_with($this->header_cta_url, 'http://') || str_starts_with($this->header_cta_url, 'https://')) ? 'external' : 'internal';
         $this->header_cta_icon          = Setting::get('header_cta_icon', 'solid:clipboard-document-list');
         $this->header_cta_style         = Setting::get('header_cta_style', 'primary_gradient');
     }
@@ -518,10 +523,74 @@ class HomepageBuilder extends Component
         }
     }
 
+    /**
+     * Provide comprehensive internal page and anchor route choices
+     * so admins never need to manually remember or type routes.
+     */
+    public function getInternalLinkOptions(): array
+    {
+        $options = [
+            'Core Public Pages' => [
+                '/' => 'Home Page (Landing Page)',
+                '/about' => 'About Us (Company Overview)',
+                '/about#overview' => 'About Us → Corporate Heritage & Profile',
+                '/about#mission' => 'About Us → Mission, Vision & Core Values',
+                '/about#certifications' => 'About Us → ISO 9001:2015 & DNV Standards',
+                '/services' => 'Services (All Precision Overhauls)',
+                '/services#balancing' => 'Services → Dynamic Rotor Balancing (100k RPM)',
+                '/services#overhaul' => 'Services → Turbine Blading & TIG Welding',
+                '/services#cartridge' => 'Services → Cartridge (CHRA) Exchange',
+                '/services#ultrasonic' => 'Services → Ultrasonic Chemical Cleaning',
+                '/services#flying-squad' => 'Services → 24/7 Port Emergency Flying Squads',
+                '/products' => 'Products & Spares Catalog',
+                '/projects' => 'Featured Projects & Case Studies',
+                '/photo-gallery' => 'Photo Gallery & Workshops',
+                '/video-gallery' => 'Video Gallery & Procedures',
+                '/careers' => 'Careers & Open Positions',
+                '/contact' => 'Contact Desk',
+                '/contact#rfq' => 'Contact Desk → Technical RFQ Form',
+            ],
+            'Admin Portals & Management' => [
+                '/admin/dashboard' => 'Admin Portal / Dashboard',
+                '/admin/enquiries' => 'Admin → Inquiries & RFQ Leads',
+                '/admin/services' => 'Admin → Precision Services Manager',
+                '/admin/products' => 'Admin → Products & Spares Manager',
+                '/admin/theme' => 'Admin → Theme Studio',
+                '/admin/menus' => 'Admin → Navigation Menus',
+                '/admin/settings' => 'Admin → Global Settings',
+            ],
+        ];
+
+        // Add dynamic published pages
+        try {
+            $dbPages = \App\Models\Page::where('status', 'published')->get();
+            if ($dbPages->count() > 0) {
+                foreach ($dbPages as $page) {
+                    $slug = '/' . ltrim($page->slug, '/');
+                    $title = is_array($page->title) ? ($page->title[app()->getLocale()] ?? reset($page->title)) : $page->title;
+                    $options['Custom CMS Pages'][$slug] = $title . " ({$slug})";
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // Add dynamic services
+        try {
+            $dbServices = \App\Models\Service::where('is_active', true)->orderBy('order')->get();
+            if ($dbServices->count() > 0) {
+                foreach ($dbServices as $service) {
+                    $slug = '/services/' . $service->slug;
+                    $options['Dynamic Services'][$slug] = ($service->display_title ?: $service->slug) . " ({$slug})";
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        return $options;
+    }
+
     public function render()
     {
         $availableMenus = Menu::orderBy('name')->get();
-        $selectedMenu = $this->header_menu_id ? Menu::with('rootItems.children')->find($this->header_menu_id) : null;
+        $selectedMenu = $this->header_menu_id ? Menu::find($this->header_menu_id) : null;
 
         // Retrieve settings social links
         $storedSocial = Setting::get('social_links_data');
@@ -534,6 +603,7 @@ class HomepageBuilder extends Component
             'availableMenus'       => $availableMenus,
             'selectedMenu'         => $selectedMenu,
             'availableSocialLinks' => $availableSocialLinks,
+            'internalLinkOptions'  => $this->getInternalLinkOptions(),
         ]);
     }
 }

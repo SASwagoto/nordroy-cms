@@ -397,9 +397,9 @@
                 default => 'border-b border-slate-200/90 dark:border-slate-800',
             };
 
-            $headerBrandTitle = \App\Models\Setting::get('header_brand_title') ?: \App\Models\Setting::get('site_name', 'Nordroy Marine');
-            $headerLogoLight = \App\Models\Setting::get('header_logo_light') ?: $siteLogoLight;
-            $headerLogoDark = \App\Models\Setting::get('header_logo_dark') ?: $siteLogoDark;
+            $headerBrandTitle = \App\Models\Setting::get('site_name', 'Nordroy Marine');
+            $headerLogoLight = \App\Models\Setting::get('site_logo', 'assets/images/logo.png');
+            $headerLogoDark = \App\Models\Setting::get('site_logo_dark', 'assets/images/logo-dark.png') ?: $headerLogoLight;
             $headerLogoHeight = (int) \App\Models\Setting::get('header_logo_height', 40);
 
             $headerShowThemeToggle = (bool) \App\Models\Setting::get('header_show_theme_toggle', true);

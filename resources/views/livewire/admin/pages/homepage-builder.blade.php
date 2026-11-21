@@ -488,11 +488,42 @@
                                 </div>
 
                                 @if($topbar_show_portal)
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                                    <input type="text" wire:model="topbar_portal_text" placeholder="Admin Portal &rarr;"
-                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                                    <input type="text" wire:model="topbar_portal_url" placeholder="/admin/dashboard"
-                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 pt-2">
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Portal Link Label</label>
+                                        <input type="text" wire:model="topbar_portal_text" placeholder="Admin Portal &rarr;"
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Destination Route / URL</label>
+                                            <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
+                                                <button type="button" wire:click="$set('topbar_portal_link_type', 'internal')"
+                                                        class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $topbar_portal_link_type === 'internal' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                                    Internal Route
+                                                </button>
+                                                <button type="button" wire:click="$set('topbar_portal_link_type', 'external')"
+                                                        class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $topbar_portal_link_type === 'external' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                                    External URL
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @if($topbar_portal_link_type === 'internal')
+                                            <select wire:model.live="topbar_portal_url"
+                                                    class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                                @foreach($internalLinkOptions as $category => $routes)
+                                                    <optgroup label="{{ $category }}">
+                                                        @foreach($routes as $rUrl => $rLabel)
+                                                            <option value="{{ $rUrl }}">{{ $rLabel }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" wire:model="topbar_portal_url" placeholder="https://..."
+                                                   class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        @endif
+                                    </div>
                                 </div>
                                 @endif
                             </div>
@@ -509,24 +540,39 @@
                             </div>
 
                             <!-- Add New Custom Item Box -->
-                            <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-                                <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Add New Modular Item</span>
-                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="block text-xs font-bold text-slate-800 dark:text-slate-200">Add New Modular Topbar Item</span>
+                                    <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
+                                        <button type="button" wire:click="$set('newCustomLinkType', 'internal')"
+                                                class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $newCustomLinkType === 'internal' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                            Internal Page
+                                        </button>
+                                        <button type="button" wire:click="$set('newCustomLinkType', 'external')"
+                                                class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $newCustomLinkType === 'external' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                            External URL
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
                                     <!-- Zone Selector -->
-                                    <div class="sm:col-span-2">
+                                    <div class="sm:col-span-2 space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-500">Zone</label>
                                         <select wire:model="newCustomZone"
-                                                class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                                class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
                                             <option value="left">Left Zone</option>
                                             <option value="right">Right Zone</option>
                                         </select>
                                     </div>
                                     <!-- Text Label -->
-                                    <div class="sm:col-span-3">
-                                        <input type="text" wire:model="newCustomText" placeholder="Item Label..."
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    <div class="sm:col-span-3 space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-500">Item Label</label>
+                                        <input type="text" wire:model="newCustomText" placeholder="e.g. Careers"
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
                                     </div>
                                     <!-- Icon Picker -->
-                                    <div class="sm:col-span-3">
+                                    <div class="sm:col-span-3 space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-500">Icon</label>
                                         <div x-data="{
                                                 iconVal: @entangle('newCustomIcon'),
                                                 get iconUrl() {
@@ -542,7 +588,7 @@
                                                 }
                                              }"
                                              @click="$dispatch('open-icon-picker', { targetField: 'newCustomIcon' })"
-                                             class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                             class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
                                             <div class="w-4 h-4 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5">
                                                 <img :src="iconUrl" :alt="iconVal" class="w-3 h-3 object-contain dark:invert" 
                                                      onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
@@ -553,15 +599,30 @@
                                             <span class="text-[10px] font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'solid:info'"></span>
                                         </div>
                                     </div>
-                                    <!-- URL Target -->
-                                    <div class="sm:col-span-3">
-                                        <input type="text" wire:model="newCustomUrl" placeholder="Link URL (e.g. /careers)"
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    <!-- URL Target: Smart Internal / External Selector -->
+                                    <div class="sm:col-span-3 space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-500">Destination</label>
+                                        @if($newCustomLinkType === 'internal')
+                                            <select wire:model="newCustomUrl"
+                                                    class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                                <option value="">-- Choose Page / Section --</option>
+                                                @foreach($internalLinkOptions as $category => $routes)
+                                                    <optgroup label="{{ $category }}">
+                                                        @foreach($routes as $rUrl => $rLabel)
+                                                            <option value="{{ $rUrl }}">{{ $rLabel }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" wire:model="newCustomUrl" placeholder="https://..."
+                                                   class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        @endif
                                     </div>
                                     <!-- Add Button -->
                                     <div class="sm:col-span-1">
                                         <button type="button" wire:click="addCustomTopbarItem"
-                                                class="w-full h-[34px] px-2 rounded-lg text-xs font-bold bg-[#003C58] text-white hover:bg-[#002f45] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 transition-colors flex items-center justify-center cursor-pointer">
+                                                class="w-full h-[34px] px-2 rounded-xl text-xs font-bold bg-[#003C58] text-white hover:bg-[#002f45] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 transition-colors flex items-center justify-center cursor-pointer shadow-xs">
                                             <x-icon name="solid:plus" class="w-3.5 h-3.5" />
                                         </button>
                                     </div>
@@ -754,48 +815,28 @@
                         </div>
                         @endif
 
-                        <!-- Brand Title / Alt -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Brand Title / Alt Text</label>
-                            <input type="text" wire:model="header_brand_title" placeholder="Nordroy Marine"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
+                        <!-- Brand Logo Display & Scaling (Theme Studio Synchronized) -->
+                        <div class="md:col-span-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div>
+                                    <span class="block text-xs font-bold text-slate-900 dark:text-white">Brand Logo Scale</span>
+                                    <span class="block text-[10px] text-slate-500">Logo files and site name are automatically synchronized from Global Settings &amp; Theme Studio (no manual file paths needed).</span>
+                                </div>
+                                <a href="{{ route('admin.theme') }}" target="_blank"
+                                   class="text-[11px] font-bold text-[#003C58] dark:text-cyan-400 hover:underline shrink-0">
+                                    Manage Logo in Theme Studio &rarr;
+                                </a>
+                            </div>
 
-                        <!-- Logo Height -->
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Logo Height (px)</label>
+                            <div class="flex items-center justify-between pt-1">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Display Height</label>
                                 <span class="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ $header_logo_height }}px</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <input type="range" min="20" max="80" step="2" wire:model.live="header_logo_height"
                                        class="w-full accent-[#003C58] dark:accent-cyan-400">
                                 <input type="number" min="20" max="100" wire:model.live="header_logo_height"
-                                       class="w-20 px-2 py-1 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium text-center">
-                            </div>
-                        </div>
-
-                        <!-- Light Mode Logo -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Light Mode Logo Path</label>
-                            <div class="flex items-center gap-2">
-                                <input type="text" wire:model="header_logo_light" placeholder="assets/images/logo.png"
-                                       class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-[11px]">
-                                @if($header_logo_light)
-                                <img src="{{ asset($header_logo_light) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border border-slate-200 rounded-lg bg-white shrink-0">
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Dark Mode Logo -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Dark Mode Logo Path</label>
-                            <div class="flex items-center gap-2">
-                                <input type="text" wire:model="header_logo_dark" placeholder="assets/images/logo-dark.png"
-                                       class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-[11px]">
-                                @if($header_logo_dark)
-                                <img src="{{ asset($header_logo_dark) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border border-slate-700 rounded-lg bg-slate-950 shrink-0">
-                                @endif
+                                       class="w-20 px-2 py-1 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium text-center">
                             </div>
                         </div>
                     </div>
@@ -817,46 +858,18 @@
                         </a>
                     </div>
 
-                    <div class="space-y-4">
-                        <div class="space-y-1.5 max-w-md">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Active Menu Source</label>
+                    <div class="space-y-4 max-w-xl">
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Active Navigation Menu Source</label>
                             <select wire:model.live="header_menu_id"
-                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-bold">
                                 @foreach($availableMenus as $m)
-                                    <option value="{{ $m->id }}">{{ $m->name }} ({{ $m->location }})</option>
+                                    <option value="{{ $m->id }}">{{ $m->name }} (Location: {{ strtoupper($m->location) }})</option>
                                 @endforeach
                             </select>
-                        </div>
-
-                        <!-- Active Menu Items Tree Preview -->
-                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                            <div class="p-3 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
-                                <span>Menu Links Preview</span>
-                                <span class="text-slate-500 dark:text-slate-400 font-normal">Auto-synchronized with Header</span>
-                            </div>
-
-                            @if($selectedMenu && $selectedMenu->rootItems->count() > 0)
-                            <div class="divide-y divide-slate-100 dark:divide-slate-800 p-2">
-                                @foreach($selectedMenu->rootItems as $item)
-                                    <div class="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 rounded-lg">
-                                        <div class="flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full {{ $item->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
-                                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ $item->getTranslation('title', app()->getLocale()) ?: $item->title }}</span>
-                                            <span class="text-[10px] font-mono text-slate-400">{{ $item->url }}</span>
-                                        </div>
-                                        @if($item->children->count() > 0)
-                                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 font-semibold self-start sm:self-center">
-                                                {{ $item->children->count() }} Submenu items
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-                            @else
-                            <div class="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                                Default system navigation is active (Home, About Us, Services, Products &amp; Spares, Projects, Careers, Contact).
-                            </div>
-                            @endif
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                Selecting a menu here instantly connects its parent links and child dropdowns to the primary header.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -896,11 +909,37 @@
                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
                         </div>
 
-                        <!-- CTA Button URL -->
+                        <!-- CTA Button URL: Smart Internal / External Selector -->
                         <div class="space-y-1.5 {{ $header_cta_enabled ? '' : 'opacity-50 pointer-events-none' }}">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">CTA Target URL</label>
-                            <input type="text" wire:model="header_cta_url" placeholder="/contact#rfq"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">CTA Target Destination</label>
+                                <div class="inline-flex rounded-lg p-0.5 bg-slate-200 dark:bg-slate-800 text-[10px] font-bold">
+                                    <button type="button" wire:click="$set('header_cta_link_type', 'internal')"
+                                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $header_cta_link_type === 'internal' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                        Internal Page
+                                    </button>
+                                    <button type="button" wire:click="$set('header_cta_link_type', 'external')"
+                                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $header_cta_link_type === 'external' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                        External URL
+                                    </button>
+                                </div>
+                            </div>
+
+                            @if($header_cta_link_type === 'internal')
+                                <select wire:model.live="header_cta_url"
+                                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    @foreach($internalLinkOptions as $category => $routes)
+                                        <optgroup label="{{ $category }}">
+                                            @foreach($routes as $rUrl => $rLabel)
+                                                <option value="{{ $rUrl }}">{{ $rLabel }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                </select>
+                            @else
+                                <input type="text" wire:model="header_cta_url" placeholder="https://..."
+                                       class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                            @endif
                         </div>
 
                         <!-- CTA Button Icon -->
