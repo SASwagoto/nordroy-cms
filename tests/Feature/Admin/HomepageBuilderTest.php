@@ -50,20 +50,25 @@ class HomepageBuilderTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Homepage Builder');
         $response->assertSee('Header (Topbar &amp; Navbar)', false);
+        $response->assertSee('Hero Banner');
         $response->assertSee('LOCKED');
-        $response->assertSee('1 Active Section');
-        // Future sections should NOT be in the sidebar
+        $response->assertSee('2 Active Sections (Locked)');
+        // Future sections should NOT be in the sidebar yet
         $response->assertDontSee('8 Sections');
         $response->assertDontSee('OEM Partner Ticker');
     }
 
-    public function test_header_section_is_locked_and_selected_by_default(): void
+    public function test_header_and_hero_sections_are_locked_and_can_be_selected(): void
     {
         $this->actingAs($this->admin);
 
         Livewire::test(HomepageBuilder::class)
             ->assertSet('selectedSection', 'header')
             ->call('selectSection', 'hero')
+            ->assertSet('selectedSection', 'hero')
+            ->call('selectSection', 'services') // Invalid / unreleased section
+            ->assertSet('selectedSection', 'hero')
+            ->call('selectSection', 'header')
             ->assertSet('selectedSection', 'header');
     }
 
@@ -218,5 +223,115 @@ class HomepageBuilderTest extends TestCase
         $frontendResponse = $this->get('/');
         $frontendResponse->assertStatus(200);
         $frontendResponse->assertSee('max-w-6xl mx-auto px-4 sm:px-8');
+    }
+
+    public function test_admin_can_update_hero_banner_layout_and_backdrop(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->call('selectSection', 'hero')
+            ->assertSet('selectedSection', 'hero')
+            ->set('hero_width', 'ultrawide')
+            ->set('hero_padding', 'compact')
+            ->set('hero_bg_type', 'gradient')
+            ->set('hero_gradient_dir', '135deg')
+            ->set('hero_gradient_from', '#001122')
+            ->set('hero_gradient_via', '')
+            ->set('hero_gradient_to', '#334455')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('ultrawide', Setting::get('home_hero_width'));
+        $this->assertEquals('compact', Setting::get('home_hero_padding'));
+        $this->assertEquals('gradient', Setting::get('home_hero_bg_type'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('max-w-[1728px]');
+        $frontend->assertSee('py-12 sm:py-16 lg:py-20');
+        $frontend->assertSee('linear-gradient(135deg, #001122, #334455)', false);
+    }
+
+    public function test_admin_can_update_hero_content_and_badges(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_badge1_text', 'Premier Turbocharger Center')
+            ->set('hero_badge1_icon', 'solid:shield-check')
+            ->set('hero_title', 'World Class Marine Engineering')
+            ->set('hero_subtitle', 'Advanced rotating machinery diagnostics and dynamic balancing.')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('Premier Turbocharger Center', Setting::get('home_hero_badge1'));
+        $this->assertEquals('World Class Marine Engineering', Setting::get('home_hero_title'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Premier Turbocharger Center');
+        $frontend->assertSee('World Class Marine Engineering');
+        $frontend->assertSee('Advanced rotating machinery diagnostics and dynamic balancing.');
+    }
+
+    public function test_admin_can_update_hero_ctas_and_metrics(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_cta1_text', 'Get Urgent Quote')
+            ->set('hero_cta1_url', '/contact#emergency')
+            ->set('hero_metric1_value', '88,000')
+            ->set('hero_metric1_label', 'High-Speed Balancing')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('Get Urgent Quote', Setting::get('home_hero_cta1_text'));
+        $this->assertEquals('/contact#emergency', Setting::get('home_hero_cta1_url'));
+        $this->assertEquals('88,000', Setting::get('home_metric1_value'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Get Urgent Quote');
+        $frontend->assertSee('/contact#emergency');
+        $frontend->assertSee('88,000');
+        $frontend->assertSee('High-Speed Balancing');
+    }
+
+    public function test_admin_can_update_hero_tachometer_and_hud(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_tacho_top', '0° / TEST_RPM')
+            ->set('hero_hud_l1_val', 'TEST TURBINE UNIT')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('0° / TEST_RPM', Setting::get('home_hero_tacho_top'));
+        $this->assertEquals('TEST TURBINE UNIT', Setting::get('home_hero_hud_l1_val'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('0° / TEST_RPM');
+        $frontend->assertSee('TEST TURBINE UNIT');
+    }
+
+    public function test_restore_production_design_restores_hero_banner_defaults(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Intentionally pollute hero settings
+        Setting::set('home_hero_title', 'Polluted Title');
+        Setting::set('home_metric1_value', '999');
+
+        Livewire::test(HomepageBuilder::class)
+            ->call('restoreProductionDesign')
+            ->assertSet('hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.')
+            ->assertSet('hero_metric1_value', '100,000');
+
+        $this->assertEquals('Precision Turbocharger Overhauls & Marine Propulsion Support.', Setting::get('home_hero_title'));
+        $this->assertEquals('100,000', Setting::get('home_metric1_value'));
     }
 }

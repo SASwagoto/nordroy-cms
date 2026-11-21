@@ -5,93 +5,253 @@
          Soft executive frosted backdrop so the precision turbine tachometer instrument dial rests with razor-sharp stability!
          ===================================================================== -->
     @php
-        $heroBackdrop = \App\Models\Setting::get('theme_hero_backdrop', 'frosted');
-        $heroBackdropClass = match($heroBackdrop) {
+        $heroEnabled = (bool) \App\Models\Setting::get('home_hero_enabled', true);
+        $heroWidth = \App\Models\Setting::get('home_hero_width', 'container');
+        $heroWidthClass = match($heroWidth) {
+            'fluid' => 'w-full px-4 sm:px-8',
+            'fluid_full' => 'w-full px-2 sm:px-4',
+            'ultrawide' => 'w-full max-w-[1728px] mx-auto px-4 sm:px-8',
+            'desktop' => 'w-full max-w-7xl mx-auto px-4 sm:px-8',
+            'narrow' => 'w-full max-w-6xl mx-auto px-4 sm:px-8',
+            'content_focused' => 'w-full max-w-5xl mx-auto px-4 sm:px-8',
+            default => 'w-full max-w-[1536px] mx-auto px-4 sm:px-8',
+        };
+
+        $heroPadding = \App\Models\Setting::get('home_hero_padding', 'standard');
+        $heroPaddingClass = match($heroPadding) {
+            'compact' => 'py-12 sm:py-16 lg:py-20',
+            'spacious' => 'py-20 sm:py-28 lg:py-32',
+            'extra_spacious' => 'py-24 sm:py-32 lg:py-36',
+            default => 'py-16 sm:py-24 lg:py-28',
+        };
+
+        $heroGridEnabled = (bool) \App\Models\Setting::get('home_hero_grid_enabled', true);
+
+        $heroBgType = \App\Models\Setting::get('home_hero_bg_type', \App\Models\Setting::get('theme_hero_backdrop', 'frosted'));
+        $heroGlassOpacity = max(10, min(90, (int) \App\Models\Setting::get('home_hero_glass_opacity', 90)));
+        $heroLightBg = \App\Models\Setting::get('home_hero_light_bg', '#ffffff');
+        $heroLightText = \App\Models\Setting::get('home_hero_light_text', '#0f172a');
+        $heroDarkBg = \App\Models\Setting::get('home_hero_dark_bg', '#07131e');
+        $heroDarkText = \App\Models\Setting::get('home_hero_dark_text', '#f8fafc');
+
+        $heroGradientDir = \App\Models\Setting::get('home_hero_gradient_dir', '135deg');
+        $heroGradientFrom = \App\Models\Setting::get('home_hero_gradient_from', '#002538');
+        $heroGradientVia = \App\Models\Setting::get('home_hero_gradient_via', '#003C58');
+        $heroGradientTo = \App\Models\Setting::get('home_hero_gradient_to', '#07131e');
+
+        $heroBackdropClass = match($heroBgType) {
             'transparent' => 'bg-transparent backdrop-blur-none',
             'subtle_tint' => 'bg-white/70 dark:bg-[#07131e]/70 backdrop-blur-xs',
-            'solid'       => 'bg-white dark:bg-[#07131e]',
-            default       => 'bg-white/92 dark:bg-[#07131e]/90 backdrop-blur-xs',
+            'solid_custom' => '',
+            'gradient' => '',
+            'glass' => 'backdrop-blur-md',
+            default => 'bg-white/92 dark:bg-[#07131e]/90 backdrop-blur-xs',
         };
+
+        // Badges
+        $heroBadge1Enabled = (bool) \App\Models\Setting::get('home_hero_badge1_enabled', true);
+        $heroBadge1Text = \App\Models\Setting::get('home_hero_badge1', 'Authorized Multi-Brand Turbocharger Engineering');
+        $heroBadge1Icon = \App\Models\Setting::get('home_hero_badge1_icon', 'solid:shield-check');
+
+        $heroBadge2Enabled = (bool) \App\Models\Setting::get('home_hero_badge2_enabled', true);
+        $heroBadge2Text = \App\Models\Setting::get('home_hero_badge2', 'ISO 9001:2015 • DNV Certified');
+        $heroBadge2Icon = \App\Models\Setting::get('home_hero_badge2_icon', 'solid:award');
+
+        // Typography
+        $heroTitle = \App\Models\Setting::get('home_hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.');
+        $heroSubtitle = \App\Models\Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.');
+
+        // CTAs
+        $heroCta1Enabled = (bool) \App\Models\Setting::get('home_hero_cta1_enabled', true);
+        $heroCta1Text = \App\Models\Setting::get('home_hero_cta1_text', 'Explore Overhaul Services');
+        $heroCta1Url = \App\Models\Setting::get('home_hero_cta1_url', route('services'));
+        $heroCta1Icon = \App\Models\Setting::get('home_hero_cta1_icon', 'solid:arrow-right');
+        $heroCta1Style = \App\Models\Setting::get('home_hero_cta1_style', 'primary_gradient');
+
+        $heroCta2Enabled = (bool) \App\Models\Setting::get('home_hero_cta2_enabled', true);
+        $heroCta2Text = \App\Models\Setting::get('home_hero_cta2_text', 'Request Instant RFQ');
+        $heroCta2Url = \App\Models\Setting::get('home_hero_cta2_url', route('contact') . '#rfq');
+        $heroCta2Icon = \App\Models\Setting::get('home_hero_cta2_icon', 'solid:clipboard-document-list');
+        $heroCta2Style = \App\Models\Setting::get('home_hero_cta2_style', 'surface_border');
+
+        // Metrics Strip
+        $heroMetricsEnabled = (bool) \App\Models\Setting::get('home_hero_metrics_enabled', true);
+        $heroMetric1Val = \App\Models\Setting::get('home_metric1_value', '100,000');
+        $heroMetric1Lbl = \App\Models\Setting::get('home_metric1_label', 'RPM Dynamic Balancing');
+        $heroMetric2Val = \App\Models\Setting::get('home_metric2_value', '24/7/365');
+        $heroMetric2Lbl = \App\Models\Setting::get('home_metric2_label', 'Flying Squads to Port');
+        $heroMetric3Val = \App\Models\Setting::get('home_metric3_value', '10,000+');
+        $heroMetric3Lbl = \App\Models\Setting::get('home_metric3_label', 'OEM Spares in Stock');
+
+        // Visual Showcase
+        $heroVisualEnabled = (bool) \App\Models\Setting::get('home_hero_visual_enabled', true);
+        $heroVisualType = \App\Models\Setting::get('home_hero_visual_type', 'tachometer');
+        $heroTachoTop = \App\Models\Setting::get('home_hero_tacho_top', '0° / RPM');
+        $heroTachoRight = \App\Models\Setting::get('home_hero_tacho_right', '90°');
+        $heroTachoBottom = \App\Models\Setting::get('home_hero_tacho_bottom', '180°');
+        $heroTachoLeft = \App\Models\Setting::get('home_hero_tacho_left', '270°');
+        $heroTachoAnimated = (bool) \App\Models\Setting::get('home_hero_tacho_animated', true);
+
+        $heroHudL1Label = \App\Models\Setting::get('home_hero_hud_l1_label', 'EQUIPMENT:');
+        $heroHudL1Val = \App\Models\Setting::get('home_hero_hud_l1_val', 'HEAVY EXHAUST TURBOCHARGER');
+        $heroHudL2Label = \App\Models\Setting::get('home_hero_hud_l2_label', 'AUTHORIZED:');
+        $heroHudL2Val = \App\Models\Setting::get('home_hero_hud_l2_val', 'ABB • MAN • KBB • MHI • NAPIER');
+        $heroHudL3Label = \App\Models\Setting::get('home_hero_hud_l3_label', 'WORKSHOP RADIUS:');
+        $heroHudL3Val = \App\Models\Setting::get('home_hero_hud_l3_val', 'CHATTOGRAM • MONGLA • GLOBAL');
     @endphp
-    <section class="relative overflow-hidden {{ $heroBackdropClass }} text-slate-900 dark:text-white py-16 sm:py-24 lg:py-28 border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
+
+    @if($heroEnabled)
+    <style>
+        @if($heroBgType === 'solid_custom')
+            #home-hero-section {
+                background-color: {{ $heroLightBg }} !important;
+                color: {{ $heroLightText }} !important;
+            }
+            html.dark #home-hero-section {
+                background-color: {{ $heroDarkBg }} !important;
+                color: {{ $heroDarkText }} !important;
+            }
+        @elseif($heroBgType === 'gradient')
+            #home-hero-section {
+                background: linear-gradient({{ $heroGradientDir }}, {{ $heroGradientFrom }}{{ $heroGradientVia ? ', ' . $heroGradientVia : '' }}, {{ $heroGradientTo }}) !important;
+                color: #ffffff !important;
+            }
+        @elseif($heroBgType === 'glass')
+            #home-hero-section {
+                background-color: rgba(255, 255, 255, {{ $heroGlassOpacity / 100 }}) !important;
+            }
+            html.dark #home-hero-section {
+                background-color: rgba(7, 19, 30, {{ $heroGlassOpacity / 100 }}) !important;
+            }
+        @endif
+    </style>
+
+    <section id="home-hero-section" class="relative overflow-hidden {{ $heroBackdropClass }} text-slate-900 dark:text-white {{ $heroPaddingClass }} border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
         
         <!-- Subtle Industrial Geometric Grid Background -->
+        @if($heroGridEnabled)
         <div class="absolute inset-0 opacity-[0.025] dark:opacity-[0.04] pointer-events-none bg-[radial-gradient(#003C58_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        @endif
 
-        <div class="max-w-[1536px] mx-auto px-4 sm:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+        <div class="{{ $heroWidthClass }} relative z-10">
+            <div class="grid grid-cols-1 {{ $heroVisualEnabled ? 'lg:grid-cols-12' : 'grid-cols-1 max-w-4xl' }} gap-12 lg:gap-10 items-center">
                 
                 <!-- Left Column: Copy & Actions (7 cols) -->
-                <div class="lg:col-span-7 space-y-6 sm:space-y-8 p-6 sm:p-8 lg:p-0 rounded-3xl bg-white/85 dark:bg-[#07131e]/75 lg:bg-transparent lg:dark:bg-transparent backdrop-blur-xs lg:backdrop-blur-none border border-white/60 dark:border-slate-800/60 lg:border-none">
+                <div class="{{ $heroVisualEnabled ? 'lg:col-span-7' : 'w-full' }} space-y-6 sm:space-y-8 p-6 sm:p-8 lg:p-0 rounded-3xl bg-white/85 dark:bg-[#07131e]/75 lg:bg-transparent lg:dark:bg-transparent backdrop-blur-xs lg:backdrop-blur-none border border-white/60 dark:border-slate-800/60 lg:border-none">
                     
                     <!-- Clean Corporate Badges (NO generic pulsing dots) -->
+                    @if(($heroBadge1Enabled && $heroBadge1Text) || ($heroBadge2Enabled && $heroBadge2Text))
                     <div class="flex flex-wrap items-center gap-2.5">
-                        <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                            {{ \App\Models\Setting::get('home_hero_badge1', 'Authorized Multi-Brand Turbocharger Engineering') }}
+                        @if($heroBadge1Enabled && $heroBadge1Text)
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800 shadow-2xs">
+                            @if($heroBadge1Icon)
+                                <x-icon :name="$heroBadge1Icon" class="w-3.5 h-3.5 shrink-0" />
+                            @endif
+                            <span>{{ __($heroBadge1Text) }}</span>
                         </span>
-                        <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-white dark:bg-[#0a1926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {{ \App\Models\Setting::get('home_hero_badge2', 'ISO 9001:2015 • DNV Certified') }}
+                        @endif
+
+                        @if($heroBadge2Enabled && $heroBadge2Text)
+                        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-white dark:bg-[#0a1926] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            @if($heroBadge2Icon)
+                                <x-icon :name="$heroBadge2Icon" class="w-3.5 h-3.5 shrink-0 text-[#003C58] dark:text-cyan-400" />
+                            @endif
+                            <span>{{ __($heroBadge2Text) }}</span>
                         </span>
+                        @endif
                     </div>
+                    @endif
 
                     <!-- Main Headline (Bespoke Human Typography, No AI Text Gradients) -->
+                    @if($heroTitle)
                     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight font-heading text-slate-900 dark:text-white drop-shadow-xs">
-                        {{ \App\Models\Setting::get('home_hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.') }}
+                        {{ __($heroTitle) }}
                     </h1>
+                    @endif
 
                     <!-- Technical Subtitle -->
+                    @if($heroSubtitle)
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl font-body font-medium">
-                        {{ \App\Models\Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.') }}
+                        {{ __($heroSubtitle) }}
                     </p>
+                    @endif
 
                     <!-- Dual Call-to-Action Buttons -->
+                    @if(($heroCta1Enabled && $heroCta1Text) || ($heroCta2Enabled && $heroCta2Text))
                     <div class="flex flex-wrap items-center gap-4 pt-2">
-                        <a href="{{ \App\Models\Setting::get('home_hero_cta1_url', route('services')) }}" 
-                           class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-lg active:scale-95 transition-all"
-                           style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
-                            <span>{{ \App\Models\Setting::get('home_hero_cta1_text', 'Explore Overhaul Services') }}</span>
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
+                        @if($heroCta1Enabled && $heroCta1Text)
+                            @php
+                                $cta1StyleClass = match($heroCta1Style) {
+                                    'solid_dark' => 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90',
+                                    'outline' => 'border border-[#003C58] dark:border-cyan-400 text-[#003C58] dark:text-cyan-400 bg-transparent hover:bg-[#003C58]/5 dark:hover:bg-cyan-500/10',
+                                    default => 'text-white shadow-lg',
+                                };
+                                $cta1InlineStyle = $heroCta1Style === 'primary_gradient' ? 'background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);' : 'border-radius: var(--button-radius);';
+                            @endphp
+                            <a href="{{ $heroCta1Url }}" 
+                               class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-all {{ $cta1StyleClass }}"
+                               style="{{ $cta1InlineStyle }}">
+                                <span>{{ __($heroCta1Text) }}</span>
+                                @if($heroCta1Icon)
+                                    <x-icon :name="$heroCta1Icon" class="w-4 h-4 shrink-0" />
+                                @endif
+                            </a>
+                        @endif
 
-                        <a href="{{ \App\Models\Setting::get('home_hero_cta2_url', route('contact') . '#rfq') }}" 
-                           class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
-                           style="border-radius: var(--button-radius);">
-                            <span>{{ \App\Models\Setting::get('home_hero_cta2_text', 'Request Instant RFQ') }}</span>
-                        </a>
+                        @if($heroCta2Enabled && $heroCta2Text)
+                            @php
+                                $cta2StyleClass = match($heroCta2Style) {
+                                    'outline' => 'border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800',
+                                    'solid_dark' => 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90',
+                                    default => 'border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200',
+                                };
+                            @endphp
+                            <a href="{{ $heroCta2Url }}" 
+                               class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-all {{ $cta2StyleClass }}"
+                               style="border-radius: var(--button-radius);">
+                                <span>{{ __($heroCta2Text) }}</span>
+                                @if($heroCta2Icon)
+                                    <x-icon :name="$heroCta2Icon" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                                @endif
+                            </a>
+                        @endif
                     </div>
+                    @endif
 
                     <!-- Key Technical Highlights Strip -->
+                    @if($heroMetricsEnabled)
                     <div class="pt-6 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-3 gap-4 text-xs">
                         <div>
                             <span class="block text-2xl sm:text-3xl font-black text-[#003C58] dark:text-cyan-400 font-heading">
-                                {{ \App\Models\Setting::get('home_metric1_value', '100,000') }}
+                                {{ __($heroMetric1Val) }}
                             </span>
                             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                {{ \App\Models\Setting::get('home_metric1_label', 'RPM Dynamic Balancing') }}
+                                {{ __($heroMetric1Lbl) }}
                             </span>
                         </div>
                         <div>
                             <span class="block text-2xl sm:text-3xl font-black text-slate-800 dark:text-white font-heading">
-                                {{ \App\Models\Setting::get('home_metric2_value', '24/7/365') }}
+                                {{ __($heroMetric2Val) }}
                             </span>
                             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                {{ \App\Models\Setting::get('home_metric2_label', 'Flying Squads to Port') }}
+                                {{ __($heroMetric2Lbl) }}
                             </span>
                         </div>
                         <div>
                             <span class="block text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-heading">
-                                {{ \App\Models\Setting::get('home_metric3_value', '10,000+') }}
+                                {{ __($heroMetric3Val) }}
                             </span>
                             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                {{ \App\Models\Setting::get('home_metric3_label', 'OEM Spares in Stock') }}
+                                {{ __($heroMetric3Lbl) }}
                             </span>
                         </div>
                     </div>
+                    @endif
 
                 </div>
 
                 <!-- Right Column: PRECISION TURBINE INSTRUMENT DIAL (5 cols) -->
-                <!-- Fully adaptive: Brushed titanium precision in light mode, deep metallic carbon in dark mode -->
+                @if($heroVisualEnabled)
                 <div class="lg:col-span-5 relative">
                     <div class="relative rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl transition-all">
                         
@@ -100,22 +260,22 @@
                             
                             <!-- Outer Calibrated Graduation Ring -->
                             <div class="absolute inset-0 rounded-full border-2 border-slate-300/80 dark:border-slate-700 flex items-center justify-center">
-                                <div class="absolute top-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">0&deg; / RPM</div>
-                                <div class="absolute right-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">90&deg;</div>
-                                <div class="absolute bottom-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">180&deg;</div>
-                                <div class="absolute left-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">270&deg;</div>
+                                <div class="absolute top-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">{{ $heroTachoTop }}</div>
+                                <div class="absolute right-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">{{ $heroTachoRight }}</div>
+                                <div class="absolute bottom-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">{{ $heroTachoBottom }}</div>
+                                <div class="absolute left-1 text-[9px] font-mono font-bold text-slate-500 dark:text-slate-400">{{ $heroTachoLeft }}</div>
                             </div>
                             
                             <!-- Middle Rotating Indicator Ring -->
-                            <div class="absolute inset-4 rounded-full border border-dashed border-[#003C58]/35 dark:border-slate-700 animate-turbine"></div>
+                            <div class="absolute inset-4 rounded-full border border-dashed border-[#003C58]/35 dark:border-slate-700 {{ $heroTachoAnimated ? 'animate-turbine' : '' }}"></div>
                             
-                            <!-- Inner Recessed Instrument Center (Light Mode: Clean Titanium Silver, Dark Mode: Deep Shipyard Carbon) -->
+                            <!-- Inner Recessed Instrument Center -->
                             <div class="relative z-10 w-52 h-52 sm:w-60 sm:h-60 rounded-full bg-slate-50 dark:bg-[#030c14] border-4 border-slate-200 dark:border-slate-800 shadow-inner flex items-center justify-center overflow-hidden">
                                 
                                 <!-- Subtle Radial Grid Inside Dial -->
                                 <div class="absolute inset-0 opacity-20 dark:opacity-10 bg-[radial-gradient(#003C58_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]"></div>
                                 
-                                <!-- The Spinning Turbine (Clear, Distinct, Dual Mode with zero artificial cyan glow) -->
+                                <!-- The Spinning Turbine -->
                                 @php
                                     $heroTurbineLight = \App\Models\Setting::get('site_icon', 'assets/images/icon.png');
                                     $heroTurbineDark = \App\Models\Setting::get('site_icon_dark') ?: $heroTurbineLight;
@@ -124,35 +284,37 @@
                                 @endphp
                                 <img src="{{ $heroTurbineLightUrl }}" 
                                      alt="Nordroy Precision Marine Turbine" 
-                                     class="w-36 h-36 sm:w-40 sm:h-40 object-contain animate-turbine drop-shadow-[0_4px_16px_rgba(0,60,88,0.22)] dark:hidden relative z-20" />
+                                     class="w-36 h-36 sm:w-40 sm:h-40 object-contain {{ $heroTachoAnimated ? 'animate-turbine' : '' }} drop-shadow-[0_4px_16px_rgba(0,60,88,0.22)] dark:hidden relative z-20" />
                                 <img src="{{ $heroTurbineDarkUrl }}" 
                                      alt="Nordroy Precision Marine Turbine" 
-                                     class="w-36 h-36 sm:w-40 sm:h-40 object-contain animate-turbine drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)] hidden dark:block relative z-20" />
+                                     class="w-36 h-36 sm:w-40 sm:h-40 object-contain {{ $heroTachoAnimated ? 'animate-turbine' : '' }} drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)] hidden dark:block relative z-20" />
                             </div>
                         </div>
 
                         <!-- Technical Specification HUD Box -->
                         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-2 font-mono">
                             <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
-                                <span>EQUIPMENT:</span>
-                                <span class="text-[#003C58] dark:text-cyan-400 font-bold">HEAVY EXHAUST TURBOCHARGER</span>
+                                <span>{{ $heroHudL1Label }}</span>
+                                <span class="text-[#003C58] dark:text-cyan-400 font-bold">{{ $heroHudL1Val }}</span>
                             </div>
                             <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
-                                <span>AUTHORIZED:</span>
-                                <span class="text-slate-800 dark:text-white font-bold">ABB &bull; MAN &bull; KBB &bull; MHI &bull; NAPIER</span>
+                                <span>{{ $heroHudL2Label }}</span>
+                                <span class="text-slate-800 dark:text-white font-bold">{{ $heroHudL2Val }}</span>
                             </div>
                             <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-[11px]">
-                                <span>WORKSHOP RADIUS:</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-bold">CHATTOGRAM &bull; MONGLA &bull; GLOBAL</span>
+                                <span>{{ $heroHudL3Label }}</span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ $heroHudL3Val }}</span>
                             </div>
                         </div>
 
                     </div>
                 </div>
+                @endif
 
             </div>
         </div>
     </section>
+    @endif
 
     <!-- =====================================================================
          SECTION 2: OEM MULTI-BRAND PARTNER TICKER (Turbo Internacional Style)

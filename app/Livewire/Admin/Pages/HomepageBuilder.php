@@ -120,6 +120,85 @@ class HomepageBuilder extends Component
     public string $header_cta_icon = 'solid:clipboard-document-list';
     public string $header_cta_style = 'primary_gradient'; // 'primary_gradient', 'outline', 'solid_dark'
 
+    // ==========================================
+    // HERO BANNER STATE
+    // ==========================================
+    #[Url(as: 'hero_tab')]
+    public string $heroTab = 'layout'; // 'layout', 'content', 'actions', 'instrument'
+
+    public bool $hero_enabled = true;
+    public string $hero_width = 'container'; // 'container', 'fluid', 'fluid_full', 'ultrawide', 'desktop', 'narrow', 'content_focused'
+    public string $hero_padding = 'standard'; // 'standard', 'compact', 'spacious', 'extra_spacious'
+    public bool $hero_grid_enabled = true;
+
+    // Hero Background Engine
+    public string $hero_bg_type = 'frosted'; // 'frosted', 'transparent', 'subtle_tint', 'solid_custom', 'gradient', 'glass'
+    public int $hero_glass_opacity = 90; // Clamped 10% - 90%
+    public string $hero_light_bg = '#ffffff';
+    public string $hero_light_text = '#0f172a';
+    public string $hero_dark_bg = '#07131e';
+    public string $hero_dark_text = '#f8fafc';
+
+    // Hero Gradient Controls
+    public string $hero_gradient_dir = '135deg';
+    public string $hero_gradient_from = '#002538';
+    public string $hero_gradient_via = '#003C58';
+    public string $hero_gradient_to = '#07131e';
+
+    // Hero Badges
+    public bool $hero_badge1_enabled = true;
+    public string $hero_badge1_text = 'Authorized Multi-Brand Turbocharger Engineering';
+    public string $hero_badge1_icon = 'solid:shield-check';
+
+    public bool $hero_badge2_enabled = true;
+    public string $hero_badge2_text = 'ISO 9001:2015 • DNV Certified';
+    public string $hero_badge2_icon = 'solid:award';
+
+    // Hero Typography (Title & Subtitle)
+    public string $hero_title = 'Precision Turbocharger Overhauls & Marine Propulsion Support.';
+    public string $hero_subtitle = 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.';
+
+    // Hero CTAs
+    public bool $hero_cta1_enabled = true;
+    public string $hero_cta1_text = 'Explore Overhaul Services';
+    public string $hero_cta1_url = '/services';
+    public string $hero_cta1_link_type = 'internal'; // 'internal', 'external'
+    public string $hero_cta1_icon = 'solid:arrow-right';
+    public string $hero_cta1_style = 'primary_gradient'; // 'primary_gradient', 'solid_dark', 'outline'
+
+    public bool $hero_cta2_enabled = true;
+    public string $hero_cta2_text = 'Request Instant RFQ';
+    public string $hero_cta2_url = '/contact#rfq';
+    public string $hero_cta2_link_type = 'internal'; // 'internal', 'external'
+    public string $hero_cta2_icon = 'solid:clipboard-document-list';
+    public string $hero_cta2_style = 'surface_border'; // 'surface_border', 'outline', 'solid_dark'
+
+    // Hero Key Technical Metrics Strip
+    public bool $hero_metrics_enabled = true;
+    public string $hero_metric1_value = '100,000';
+    public string $hero_metric1_label = 'RPM Dynamic Balancing';
+    public string $hero_metric2_value = '24/7/365';
+    public string $hero_metric2_label = 'Flying Squads to Port';
+    public string $hero_metric3_value = '10,000+';
+    public string $hero_metric3_label = 'OEM Spares in Stock';
+
+    // Hero Right Column Visual Instrument Showcase (Turbine Tachometer Dial)
+    public bool $hero_visual_enabled = true;
+    public string $hero_visual_type = 'tachometer'; // 'tachometer', 'image'
+    public string $hero_tacho_top = '0° / RPM';
+    public string $hero_tacho_right = '90°';
+    public string $hero_tacho_bottom = '180°';
+    public string $hero_tacho_left = '270°';
+    public bool $hero_tacho_animated = true;
+
+    // Technical HUD Box under dial
+    public string $hero_hud_l1_label = 'EQUIPMENT:';
+    public string $hero_hud_l1_val = 'HEAVY EXHAUST TURBOCHARGER';
+    public string $hero_hud_l2_label = 'AUTHORIZED:';
+    public string $hero_hud_l2_val = 'ABB • MAN • KBB • MHI • NAPIER';
+    public string $hero_hud_l3_label = 'WORKSHOP RADIUS:';
+    public string $hero_hud_l3_val = 'CHATTOGRAM • MONGLA • GLOBAL';
+
     public function mount(): void
     {
         $this->loadSettings();
@@ -213,12 +292,86 @@ class HomepageBuilder extends Component
         $this->header_cta_link_type     = (str_starts_with($this->header_cta_url, 'http://') || str_starts_with($this->header_cta_url, 'https://')) ? 'external' : 'internal';
         $this->header_cta_icon          = Setting::get('header_cta_icon', 'solid:clipboard-document-list');
         $this->header_cta_style         = Setting::get('header_cta_style', 'primary_gradient');
+
+        // ==========================================
+        // LOAD HERO BANNER SETTINGS
+        // ==========================================
+        $this->hero_enabled         = (bool) Setting::get('home_hero_enabled', true);
+        $this->hero_width           = Setting::get('home_hero_width', 'container');
+        $this->hero_padding         = Setting::get('home_hero_padding', 'standard');
+        $this->hero_grid_enabled    = (bool) Setting::get('home_hero_grid_enabled', true);
+
+        $this->hero_bg_type         = Setting::get('home_hero_bg_type', Setting::get('theme_hero_backdrop', 'frosted'));
+        $this->hero_glass_opacity   = max(10, min(90, (int) Setting::get('home_hero_glass_opacity', 90)));
+        $this->hero_light_bg        = Setting::get('home_hero_light_bg', '#ffffff');
+        $this->hero_light_text      = Setting::get('home_hero_light_text', '#0f172a');
+        $this->hero_dark_bg         = Setting::get('home_hero_dark_bg', '#07131e');
+        $this->hero_dark_text       = Setting::get('home_hero_dark_text', '#f8fafc');
+
+        $this->hero_gradient_dir    = Setting::get('home_hero_gradient_dir', '135deg');
+        $this->hero_gradient_from   = Setting::get('home_hero_gradient_from', '#002538');
+        $this->hero_gradient_via    = Setting::get('home_hero_gradient_via', '#003C58');
+        $this->hero_gradient_to     = Setting::get('home_hero_gradient_to', '#07131e');
+
+        $this->hero_badge1_enabled  = (bool) Setting::get('home_hero_badge1_enabled', true);
+        $this->hero_badge1_text     = Setting::get('home_hero_badge1', 'Authorized Multi-Brand Turbocharger Engineering');
+        $this->hero_badge1_icon     = Setting::get('home_hero_badge1_icon', 'solid:shield-check');
+
+        $this->hero_badge2_enabled  = (bool) Setting::get('home_hero_badge2_enabled', true);
+        $this->hero_badge2_text     = Setting::get('home_hero_badge2', 'ISO 9001:2015 • DNV Certified');
+        $this->hero_badge2_icon     = Setting::get('home_hero_badge2_icon', 'solid:award');
+
+        $this->hero_title           = Setting::get('home_hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.');
+        $this->hero_subtitle        = Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.');
+
+        $this->hero_cta1_enabled    = (bool) Setting::get('home_hero_cta1_enabled', true);
+        $this->hero_cta1_text       = Setting::get('home_hero_cta1_text', 'Explore Overhaul Services');
+        $this->hero_cta1_url        = Setting::get('home_hero_cta1_url', '/services');
+        $this->hero_cta1_link_type  = (str_starts_with($this->hero_cta1_url, 'http://') || str_starts_with($this->hero_cta1_url, 'https://')) ? 'external' : 'internal';
+        $this->hero_cta1_icon       = Setting::get('home_hero_cta1_icon', 'solid:arrow-right');
+        $this->hero_cta1_style      = Setting::get('home_hero_cta1_style', 'primary_gradient');
+
+        $this->hero_cta2_enabled    = (bool) Setting::get('home_hero_cta2_enabled', true);
+        $this->hero_cta2_text       = Setting::get('home_hero_cta2_text', 'Request Instant RFQ');
+        $this->hero_cta2_url        = Setting::get('home_hero_cta2_url', '/contact#rfq');
+        $this->hero_cta2_link_type  = (str_starts_with($this->hero_cta2_url, 'http://') || str_starts_with($this->hero_cta2_url, 'https://')) ? 'external' : 'internal';
+        $this->hero_cta2_icon       = Setting::get('home_hero_cta2_icon', 'solid:clipboard-document-list');
+        $this->hero_cta2_style      = Setting::get('home_hero_cta2_style', 'surface_border');
+
+        $this->hero_metrics_enabled = (bool) Setting::get('home_hero_metrics_enabled', true);
+        $this->hero_metric1_value   = Setting::get('home_metric1_value', '100,000');
+        $this->hero_metric1_label   = Setting::get('home_metric1_label', 'RPM Dynamic Balancing');
+        $this->hero_metric2_value   = Setting::get('home_metric2_value', '24/7/365');
+        $this->hero_metric2_label   = Setting::get('home_metric2_label', 'Flying Squads to Port');
+        $this->hero_metric3_value   = Setting::get('home_metric3_value', '10,000+');
+        $this->hero_metric3_label   = Setting::get('home_metric3_label', 'OEM Spares in Stock');
+
+        $this->hero_visual_enabled  = (bool) Setting::get('home_hero_visual_enabled', true);
+        $this->hero_visual_type     = Setting::get('home_hero_visual_type', 'tachometer');
+        $this->hero_tacho_top       = Setting::get('home_hero_tacho_top', '0° / RPM');
+        $this->hero_tacho_right     = Setting::get('home_hero_tacho_right', '90°');
+        $this->hero_tacho_bottom    = Setting::get('home_hero_tacho_bottom', '180°');
+        $this->hero_tacho_left      = Setting::get('home_hero_tacho_left', '270°');
+        $this->hero_tacho_animated  = (bool) Setting::get('home_hero_tacho_animated', true);
+
+        $this->hero_hud_l1_label    = Setting::get('home_hero_hud_l1_label', 'EQUIPMENT:');
+        $this->hero_hud_l1_val      = Setting::get('home_hero_hud_l1_val', 'HEAVY EXHAUST TURBOCHARGER');
+        $this->hero_hud_l2_label    = Setting::get('home_hero_hud_l2_label', 'AUTHORIZED:');
+        $this->hero_hud_l2_val      = Setting::get('home_hero_hud_l2_val', 'ABB • MAN • KBB • MHI • NAPIER');
+        $this->hero_hud_l3_label    = Setting::get('home_hero_hud_l3_label', 'WORKSHOP RADIUS:');
+        $this->hero_hud_l3_val      = Setting::get('home_hero_hud_l3_val', 'CHATTOGRAM • MONGLA • GLOBAL');
     }
 
     public function selectSection(string $section): void
     {
-        // Enforce focus strictly on 'header' as requested by user
-        $this->selectedSection = 'header';
+        if (in_array($section, ['header', 'hero'])) {
+            $this->selectedSection = $section;
+        }
+    }
+
+    public function setHeroTab(string $tab): void
+    {
+        $this->heroTab = $tab;
     }
 
     public function setHeaderTab(string $tab): void
@@ -351,6 +504,91 @@ class HomepageBuilder extends Component
         ]);
     }
 
+    public function saveHero(): void
+    {
+        // Enforce clamped opacity: NEVER 0% or 100%
+        $this->hero_glass_opacity = max(10, min(90, (int) $this->hero_glass_opacity));
+
+        Setting::set('home_hero_enabled', $this->hero_enabled ? '1' : '0');
+        Setting::set('home_hero_width', $this->hero_width);
+        Setting::set('home_hero_padding', $this->hero_padding);
+        Setting::set('home_hero_grid_enabled', $this->hero_grid_enabled ? '1' : '0');
+
+        Setting::set('home_hero_bg_type', $this->hero_bg_type);
+        Setting::set('theme_hero_backdrop', $this->hero_bg_type); // Backward compatibility
+        Setting::set('home_hero_glass_opacity', (string) $this->hero_glass_opacity);
+        Setting::set('home_hero_light_bg', trim($this->hero_light_bg));
+        Setting::set('home_hero_light_text', trim($this->hero_light_text));
+        Setting::set('home_hero_dark_bg', trim($this->hero_dark_bg));
+        Setting::set('home_hero_dark_text', trim($this->hero_dark_text));
+
+        Setting::set('home_hero_gradient_dir', $this->hero_gradient_dir);
+        Setting::set('home_hero_gradient_from', trim($this->hero_gradient_from));
+        Setting::set('home_hero_gradient_via', trim($this->hero_gradient_via));
+        Setting::set('home_hero_gradient_to', trim($this->hero_gradient_to));
+
+        Setting::set('home_hero_badge1_enabled', $this->hero_badge1_enabled ? '1' : '0');
+        Setting::set('home_hero_badge1', trim($this->hero_badge1_text));
+        Setting::set('home_hero_badge1_icon', trim($this->hero_badge1_icon));
+
+        Setting::set('home_hero_badge2_enabled', $this->hero_badge2_enabled ? '1' : '0');
+        Setting::set('home_hero_badge2', trim($this->hero_badge2_text));
+        Setting::set('home_hero_badge2_icon', trim($this->hero_badge2_icon));
+
+        Setting::set('home_hero_title', trim($this->hero_title));
+        Setting::set('home_hero_subtitle', trim($this->hero_subtitle));
+
+        Setting::set('home_hero_cta1_enabled', $this->hero_cta1_enabled ? '1' : '0');
+        Setting::set('home_hero_cta1_text', trim($this->hero_cta1_text));
+        Setting::set('home_hero_cta1_url', trim($this->hero_cta1_url));
+        Setting::set('home_hero_cta1_icon', trim($this->hero_cta1_icon));
+        Setting::set('home_hero_cta1_style', $this->hero_cta1_style);
+
+        Setting::set('home_hero_cta2_enabled', $this->hero_cta2_enabled ? '1' : '0');
+        Setting::set('home_hero_cta2_text', trim($this->hero_cta2_text));
+        Setting::set('home_hero_cta2_url', trim($this->hero_cta2_url));
+        Setting::set('home_hero_cta2_icon', trim($this->hero_cta2_icon));
+        Setting::set('home_hero_cta2_style', $this->hero_cta2_style);
+
+        Setting::set('home_hero_metrics_enabled', $this->hero_metrics_enabled ? '1' : '0');
+        Setting::set('home_metric1_value', trim($this->hero_metric1_value));
+        Setting::set('home_metric1_label', trim($this->hero_metric1_label));
+        Setting::set('home_metric2_value', trim($this->hero_metric2_value));
+        Setting::set('home_metric2_label', trim($this->hero_metric2_label));
+        Setting::set('home_metric3_value', trim($this->hero_metric3_value));
+        Setting::set('home_metric3_label', trim($this->hero_metric3_label));
+
+        Setting::set('home_hero_visual_enabled', $this->hero_visual_enabled ? '1' : '0');
+        Setting::set('home_hero_visual_type', $this->hero_visual_type);
+        Setting::set('home_hero_tacho_top', trim($this->hero_tacho_top));
+        Setting::set('home_hero_tacho_right', trim($this->hero_tacho_right));
+        Setting::set('home_hero_tacho_bottom', trim($this->hero_tacho_bottom));
+        Setting::set('home_hero_tacho_left', trim($this->hero_tacho_left));
+        Setting::set('home_hero_tacho_animated', $this->hero_tacho_animated ? '1' : '0');
+
+        Setting::set('home_hero_hud_l1_label', trim($this->hero_hud_l1_label));
+        Setting::set('home_hero_hud_l1_val', trim($this->hero_hud_l1_val));
+        Setting::set('home_hero_hud_l2_label', trim($this->hero_hud_l2_label));
+        Setting::set('home_hero_hud_l2_val', trim($this->hero_hud_l2_val));
+        Setting::set('home_hero_hud_l3_label', trim($this->hero_hud_l3_label));
+        Setting::set('home_hero_hud_l3_val', trim($this->hero_hud_l3_val));
+
+        session()->flash('message', 'Homepage Hero Banner configuration saved successfully.');
+        $this->dispatch('flash-message', [
+            'type'    => 'success',
+            'message' => 'Hero Banner saved successfully.',
+        ]);
+    }
+
+    public function saveCurrentSection(): void
+    {
+        if ($this->selectedSection === 'hero') {
+            $this->saveHero();
+        } else {
+            $this->saveHeader();
+        }
+    }
+
     /**
      * Restore 100% Real Production Design (Zero Demo Data!)
      */
@@ -418,12 +656,76 @@ class HomepageBuilder extends Component
         $this->header_cta_icon          = 'solid:clipboard-document-list';
         $this->header_cta_style         = 'primary_gradient';
 
+        // Real Production Hero Banner
+        $this->hero_enabled         = true;
+        $this->hero_width           = 'container';
+        $this->hero_padding         = 'standard';
+        $this->hero_grid_enabled    = true;
+        $this->hero_bg_type         = 'frosted';
+        $this->hero_glass_opacity   = 90;
+        $this->hero_light_bg        = '#ffffff';
+        $this->hero_light_text      = '#0f172a';
+        $this->hero_dark_bg         = '#07131e';
+        $this->hero_dark_text       = '#f8fafc';
+
+        $this->hero_gradient_dir    = '135deg';
+        $this->hero_gradient_from   = '#002538';
+        $this->hero_gradient_via    = '#003C58';
+        $this->hero_gradient_to     = '#07131e';
+
+        $this->hero_badge1_enabled  = true;
+        $this->hero_badge1_text     = 'Authorized Multi-Brand Turbocharger Engineering';
+        $this->hero_badge1_icon     = 'solid:shield-check';
+
+        $this->hero_badge2_enabled  = true;
+        $this->hero_badge2_text     = 'ISO 9001:2015 • DNV Certified';
+        $this->hero_badge2_icon     = 'solid:award';
+
+        $this->hero_title           = 'Precision Turbocharger Overhauls & Marine Propulsion Support.';
+        $this->hero_subtitle        = 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.';
+
+        $this->hero_cta1_enabled    = true;
+        $this->hero_cta1_text       = 'Explore Overhaul Services';
+        $this->hero_cta1_url        = '/services';
+        $this->hero_cta1_icon       = 'solid:arrow-right';
+        $this->hero_cta1_style      = 'primary_gradient';
+
+        $this->hero_cta2_enabled    = true;
+        $this->hero_cta2_text       = 'Request Instant RFQ';
+        $this->hero_cta2_url        = '/contact#rfq';
+        $this->hero_cta2_icon       = 'solid:clipboard-document-list';
+        $this->hero_cta2_style      = 'surface_border';
+
+        $this->hero_metrics_enabled = true;
+        $this->hero_metric1_value   = '100,000';
+        $this->hero_metric1_label   = 'RPM Dynamic Balancing';
+        $this->hero_metric2_value   = '24/7/365';
+        $this->hero_metric2_label   = 'Flying Squads to Port';
+        $this->hero_metric3_value   = '10,000+';
+        $this->hero_metric3_label   = 'OEM Spares in Stock';
+
+        $this->hero_visual_enabled  = true;
+        $this->hero_visual_type     = 'tachometer';
+        $this->hero_tacho_top       = '0° / RPM';
+        $this->hero_tacho_right     = '90°';
+        $this->hero_tacho_bottom    = '180°';
+        $this->hero_tacho_left      = '270°';
+        $this->hero_tacho_animated  = true;
+
+        $this->hero_hud_l1_label    = 'EQUIPMENT:';
+        $this->hero_hud_l1_val      = 'HEAVY EXHAUST TURBOCHARGER';
+        $this->hero_hud_l2_label    = 'AUTHORIZED:';
+        $this->hero_hud_l2_val      = 'ABB • MAN • KBB • MHI • NAPIER';
+        $this->hero_hud_l3_label    = 'WORKSHOP RADIUS:';
+        $this->hero_hud_l3_val      = 'CHATTOGRAM • MONGLA • GLOBAL';
+
         $this->saveHeader();
+        $this->saveHero();
 
         session()->flash('message', 'Real production design restored perfectly.');
         $this->dispatch('flash-message', [
             'type'    => 'success',
-            'message' => 'Real production header design restored perfectly.',
+            'message' => 'Real production design restored perfectly.',
         ]);
     }
 
