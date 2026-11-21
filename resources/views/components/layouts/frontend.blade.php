@@ -310,103 +310,212 @@
 
     <div class="min-h-full flex flex-col justify-between relative z-10">
         
-        <!-- TOP CORPORATE EMERGENCY & STATS STRIP (Light mode: 100% Light, Dark mode: Shipyard Navy) -->
+        @php
+            // ==================== DYNAMIC TOPBAR SETTINGS ====================
+            $topbarEnabled = (bool) \App\Models\Setting::get('header_topbar_enabled', true);
+            $topbarBadgeText = \App\Models\Setting::get('header_topbar_badge_text', '24/7 Port Call & Emergency Squads');
+            $topbarBadgeIcon = \App\Models\Setting::get('header_topbar_badge_icon', 'solid:phone-volume');
+            $topbarTagline = \App\Models\Setting::get('header_topbar_tagline', 'Authorized Multi-Brand Turbocharger Engineering');
+            $topbarPhone = \App\Models\Setting::get('header_topbar_phone') ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000');
+            $topbarPhoneIcon = \App\Models\Setting::get('header_topbar_phone_icon', 'solid:phone');
+            $topbarEmail = \App\Models\Setting::get('header_topbar_email') ?: \App\Models\Setting::get('contact_email', 'operations@nordroy.com');
+            $topbarEmailIcon = \App\Models\Setting::get('header_topbar_email_icon', 'solid:envelope');
+            $topbarShowLang = (bool) \App\Models\Setting::get('header_topbar_show_lang', true);
+            $topbarShowPortal = (bool) \App\Models\Setting::get('header_topbar_show_portal', true);
+            $topbarPortalText = \App\Models\Setting::get('header_topbar_portal_text', 'Admin Portal →');
+            $topbarPortalUrl = \App\Models\Setting::get('header_topbar_portal_url', route('admin.dashboard'));
+            $topbarLightBg = \App\Models\Setting::get('header_topbar_light_bg', '#ffffff');
+            $topbarDarkBg = \App\Models\Setting::get('header_topbar_dark_bg', '#050f18');
+            $topbarLightText = \App\Models\Setting::get('header_topbar_light_text', '#334155');
+            $topbarDarkText = \App\Models\Setting::get('header_topbar_dark_text', '#cbd5e1');
+
+            // ==================== DYNAMIC NAVBAR SETTINGS ====================
+            $headerSticky = (bool) \App\Models\Setting::get('header_sticky', true);
+            $headerHeight = \App\Models\Setting::get('header_height', '80px');
+            $headerBgStyle = \App\Models\Setting::get('header_bg_style', 'frosted');
+            $headerFrostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('header_frosted_opacity', 85)));
+            $headerOpacityDecimal = $headerFrostedOpacity / 100;
+            $headerCustomLightBg = \App\Models\Setting::get('header_custom_light_bg', '#ffffff');
+            $headerCustomDarkBg = \App\Models\Setting::get('header_custom_dark_bg', '#07131e');
+            $headerCustomLightText = \App\Models\Setting::get('header_custom_light_text', '#0f172a');
+            $headerCustomDarkText = \App\Models\Setting::get('header_custom_dark_text', '#f8fafc');
+
+            $headerBrandTitle = \App\Models\Setting::get('header_brand_title') ?: \App\Models\Setting::get('site_name', 'Nordroy Marine');
+            $headerLogoLight = \App\Models\Setting::get('header_logo_light') ?: $siteLogoLight;
+            $headerLogoDark = \App\Models\Setting::get('header_logo_dark') ?: $siteLogoDark;
+            $headerLogoHeight = (int) \App\Models\Setting::get('header_logo_height', 40);
+
+            $headerShowThemeToggle = (bool) \App\Models\Setting::get('header_show_theme_toggle', true);
+            $headerCtaEnabled = (bool) \App\Models\Setting::get('header_cta_enabled', true);
+            $headerCtaText = \App\Models\Setting::get('header_cta_text', 'Request RFQ');
+            $headerCtaUrl = \App\Models\Setting::get('header_cta_url', route('contact') . '#rfq');
+            $headerCtaIcon = \App\Models\Setting::get('header_cta_icon', 'solid:clipboard-document-list');
+            $headerCtaStyle = \App\Models\Setting::get('header_cta_style', 'primary_gradient');
+
+            // Dynamic Menu lookup
+            $headerMenuId = \App\Models\Setting::get('header_menu_id');
+            $primaryMenu = null;
+            if ($headerMenuId) {
+                try {
+                    $primaryMenu = \App\Models\Menu::with(['rootItems.children'])->find($headerMenuId);
+                } catch (\Throwable $e) {}
+            }
+            if (!$primaryMenu) {
+                try {
+                    $primaryMenu = \App\Models\Menu::with(['rootItems.children'])->where('location', 'primary')->first();
+                } catch (\Throwable $e) {}
+            }
+        @endphp
+
+        <style>
+            @if($headerBgStyle === 'frosted')
+                .glass-nav {
+                    background-color: rgba(255, 255, 255, {{ $headerOpacityDecimal }}) !important;
+                }
+                html.dark .glass-nav {
+                    background-color: rgba(7, 19, 30, {{ $headerOpacityDecimal }}) !important;
+                }
+            @elseif($headerBgStyle === 'custom')
+                .glass-nav {
+                    background-color: {{ $headerCustomLightBg }} !important;
+                    color: {{ $headerCustomLightText }} !important;
+                }
+                html.dark .glass-nav {
+                    background-color: {{ $headerCustomDarkBg }} !important;
+                    color: {{ $headerCustomDarkText }} !important;
+                }
+            @elseif($headerBgStyle === 'solid')
+                .glass-nav {
+                    background-color: #ffffff !important;
+                    backdrop-filter: none !important;
+                }
+                html.dark .glass-nav {
+                    background-color: #07131e !important;
+                    backdrop-filter: none !important;
+                }
+            @elseif($headerBgStyle === 'transparent')
+                .glass-nav {
+                    background-color: transparent !important;
+                    backdrop-filter: none !important;
+                }
+            @endif
+        </style>
+
+        @if($topbarEnabled)
+        <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
         <div class="bg-white/95 dark:bg-[#050f18]/95 text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px] py-2 px-4 sm:px-8 transition-colors">
             <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div class="flex items-center gap-3">
-                    <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight">
-                        {{ __('24/7 Port Call & Emergency Squads') }}
+                    <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight flex items-center gap-1.5">
+                        @if($topbarBadgeIcon)
+                            <x-icon :name="$topbarBadgeIcon" class="w-3.5 h-3.5 shrink-0" />
+                        @endif
+                        <span>{{ __($topbarBadgeText) }}</span>
                     </span>
-                    <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
-                    <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ __('Authorized Multi-Brand Turbocharger Engineering') }}</span>
+                    @if($topbarTagline)
+                        <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
+                        <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ __($topbarTagline) }}</span>
+                    @endif
                 </div>
                 <div class="flex items-center gap-3 sm:gap-4 text-xs">
-                    <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
-                        <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                        <span>{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</span>
+                    @if($topbarPhone)
+                    <a href="tel:{{ $topbarPhone }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
+                        <x-icon :name="$topbarPhoneIcon" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400 shrink-0" />
+                        <span>{{ $topbarPhone }}</span>
                     </a>
-                    <a href="mailto:{{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        <span>{{ \App\Models\Setting::get('contact_email', 'operations@nordroy.com') }}</span>
+                    @endif
+                    @if($topbarEmail)
+                    <a href="mailto:{{ $topbarEmail }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
+                        <x-icon :name="$topbarEmailIcon" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400 shrink-0" />
+                        <span>{{ $topbarEmail }}</span>
                     </a>
-
-                    <!-- Dynamic Multi-Language Switcher Dropdown -->
-                    @php
-                        $navLanguages = collect();
-                        if (\Illuminate\Support\Facades\Schema::hasTable('languages')) {
-                            try {
-                                $navLanguages = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
-                            } catch (\Throwable $e) {}
-                        }
-                        $activeLocaleCode = app()->getLocale();
-                        $currLang = $navLanguages->firstWhere('code', $activeLocaleCode) 
-                            ?? $navLanguages->firstWhere('is_default', true) 
-                            ?? $navLanguages->first();
-                    @endphp
-
-                    @if($navLanguages->count() > 0)
-                        <div class="relative inline-block text-left" x-data="{ langOpen: false }" @click.outside="langOpen = false">
-                            <button type="button" 
-                                    @click="langOpen = !langOpen" 
-                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-800 dark:text-slate-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
-                                    title="Switch Language">
-                                <span class="text-xs select-none">{{ $currLang?->flag_icon ?: '🌐' }}</span>
-                                <span class="font-bold">{{ $currLang?->native_name ?: strtoupper($currLang?->code ?? 'EN') }}</span>
-                                <svg class="w-3 h-3 text-slate-400 transition-transform" :class="langOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="langOpen" 
-                                 x-transition:enter="transition ease-out duration-150"
-                                 x-transition:enter-start="opacity-0 scale-95"
-                                 x-transition:enter-end="opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-100"
-                                 x-transition:leave-start="opacity-100 scale-100"
-                                 x-transition:leave-end="opacity-0 scale-95"
-                                 class="absolute right-0 mt-1 w-40 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 overflow-hidden" 
-                                 style="display: none;">
-                                <div class="px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
-                                    Select Language
-                                </div>
-                                @foreach($navLanguages as $l)
-                                    <a href="{{ route('language.switch', $l->code) }}" 
-                                       class="flex items-center justify-between px-3 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ $activeLocaleCode === $l->code ? 'text-[#003C58] dark:text-cyan-400 font-bold bg-[#003C58]/5 dark:bg-cyan-500/10' : 'text-slate-700 dark:text-slate-300' }}">
-                                        <span class="flex items-center gap-2">
-                                            <span class="text-sm select-none">{{ $l->flag_icon ?: '🌐' }}</span>
-                                            <span>{{ $l->native_name }}</span>
-                                        </span>
-                                        @if($activeLocaleCode === $l->code)
-                                            <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                            </svg>
-                                        @endif
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
                     @endif
 
-                    <a href="{{ route('admin.dashboard') }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
-                        {{ __('Admin Portal') }} &rarr;
+                    <!-- Dynamic Multi-Language Switcher Dropdown -->
+                    @if($topbarShowLang)
+                        @php
+                            $navLanguages = collect();
+                            if (\Illuminate\Support\Facades\Schema::hasTable('languages')) {
+                                try {
+                                    $navLanguages = \App\Models\Language::where('is_active', true)->orderBy('order')->get();
+                                } catch (\Throwable $e) {}
+                            }
+                            $activeLocaleCode = app()->getLocale();
+                            $currLang = $navLanguages->firstWhere('code', $activeLocaleCode) 
+                                ?? $navLanguages->firstWhere('is_default', true) 
+                                ?? $navLanguages->first();
+                        @endphp
+
+                        @if($navLanguages->count() > 0)
+                            <div class="relative inline-block text-left" x-data="{ langOpen: false }" @click.outside="langOpen = false">
+                                <button type="button" 
+                                        @click="langOpen = !langOpen" 
+                                        class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-800 dark:text-slate-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer border border-slate-200 dark:border-slate-700"
+                                        title="Switch Language">
+                                    <span class="text-xs select-none">{{ $currLang?->flag_icon ?: '🌐' }}</span>
+                                    <span class="font-bold">{{ $currLang?->native_name ?: strtoupper($currLang?->code ?? 'EN') }}</span>
+                                    <svg class="w-3 h-3 text-slate-400 transition-transform" :class="langOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div x-show="langOpen" 
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-100"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="absolute right-0 mt-1 w-40 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 overflow-hidden" 
+                                     style="display: none;">
+                                    <div class="px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
+                                        Select Language
+                                    </div>
+                                    @foreach($navLanguages as $l)
+                                        <a href="{{ route('language.switch', $l->code) }}" 
+                                           class="flex items-center justify-between px-3 py-1.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ $activeLocaleCode === $l->code ? 'text-[#003C58] dark:text-cyan-400 font-bold bg-[#003C58]/5 dark:bg-cyan-500/10' : 'text-slate-700 dark:text-slate-300' }}">
+                                            <span class="flex items-center gap-2">
+                                                <span class="text-sm select-none">{{ $l->flag_icon ?: '🌐' }}</span>
+                                                <span>{{ $l->native_name }}</span>
+                                            </span>
+                                            @if($activeLocaleCode === $l->code)
+                                                <svg class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                </svg>
+                                            @endif
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+
+                    @if($topbarShowPortal)
+                    <a href="{{ $topbarPortalUrl }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
+                        {{ __($topbarPortalText) }}
                     </a>
+                    @endif
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- STICKY GLASSMORPHISM PUBLIC HEADER -->
-        <header class="sticky top-0 z-40 glass-nav border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
-            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+        <header class="{{ $headerSticky ? 'sticky top-0 ' : '' }}z-40 glass-nav border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
+            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
+                 style="height: {{ $headerHeight }};">
                 
                 <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
                 <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                     <!-- Light Mode Logo: Visible in Light Mode, hidden in Dark Mode -->
-                    <img src="{{ asset($siteLogoLight) }}" 
-                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                         class="h-10 w-auto object-contain dark:hidden group-hover:scale-102 transition-transform duration-200" />
+                    <img src="{{ str_starts_with($headerLogoLight, 'http') ? $headerLogoLight : asset($headerLogoLight) }}" 
+                         alt="{{ $headerBrandTitle }}" 
+                         class="w-auto object-contain dark:hidden group-hover:scale-102 transition-transform duration-200"
+                         style="height: {{ $headerLogoHeight }}px;" />
                     <!-- Dark Mode Logo: Visible in Dark Mode, hidden in Light Mode -->
-                    <img src="{{ asset($siteLogoDark) }}" 
-                         alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                         class="h-10 w-auto object-contain hidden dark:block group-hover:scale-102 transition-transform duration-200" />
+                    <img src="{{ str_starts_with($headerLogoDark, 'http') ? $headerLogoDark : asset($headerLogoDark) }}" 
+                         alt="{{ $headerBrandTitle }}" 
+                         class="w-auto object-contain hidden dark:block group-hover:scale-102 transition-transform duration-200"
+                         style="height: {{ $headerLogoHeight }}px;" />
                 </a>
 
                 <!-- DESKTOP MULTI-LAYER NAVIGATION LINKS WITH CLEAN SUBMENUS (Consistent Title Case) -->
@@ -543,6 +652,7 @@
                 <!-- Header Actions: Theme Toggle + CTA + Mobile Hamburger -->
                 <div class="flex items-center gap-3 sm:gap-4">
                     
+                    @if($headerShowThemeToggle)
                     <!-- Theme Toggle (Instant 0ms Vanilla JS + Pure CSS Icons) -->
                     <button type="button" onclick="window.toggleSiteTheme(event)"
                             class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-amber-400 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -556,14 +666,29 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                         </svg>
                     </button>
+                    @endif
 
-                    <!-- Instant RFQ CTA Button -->
-                    <a href="{{ route('contact') }}#rfq" 
-                       class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all"
-                       style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span>{{ __('Request RFQ') }}</span>
-                    </a>
+                    @if($headerCtaEnabled)
+                        @php
+                            $ctaStyleClass = match($headerCtaStyle) {
+                                'outline' => 'border border-[#003C58] dark:border-cyan-400 text-[#003C58] dark:text-cyan-400 bg-transparent hover:bg-[#003C58]/5 dark:hover:bg-cyan-500/10',
+                                'solid_dark' => 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90',
+                                default => 'text-white shadow-md',
+                            };
+                            $ctaInline = ($headerCtaStyle === 'primary_gradient') 
+                                ? 'background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--button-radius);'
+                                : 'border-radius: var(--button-radius);';
+                        @endphp
+                        <!-- Dynamic Header CTA Button -->
+                        <a href="{{ $headerCtaUrl }}" 
+                           class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider active:scale-95 transition-all {{ $ctaStyleClass }}"
+                           style="{{ $ctaInline }}">
+                            @if($headerCtaIcon)
+                                <x-icon :name="$headerCtaIcon" class="w-3.5 h-3.5 shrink-0" />
+                            @endif
+                            <span>{{ __($headerCtaText) }}</span>
+                        </a>
+                    @endif
 
                     <!-- Mobile Hamburger Button -->
                     <button type="button" @click="mobileNavOpen = true" class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -715,14 +840,18 @@
 
                     <!-- Drawer Footer CTA & Emergency Info -->
                     <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-3">
-                        <a href="{{ route('contact') }}#rfq" @click="mobileNavOpen = false" 
-                           class="w-full inline-flex items-center justify-center py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md"
+                        @if($headerCtaEnabled)
+                        <a href="{{ $headerCtaUrl }}" @click="mobileNavOpen = false" 
+                           class="w-full inline-flex items-center justify-center py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md active:scale-95 transition-all"
                            style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color));">
-                            {{ __('Request Instant RFQ') }}
+                            {{ __($headerCtaText) }}
                         </a>
+                        @endif
+                        @if($topbarPhone)
                         <div class="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
-                            24/7 Port Helpline: <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="font-bold text-[#003C58] dark:text-cyan-400">{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}</a>
+                            24/7 Port Helpline: <a href="tel:{{ $topbarPhone }}" class="font-bold text-[#003C58] dark:text-cyan-400">{{ $topbarPhone }}</a>
                         </div>
+                        @endif
                     </div>
 
                 </div>

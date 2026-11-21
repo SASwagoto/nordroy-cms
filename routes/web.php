@@ -350,6 +350,11 @@ Route::middleware([
         ->middleware('permission:settings.manage')
         ->name('pages.content');
 
+    // Dedicated Homepage Sections Builder Studio
+    Route::get('/homepage-builder', \App\Livewire\Admin\Pages\HomepageBuilder::class)
+        ->middleware('permission:settings.manage')
+        ->name('homepage.builder');
+
     // Inquiries & RFQ Duty Desk
     Route::get('/enquiries', EnquiryManager::class)
         ->middleware('permission:enquiries.view')

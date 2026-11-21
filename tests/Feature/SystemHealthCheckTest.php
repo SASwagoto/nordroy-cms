@@ -70,6 +70,7 @@ class SystemHealthCheckTest extends TestCase
 
         $adminRoutes = [
             'admin.dashboard'              => route('admin.dashboard'),
+            'admin.homepage.builder'       => route('admin.homepage.builder'),
             'admin.pages.content'          => route('admin.pages.content'),
             'admin.enquiries'              => route('admin.enquiries'),
             'admin.enquiries.form-builder' => route('admin.enquiries.form-builder'),
