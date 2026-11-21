@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <!-- Top Action Bar -->
-    <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+    <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-1">
@@ -28,15 +28,16 @@
                     <span>View Frontend</span>
                 </a>
 
-                <button type="button" wire:click="resetDefaults" 
-                        wire:confirm="Reset header configuration to default values?"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer">
-                    <x-icon name="solid:arrow-path" class="w-3.5 h-3.5" />
-                    <span>Reset Defaults</span>
+                <button type="button" wire:click="restoreProductionDesign" 
+                        wire:confirm="Restore real production header design (100% real corporate data, zero demo values)?"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 transition-colors cursor-pointer shadow-2xs"
+                        title="Restore 100% Real Production Design">
+                    <x-icon name="solid:rotate-left" class="w-3.5 h-3.5" />
+                    <span>Restore Real Production Design</span>
                 </button>
 
                 <button type="button" wire:click="saveHeader" wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50">
+                        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50">
                     <span wire:loading.remove wire:target="saveHeader" class="flex items-center gap-1.5">
                         <x-icon name="solid:floppy-disk" class="w-3.5 h-3.5" />
                         <span>Save Header</span>
@@ -68,29 +69,29 @@
         
         <!-- ==================== LEFT SIDEBAR: HOMEPAGE SECTIONS ==================== -->
         <div class="lg:col-span-4 xl:col-span-3 space-y-4">
-            <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
                 <!-- Sidebar Header -->
-                <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                <div class="p-3.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <x-icon name="solid:cubes" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Homepage Sections</span>
                     </div>
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                        8 Sections
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        1 Active Section
                     </span>
                 </div>
 
                 <div class="p-3 space-y-2">
-                    <!-- 1. LOCKED HEADER (Topbar & Main Navigation) -->
+                    <!-- ONLY 1 SECTION: LOCKED HEADER (Topbar & Main Navigation) -->
                     <div wire:click="selectSection('header')"
                          class="group p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs">
                         <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
+                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
                                 <x-icon name="solid:window-maximize" class="w-3.5 h-3.5" />
                             </span>
                             <div class="truncate">
                                 <span class="block text-xs font-bold truncate">Header (Topbar &amp; Navbar)</span>
-                                <span class="block text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Pinned &bull; Multi-Row</span>
+                                <span class="block text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pinned &bull; Multi-Row</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
@@ -100,116 +101,12 @@
                             </span>
                         </div>
                     </div>
-
-                    <!-- 2. Hero Banner (Planning / Next) -->
-                    <div wire:click="selectSection('hero')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:sparkles" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Hero Banner</span>
-                                <span class="block text-[9px] text-slate-400">Turbine Dial &amp; Overhauls</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 3. OEM Partner Ticker -->
-                    <div wire:click="selectSection('partners')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:arrows-right-left" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">OEM Partner Ticker</span>
-                                <span class="block text-[9px] text-slate-400">ABB &bull; MAN &bull; KBB</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 4. Overhaul Services -->
-                    <div wire:click="selectSection('services')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:wrench-screwdriver" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Precision Services</span>
-                                <span class="block text-[9px] text-slate-400">Balancing &amp; Overhauls</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 5. Products & Parts -->
-                    <div wire:click="selectSection('products')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:cube" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Products &amp; Spares</span>
-                                <span class="block text-[9px] text-slate-400">Cartridges &amp; Rotors</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 6. Metrics & Stats -->
-                    <div wire:click="selectSection('stats')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:chart-bar" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Engineering Stats</span>
-                                <span class="block text-[9px] text-slate-400">100k RPM &bull; 24/7 Squads</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 7. Inquiries / RFQ Desk -->
-                    <div wire:click="selectSection('rfq')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:envelope" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Inquiries / RFQ Form</span>
-                                <span class="block text-[9px] text-slate-400">Dynamic Lead Capture</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
-
-                    <!-- 8. LOCKED FOOTER -->
-                    <div wire:click="selectSection('footer')"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all flex items-center justify-between opacity-75">
-                        <div class="flex items-center gap-2.5 truncate">
-                            <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0">
-                                <x-icon name="solid:window-minimize" class="w-3.5 h-3.5 text-slate-400" />
-                            </span>
-                            <div class="truncate">
-                                <span class="block text-xs font-semibold truncate">Modular Footer</span>
-                                <span class="block text-[9px] text-slate-400">Pinned &bull; Multi-Column</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Next Step</span>
-                    </div>
                 </div>
 
-                <div class="p-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-slate-200/80 dark:border-slate-800 text-[11px] text-slate-500">
+                <!-- Informational Lock Rule Note -->
+                <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
                     <p class="leading-relaxed">
-                        <strong class="text-slate-700 dark:text-slate-300">Lock Rule:</strong> The Header is anchored at the top of the homepage hierarchy and cannot be displaced.
+                        <strong class="text-slate-800 dark:text-slate-200">Lock Rule:</strong> The Header is anchored at the top of the homepage hierarchy and cannot be displaced. Other sections will be configured one by one sequentially.
                     </p>
                 </div>
             </div>
@@ -219,14 +116,14 @@
         <div class="lg:col-span-8 xl:col-span-9 space-y-6">
             
             <!-- Workspace Card -->
-            <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
                 
                 <!-- Workspace Sub-Navigation Tabs -->
-                <div class="p-2.5 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto">
+                <div class="p-2.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto">
                     <button type="button" wire:click="setHeaderTab('topbar')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'topbar' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700' }}">
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'topbar' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800' }}">
                         <x-icon name="solid:phone-volume" class="w-3.5 h-3.5" />
-                        <span>1. Topbar (Emergency Strip)</span>
+                        <span>1. Topbar (Emergency &amp; Contacts)</span>
                         @if($topbar_enabled)
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         @else
@@ -235,31 +132,32 @@
                     </button>
 
                     <button type="button" wire:click="setHeaderTab('navbar')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'navbar' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700' }}">
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'navbar' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800' }}">
                         <x-icon name="solid:bars-3" class="w-3.5 h-3.5" />
                         <span>2. Main Navbar (Style &amp; Brand)</span>
                     </button>
 
                     <button type="button" wire:click="setHeaderTab('menu')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'menu' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700' }}">
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'menu' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800' }}">
                         <x-icon name="solid:list-bullet" class="w-3.5 h-3.5" />
                         <span>3. Navigation Menu</span>
                     </button>
 
                     <button type="button" wire:click="setHeaderTab('cta')"
-                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'cta' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700' }}">
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer {{ $headerTab === 'cta' ? 'bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800' }}">
                         <x-icon name="solid:bolt" class="w-3.5 h-3.5" />
                         <span>4. Actions &amp; CTA</span>
                     </button>
                 </div>
 
-                <!-- Tab 1: Topbar Content & Styling -->
+                <!-- ==================== TAB 1: TOPBAR CONFIGURATION ==================== -->
                 @if($headerTab === 'topbar')
                 <div class="p-6 space-y-6">
-                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <!-- Strip Master Switch -->
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                         <div>
                             <h2 class="text-sm font-bold text-slate-900 dark:text-white">Emergency Topbar Configuration</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Controls the topmost strip displaying emergency contacts, secondary tagline, and portal shortcuts.</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Controls the topmost strip displaying emergency contacts, secondary tagline, social channels, and portal shortcuts.</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" wire:model.live="topbar_enabled" class="sr-only peer">
@@ -268,116 +166,460 @@
                         </label>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 {{ $topbar_enabled ? '' : 'opacity-50 pointer-events-none' }}">
-                        <!-- Left Callout Badge -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Badge Text</label>
-                            <input type="text" wire:model="topbar_badge_text" placeholder="24/7 Port Call & Emergency Squads"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
+                    <div class="space-y-6 {{ $topbar_enabled ? '' : 'opacity-50 pointer-events-none' }}">
+                        <!-- Topbar Width & Background Material Engine -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="solid:swatchbook" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Topbar Geometry &amp; Background Engine</span>
+                            </div>
 
-                        <!-- Left Callout Icon -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Badge Icon</label>
-                            <div x-data="{
-                                    iconVal: @entangle('topbar_badge_icon'),
-                                    get iconUrl() {
-                                        if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/phone-volume.svg';
-                                        if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
-                                            return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
-                                        }
-                                        if (this.iconVal.includes(':')) {
-                                            const p = this.iconVal.split(':');
-                                            return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
-                                        }
-                                        return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
-                                    }
-                                 }"
-                                 @click="$dispatch('open-icon-picker', { targetField: 'topbar_badge_icon' })"
-                                 class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[38px]">
-                                <div class="w-6 h-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-1 group-hover:scale-105 transition-transform text-cyan-600 dark:text-cyan-400">
-                                    <img :src="iconUrl" :alt="iconVal" class="w-4 h-4 object-contain dark:invert" 
-                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
-                                    <div style="display:none;" class="w-4 h-4 items-center justify-center">
-                                        <x-icon :name="$topbar_badge_icon ?: 'solid:phone-volume'" class="w-4 h-4" />
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Topbar Width -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Container Width</label>
+                                    <select wire:model.live="topbar_width"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        <option value="container">Boxed Container (max-w-[1536px] - Default)</option>
+                                        <option value="fluid">Container Fluid (Full Width - 100%)</option>
+                                        <option value="narrow">Narrow Container (max-w-6xl)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Topbar Background Type -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Background Material</label>
+                                    <select wire:model.live="topbar_bg_type"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        <option value="theme_default">Theme Default (Executive Marine Clean)</option>
+                                        <option value="transparent">Fully Transparent</option>
+                                        <option value="solid_custom">Solid Custom Palette (Dual Mode)</option>
+                                        <option value="gradient">Multicolor Full-Feature Gradient</option>
+                                        <option value="glass">Frosted Glass Effect (Custom Transparency)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- If Solid Custom Dual Mode -->
+                            @if($topbar_bg_type === 'solid_custom')
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Light BG</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="topbar_light_bg" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-300">
+                                        <input type="text" wire:model.live="topbar_light_bg" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                                     </div>
                                 </div>
-                                <span class="text-xs font-mono text-slate-800 dark:text-slate-200 truncate flex-1" x-text="iconVal || 'solid:phone-volume'"></span>
-                                <span class="text-[10px] text-cyan-500 font-bold">Pick</span>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Light Text</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="topbar_light_text" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-300">
+                                        <input type="text" wire:model.live="topbar_light_text" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Dark BG</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="topbar_dark_bg" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-700">
+                                        <input type="text" wire:model.live="topbar_dark_bg" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Dark Text</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="topbar_dark_text" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-700">
+                                        <input type="text" wire:model.live="topbar_dark_text" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- If Gradient -->
+                            @if($topbar_bg_type === 'gradient')
+                            <div class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Direction</label>
+                                        <select wire:model.live="topbar_gradient_dir"
+                                                class="w-full px-2 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                            <option value="to right">To Right &rarr;</option>
+                                            <option value="to left">&larr; To Left</option>
+                                            <option value="to bottom">To Bottom &darr;</option>
+                                            <option value="135deg">Diagonal (135&deg;)</option>
+                                            <option value="45deg">Diagonal (45&deg;)</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">From Color</label>
+                                        <div class="flex items-center gap-1.5">
+                                            <input type="color" wire:model.live="topbar_gradient_from" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                            <input type="text" wire:model.live="topbar_gradient_from" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Via Color (Optional)</label>
+                                        <div class="flex items-center gap-1.5">
+                                            <input type="color" wire:model.live="topbar_gradient_via" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                            <input type="text" wire:model.live="topbar_gradient_via" placeholder="None" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">To Color</label>
+                                        <div class="flex items-center gap-1.5">
+                                            <input type="color" wire:model.live="topbar_gradient_to" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                            <input type="text" wire:model.live="topbar_gradient_to" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- If Frosted Glass Effect -->
+                            @if($topbar_bg_type === 'glass')
+                            <div class="space-y-1.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Frosted Glass Opacity (Strictly Clamped 10% - 90%)</label>
+                                    <span class="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ $topbar_glass_opacity }}%</span>
+                                </div>
+                                <input type="range" min="10" max="90" step="5" wire:model.live="topbar_glass_opacity"
+                                       class="w-full accent-[#003C58] dark:accent-cyan-400">
+                                <span class="text-[10px] text-slate-500">Enforces high-readability frosted glass (never 0% and never 100%).</span>
+                            </div>
+                            @endif
+                        </div>
+
+                        <!-- 2-COLUMN MODULAR ZONES (LEFT COLUMN & RIGHT COLUMN) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- ================= COLUMN 1: LEFT ZONE ================= -->
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Left Column Zone</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500">Notice badge &amp; Tagline</span>
+                                </div>
+
+                                <!-- Notice Badge Toggle & Text -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Badge</label>
+                                        <input type="checkbox" wire:model="topbar_show_badge" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $topbar_show_badge ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <div class="sm:col-span-2">
+                                            <input type="text" wire:model="topbar_badge_text" placeholder="24/7 Port Call & Emergency Squads"
+                                                   class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        </div>
+                                        <div>
+                                            <div x-data="{
+                                                    iconVal: @entangle('topbar_badge_icon'),
+                                                    get iconUrl() {
+                                                        if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/phone-volume.svg';
+                                                        if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                            return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                        }
+                                                        if (this.iconVal.includes(':')) {
+                                                            const p = this.iconVal.split(':');
+                                                            return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                        }
+                                                        return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                                    }
+                                                 }"
+                                                 @click="$dispatch('open-icon-picker', { targetField: 'topbar_badge_icon' })"
+                                                 class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                                <div class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5">
+                                                    <img :src="iconUrl" :alt="iconVal" class="w-3.5 h-3.5 object-contain dark:invert" 
+                                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                                    <div style="display:none;" class="w-3.5 h-3.5 items-center justify-center">
+                                                        <x-icon :name="$topbar_badge_icon ?: 'solid:phone-volume'" class="w-3.5 h-3.5" />
+                                                    </div>
+                                                </div>
+                                                <span class="text-[11px] font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'Pick'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Secondary Tagline -->
+                                <div class="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Secondary Tagline / Subtitle</label>
+                                        <input type="checkbox" wire:model="topbar_show_tagline" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <input type="text" wire:model="topbar_tagline" placeholder="Authorized Multi-Brand Turbocharger Engineering"
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium {{ $topbar_show_tagline ? '' : 'opacity-40 pointer-events-none' }}">
+                                </div>
+                            </div>
+
+                            <!-- ================= COLUMN 2: RIGHT ZONE ================= -->
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Right Column Zone</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500">Contacts, Social &amp; Links</span>
+                                </div>
+
+                                <!-- Direct Duty Phone -->
+                                <div class="space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Duty Phone</label>
+                                        <input type="checkbox" wire:model="topbar_show_phone" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $topbar_show_phone ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <div class="sm:col-span-2">
+                                            <input type="text" wire:model="topbar_phone" placeholder="+880 1800-000000"
+                                                   class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        </div>
+                                        <div>
+                                            <div x-data="{
+                                                    iconVal: @entangle('topbar_phone_icon'),
+                                                    get iconUrl() {
+                                                        if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/phone.svg';
+                                                        if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                            return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                        }
+                                                        if (this.iconVal.includes(':')) {
+                                                            const p = this.iconVal.split(':');
+                                                            return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                        }
+                                                        return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                                    }
+                                                 }"
+                                                 @click="$dispatch('open-icon-picker', { targetField: 'topbar_phone_icon' })"
+                                                 class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                                <div class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5">
+                                                    <img :src="iconUrl" :alt="iconVal" class="w-3.5 h-3.5 object-contain dark:invert" 
+                                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                                    <div style="display:none;" class="w-3.5 h-3.5 items-center justify-center">
+                                                        <x-icon :name="$topbar_phone_icon ?: 'solid:phone'" class="w-3.5 h-3.5" />
+                                                    </div>
+                                                </div>
+                                                <span class="text-[11px] font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'Pick'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Operations Email -->
+                                <div class="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Operations Email</label>
+                                        <input type="checkbox" wire:model="topbar_show_email" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $topbar_show_email ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <div class="sm:col-span-2">
+                                            <input type="email" wire:model="topbar_email" placeholder="operations@nordroy.com"
+                                                   class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        </div>
+                                        <div>
+                                            <div x-data="{
+                                                    iconVal: @entangle('topbar_email_icon'),
+                                                    get iconUrl() {
+                                                        if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/envelope.svg';
+                                                        if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                            return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                        }
+                                                        if (this.iconVal.includes(':')) {
+                                                            const p = this.iconVal.split(':');
+                                                            return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                        }
+                                                        return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                                    }
+                                                 }"
+                                                 @click="$dispatch('open-icon-picker', { targetField: 'topbar_email_icon' })"
+                                                 class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                                <div class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5">
+                                                    <img :src="iconUrl" :alt="iconVal" class="w-3.5 h-3.5 object-contain dark:invert" 
+                                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                                    <div style="display:none;" class="w-3.5 h-3.5 items-center justify-center">
+                                                        <x-icon :name="$topbar_email_icon ?: 'solid:envelope'" class="w-3.5 h-3.5" />
+                                                    </div>
+                                                </div>
+                                                <span class="text-[11px] font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'Pick'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Social Links from Settings -->
+                                <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-800 dark:text-slate-200">Dynamic Social Media Links</span>
+                                            <span class="block text-[10px] text-slate-500">Renders social channels configured in Global Settings</span>
+                                        </div>
+                                        <input type="checkbox" wire:model="topbar_show_social" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    @if(count($availableSocialLinks) > 0)
+                                        <div class="flex flex-wrap items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                            @foreach($availableSocialLinks as $s)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                                                    <x-icon :name="$s['icon'] ?? 'brands:facebook'" class="w-3 h-3 text-[#003C58] dark:text-cyan-400" />
+                                                    <span>{{ $s['title'] ?? 'Link' }}</span>
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-[10px] text-slate-400">No social links yet. Add them in Global Settings &rarr; Social Links.</span>
+                                    @endif
+                                </div>
+
+                                <!-- Language Switcher & Admin Portal -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                    <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                                        <div>
+                                            <span class="block text-[11px] font-bold text-slate-800 dark:text-slate-200">Language Dropdown</span>
+                                            <span class="block text-[9px] text-slate-500">Flags &amp; Locales</span>
+                                        </div>
+                                        <input type="checkbox" wire:model="topbar_show_lang" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+
+                                    <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                                        <div>
+                                            <span class="block text-[11px] font-bold text-slate-800 dark:text-slate-200">Portal / Login Link</span>
+                                            <span class="block text-[9px] text-slate-500">Quick Access</span>
+                                        </div>
+                                        <input type="checkbox" wire:model="topbar_show_portal" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                </div>
+
+                                @if($topbar_show_portal)
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                                    <input type="text" wire:model="topbar_portal_text" placeholder="Admin Portal &rarr;"
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    <input type="text" wire:model="topbar_portal_url" placeholder="/admin/dashboard"
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                </div>
+                                @endif
                             </div>
                         </div>
 
-                        <!-- Secondary Tagline -->
-                        <div class="md:col-span-2 space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Secondary Tagline / Subtitle</label>
-                            <input type="text" wire:model="topbar_tagline" placeholder="Authorized Multi-Brand Turbocharger Engineering"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
-
-                        <!-- Phone Number -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Direct Duty Phone</label>
-                            <input type="text" wire:model="topbar_phone" placeholder="+880 1800-000000"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
-
-                        <!-- Email Address -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Operations Email</label>
-                            <input type="email" wire:model="topbar_email" placeholder="operations@nordroy.com"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
-
-                        <!-- Language Switcher Toggle -->
-                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <span class="block text-xs font-bold text-slate-900 dark:text-white">Language Switcher Dropdown</span>
-                                <span class="block text-[10px] text-slate-500">Show multi-language picker with flags</span>
+                        <!-- MODULAR CUSTOM ITEMS REPEATER -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <x-icon name="solid:puzzle-piece" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Custom Topbar Items &amp; Shortcuts</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500">Modular repeater for Left or Right Zone</span>
                             </div>
-                            <input type="checkbox" wire:model="topbar_show_lang" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
-                        </div>
 
-                        <!-- Admin Portal Link Toggle -->
-                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <span class="block text-xs font-bold text-slate-900 dark:text-white">Admin Portal / Login Link</span>
-                                <span class="block text-[10px] text-slate-500">Display quick shortcut button</span>
+                            <!-- Add New Custom Item Box -->
+                            <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+                                <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Add New Modular Item</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                                    <!-- Zone Selector -->
+                                    <div class="sm:col-span-2">
+                                        <select wire:model="newCustomZone"
+                                                class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            <option value="left">Left Zone</option>
+                                            <option value="right">Right Zone</option>
+                                        </select>
+                                    </div>
+                                    <!-- Text Label -->
+                                    <div class="sm:col-span-3">
+                                        <input type="text" wire:model="newCustomText" placeholder="Item Label..."
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    </div>
+                                    <!-- Icon Picker -->
+                                    <div class="sm:col-span-3">
+                                        <div x-data="{
+                                                iconVal: @entangle('newCustomIcon'),
+                                                get iconUrl() {
+                                                    if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/info.svg';
+                                                    if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                        return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                    }
+                                                    if (this.iconVal.includes(':')) {
+                                                        const p = this.iconVal.split(':');
+                                                        return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                    }
+                                                    return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                                }
+                                             }"
+                                             @click="$dispatch('open-icon-picker', { targetField: 'newCustomIcon' })"
+                                             class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                            <div class="w-4 h-4 rounded bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5">
+                                                <img :src="iconUrl" :alt="iconVal" class="w-3 h-3 object-contain dark:invert" 
+                                                     onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                                <div style="display:none;" class="w-3 h-3 items-center justify-center">
+                                                    <x-icon :name="$newCustomIcon ?: 'solid:info'" class="w-3 h-3" />
+                                                </div>
+                                            </div>
+                                            <span class="text-[10px] font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'solid:info'"></span>
+                                        </div>
+                                    </div>
+                                    <!-- URL Target -->
+                                    <div class="sm:col-span-3">
+                                        <input type="text" wire:model="newCustomUrl" placeholder="Link URL (e.g. /careers)"
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    </div>
+                                    <!-- Add Button -->
+                                    <div class="sm:col-span-1">
+                                        <button type="button" wire:click="addCustomTopbarItem"
+                                                class="w-full h-[34px] px-2 rounded-lg text-xs font-bold bg-[#003C58] text-white hover:bg-[#002f45] dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 transition-colors flex items-center justify-center cursor-pointer">
+                                            <x-icon name="solid:plus" class="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <input type="checkbox" wire:model="topbar_show_portal" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
-                        </div>
 
-                        <!-- Portal Text & URL -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Portal Link Label</label>
-                            <input type="text" wire:model="topbar_portal_text" placeholder="Admin Portal &rarr;"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Portal Target URL</label>
-                            <input type="text" wire:model="topbar_portal_url" placeholder="/admin/dashboard"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                            <!-- Existing Items List -->
+                            @if(count($topbar_custom_items) > 0)
+                            <div class="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                                @foreach($topbar_custom_items as $idx => $item)
+                                    <div class="p-2.5 bg-white dark:bg-slate-900 flex items-center justify-between gap-3 text-xs">
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded {{ ($item['zone'] ?? 'left') === 'left' ? 'bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300' }}">
+                                                {{ $item['zone'] ?? 'left' }}
+                                            </span>
+                                            <x-icon :name="$item['icon'] ?? 'solid:info'" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400 shrink-0" />
+                                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $item['text'] }}</span>
+                                            @if(!empty($item['url']))
+                                                <span class="text-[10px] font-mono text-slate-400">({{ $item['url'] }})</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" wire:click="toggleCustomTopbarItem({{ $idx }})"
+                                                    class="px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer {{ ($item['is_active'] ?? true) ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400' }}">
+                                                {{ ($item['is_active'] ?? true) ? 'Active' : 'Disabled' }}
+                                            </button>
+                                            <button type="button" wire:click="removeCustomTopbarItem({{ $idx }})"
+                                                    class="p-1 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer">
+                                                <x-icon name="solid:trash-can" class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
                 @endif
 
-                <!-- Tab 2: Main Navbar (Layout & Style) -->
+                <!-- ==================== TAB 2: MAIN NAVBAR (STYLE & BRAND) ==================== -->
                 @if($headerTab === 'navbar')
                 <div class="p-6 space-y-6">
-                    <div class="pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="pb-4 border-b border-slate-200 dark:border-slate-800">
                         <h2 class="text-sm font-bold text-slate-900 dark:text-white">Main Navbar Styling &amp; Geometry</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Configure sticky behavior, height, background transparency, frosted glass effects, and logos.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Configure sticky behavior, container width, height, background transparency, frosted glass effects, and logos.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <!-- Sticky Toggle -->
-                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <span class="block text-xs font-bold text-slate-900 dark:text-white">Sticky Header on Scroll</span>
-                                <span class="block text-[10px] text-slate-500">Pins navbar to top of viewport when scrolling</span>
-                            </div>
-                            <input type="checkbox" wire:model="header_sticky" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                        <!-- Navbar Width -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Container Width</label>
+                            <select wire:model.live="header_width"
+                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                <option value="container">Boxed Container (max-w-[1536px] - Default)</option>
+                                <option value="fluid">Container Fluid (Full Width - 100%)</option>
+                                <option value="narrow">Narrow Container (max-w-6xl)</option>
+                            </select>
                         </div>
 
                         <!-- Header Height -->
@@ -388,49 +630,125 @@
                                 <option value="70px">Compact (70px)</option>
                                 <option value="80px">Standard (80px - Default)</option>
                                 <option value="90px">Spacious (90px)</option>
+                                <option value="100px">Grand (100px)</option>
                             </select>
                         </div>
 
-                        <!-- Background Style Selector -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Background Material</label>
-                            <select wire:model.live="header_bg_style"
-                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                                <option value="frosted">Frosted Glassmorphism (Executive Standard)</option>
-                                <option value="transparent">Fully Transparent</option>
-                                <option value="solid">Solid Background</option>
-                                <option value="custom">Custom Dual Mode Palette</option>
-                            </select>
-                        </div>
-
-                        <!-- Frosted Opacity Slider (When frosted selected) -->
-                        @if($header_bg_style === 'frosted')
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Glass Opacity (10% - 90%)</label>
-                                <span class="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ $header_frosted_opacity }}%</span>
+                        <!-- Sticky Toggle -->
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-900 dark:text-white">Sticky Header on Scroll</span>
+                                <span class="block text-[10px] text-slate-500">Pins navbar to top of viewport when scrolling</span>
                             </div>
-                            <input type="range" min="10" max="90" step="5" wire:model.live="header_frosted_opacity"
+                            <input type="checkbox" wire:model="header_sticky" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                        </div>
+
+                        <!-- Border Style -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Border &amp; Elevation</label>
+                            <select wire:model="header_border_style"
+                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                <option value="border">Subtle Bottom Border (Executive Standard)</option>
+                                <option value="shadow">Ambient Drop Shadow</option>
+                                <option value="none">Flat (No Border or Shadow)</option>
+                            </select>
+                        </div>
+
+                        <!-- Background Material Engine -->
+                        <div class="md:col-span-2 space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Navbar Background Material</label>
+                            <select wire:model.live="header_bg_type"
+                                    class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                <option value="glass">Frosted Glassmorphism (Executive Standard)</option>
+                                <option value="theme_default">Theme Default (Pure Surface)</option>
+                                <option value="transparent">Fully Transparent</option>
+                                <option value="solid_custom">Solid Custom Palette (Dual Mode)</option>
+                                <option value="gradient">Multicolor Full-Feature Gradient</option>
+                            </select>
+                        </div>
+
+                        <!-- Frosted Opacity Slider (When glass selected) -->
+                        @if($header_bg_type === 'glass')
+                        <div class="md:col-span-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Glass Opacity (Strictly Clamped 10% - 90%)</label>
+                                <span class="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ $header_glass_opacity }}%</span>
+                            </div>
+                            <input type="range" min="10" max="90" step="5" wire:model.live="header_glass_opacity"
                                    class="w-full accent-[#003C58] dark:accent-cyan-400">
+                            <span class="text-[10px] text-slate-500">Ensures background backdrop filter blur works beautifully without 0% wash-out or 100% opacity loss.</span>
                         </div>
                         @endif
 
-                        <!-- Custom Dual Mode Colors (When custom selected) -->
-                        @if($header_bg_style === 'custom')
-                        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Light Mode Background</label>
-                                <div class="flex items-center gap-2">
+                        <!-- Custom Dual Mode Colors -->
+                        @if($header_bg_type === 'solid_custom')
+                        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Light BG</label>
+                                <div class="flex items-center gap-1.5">
                                     <input type="color" wire:model.live="header_custom_light_bg" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-300">
-                                    <input type="text" wire:model.live="header_custom_light_bg" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono">
+                                    <input type="text" wire:model.live="header_custom_light_bg" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                                 </div>
                             </div>
-
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Dark Mode Background</label>
-                                <div class="flex items-center gap-2">
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Light Text</label>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="color" wire:model.live="header_custom_light_text" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-300">
+                                    <input type="text" wire:model.live="header_custom_light_text" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Dark BG</label>
+                                <div class="flex items-center gap-1.5">
                                     <input type="color" wire:model.live="header_custom_dark_bg" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-700">
-                                    <input type="text" wire:model.live="header_custom_dark_bg" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-800 font-mono bg-slate-900 text-white">
+                                    <input type="text" wire:model.live="header_custom_dark_bg" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Dark Text</label>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="color" wire:model.live="header_custom_dark_text" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-700">
+                                    <input type="text" wire:model.live="header_custom_dark_text" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Gradient Controls -->
+                        @if($header_bg_type === 'gradient')
+                        <div class="md:col-span-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Direction</label>
+                                    <select wire:model.live="header_gradient_dir"
+                                            class="w-full px-2 py-1.5 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">
+                                        <option value="to right">To Right &rarr;</option>
+                                        <option value="to left">&larr; To Left</option>
+                                        <option value="to bottom">To Bottom &darr;</option>
+                                        <option value="135deg">Diagonal (135&deg;)</option>
+                                        <option value="45deg">Diagonal (45&deg;)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">From Color</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="header_gradient_from" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                        <input type="text" wire:model.live="header_gradient_from" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Via Color</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="header_gradient_via" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                        <input type="text" wire:model.live="header_gradient_via" placeholder="None" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[11px] font-bold text-slate-600 dark:text-slate-400">To Color</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="color" wire:model.live="header_gradient_to" class="w-7 h-7 rounded-lg cursor-pointer border">
+                                        <input type="text" wire:model.live="header_gradient_to" class="w-full px-2 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 font-mono bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -445,9 +763,16 @@
 
                         <!-- Logo Height -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Logo Height (px)</label>
-                            <input type="number" min="20" max="80" wire:model="header_logo_height"
-                                   class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Logo Height (px)</label>
+                                <span class="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ $header_logo_height }}px</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="range" min="20" max="80" step="2" wire:model.live="header_logo_height"
+                                       class="w-full accent-[#003C58] dark:accent-cyan-400">
+                                <input type="number" min="20" max="100" wire:model.live="header_logo_height"
+                                       class="w-20 px-2 py-1 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium text-center">
+                            </div>
                         </div>
 
                         <!-- Light Mode Logo -->
@@ -457,7 +782,7 @@
                                 <input type="text" wire:model="header_logo_light" placeholder="assets/images/logo.png"
                                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-[11px]">
                                 @if($header_logo_light)
-                                <img src="{{ asset($header_logo_light) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border rounded bg-white shrink-0">
+                                <img src="{{ asset($header_logo_light) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border border-slate-200 rounded-lg bg-white shrink-0">
                                 @endif
                             </div>
                         </div>
@@ -469,7 +794,7 @@
                                 <input type="text" wire:model="header_logo_dark" placeholder="assets/images/logo-dark.png"
                                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono text-[11px]">
                                 @if($header_logo_dark)
-                                <img src="{{ asset($header_logo_dark) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border rounded bg-slate-950 shrink-0">
+                                <img src="{{ asset($header_logo_dark) }}" alt="Preview" class="h-8 max-w-[60px] object-contain p-1 border border-slate-700 rounded-lg bg-slate-950 shrink-0">
                                 @endif
                             </div>
                         </div>
@@ -477,10 +802,10 @@
                 </div>
                 @endif
 
-                <!-- Tab 3: Navigation Menu -->
+                <!-- ==================== TAB 3: NAVIGATION MENU ==================== -->
                 @if($headerTab === 'menu')
                 <div class="p-6 space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
                         <div>
                             <h2 class="text-sm font-bold text-slate-900 dark:text-white">Navigation Menu Assignment</h2>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Select which menu governs the main desktop links and mobile drawer.</p>
@@ -505,9 +830,9 @@
 
                         <!-- Active Menu Items Tree Preview -->
                         <div class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                            <div class="p-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
+                            <div class="p-3 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
                                 <span>Menu Links Preview</span>
-                                <span class="text-slate-400 font-normal">Auto-synchronized with Header</span>
+                                <span class="text-slate-500 dark:text-slate-400 font-normal">Auto-synchronized with Header</span>
                             </div>
 
                             @if($selectedMenu && $selectedMenu->rootItems->count() > 0)
@@ -528,8 +853,8 @@
                                 @endforeach
                             </div>
                             @else
-                            <div class="p-6 text-center text-xs text-slate-500">
-                                Default system navigation is active (Home, About Us, Services, Products, Projects, Careers, Contact).
+                            <div class="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                                Default system navigation is active (Home, About Us, Services, Products &amp; Spares, Projects, Careers, Contact).
                             </div>
                             @endif
                         </div>
@@ -537,10 +862,10 @@
                 </div>
                 @endif
 
-                <!-- Tab 4: Actions & CTA -->
+                <!-- ==================== TAB 4: ACTIONS & CTA ==================== -->
                 @if($headerTab === 'cta')
                 <div class="p-6 space-y-6">
-                    <div class="pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="pb-4 border-b border-slate-200 dark:border-slate-800">
                         <h2 class="text-sm font-bold text-slate-900 dark:text-white">Header Action Controls &amp; CTA Button</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Configure the primary call-to-action button and theme toggle switches.</p>
                     </div>
@@ -624,16 +949,25 @@
                 @endif
 
                 <!-- Bottom Save Footer Inside Workspace -->
-                <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                <div class="p-4 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <span class="text-[11px] text-slate-500 dark:text-slate-400">
                         Changes apply directly across the homepage and all platform layouts.
                     </span>
 
-                    <button type="button" wire:click="saveHeader" wire:loading.attr="disabled"
-                            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50">
-                        <x-icon name="solid:floppy-disk" class="w-3.5 h-3.5" />
-                        <span>Save Header Changes</span>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" wire:click="restoreProductionDesign"
+                                wire:confirm="Restore real production header design (100% real corporate data)?"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 transition-colors cursor-pointer">
+                            <x-icon name="solid:rotate-left" class="w-3.5 h-3.5" />
+                            <span>Restore Real Design</span>
+                        </button>
+
+                        <button type="button" wire:click="saveHeader" wire:loading.attr="disabled"
+                                class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50">
+                            <x-icon name="solid:floppy-disk" class="w-3.5 h-3.5" />
+                            <span>Save Header Changes</span>
+                        </button>
+                    </div>
                 </div>
 
             </div>

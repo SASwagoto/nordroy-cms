@@ -313,32 +313,89 @@
         @php
             // ==================== DYNAMIC TOPBAR SETTINGS ====================
             $topbarEnabled = (bool) \App\Models\Setting::get('header_topbar_enabled', true);
-            $topbarBadgeText = \App\Models\Setting::get('header_topbar_badge_text', '24/7 Port Call & Emergency Squads');
-            $topbarBadgeIcon = \App\Models\Setting::get('header_topbar_badge_icon', 'solid:phone-volume');
-            $topbarTagline = \App\Models\Setting::get('header_topbar_tagline', 'Authorized Multi-Brand Turbocharger Engineering');
-            $topbarPhone = \App\Models\Setting::get('header_topbar_phone') ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000');
-            $topbarPhoneIcon = \App\Models\Setting::get('header_topbar_phone_icon', 'solid:phone');
-            $topbarEmail = \App\Models\Setting::get('header_topbar_email') ?: \App\Models\Setting::get('contact_email', 'operations@nordroy.com');
-            $topbarEmailIcon = \App\Models\Setting::get('header_topbar_email_icon', 'solid:envelope');
-            $topbarShowLang = (bool) \App\Models\Setting::get('header_topbar_show_lang', true);
-            $topbarShowPortal = (bool) \App\Models\Setting::get('header_topbar_show_portal', true);
-            $topbarPortalText = \App\Models\Setting::get('header_topbar_portal_text', 'Admin Portal →');
-            $topbarPortalUrl = \App\Models\Setting::get('header_topbar_portal_url', route('admin.dashboard'));
+            $topbarWidth = \App\Models\Setting::get('header_topbar_width', 'container');
+            $topbarWidthClass = match($topbarWidth) {
+                'fluid' => 'w-full px-4 sm:px-8',
+                'narrow' => 'max-w-6xl mx-auto px-4 sm:px-8',
+                default => 'max-w-[1536px] mx-auto px-4 sm:px-8',
+            };
+            $topbarBgType = \App\Models\Setting::get('header_topbar_bg_type', 'theme_default');
+            $topbarGlassOpacity = max(10, min(90, (int) \App\Models\Setting::get('header_topbar_glass_opacity', 90)));
             $topbarLightBg = \App\Models\Setting::get('header_topbar_light_bg', '#ffffff');
             $topbarDarkBg = \App\Models\Setting::get('header_topbar_dark_bg', '#050f18');
             $topbarLightText = \App\Models\Setting::get('header_topbar_light_text', '#334155');
             $topbarDarkText = \App\Models\Setting::get('header_topbar_dark_text', '#cbd5e1');
 
+            $topbarGradientDir = \App\Models\Setting::get('header_topbar_gradient_dir', 'to right');
+            $topbarGradientFrom = \App\Models\Setting::get('header_topbar_gradient_from', '#003C58');
+            $topbarGradientVia = \App\Models\Setting::get('header_topbar_gradient_via', '');
+            $topbarGradientTo = \App\Models\Setting::get('header_topbar_gradient_to', '#0e7490');
+
+            $topbarShowBadge = (bool) \App\Models\Setting::get('header_topbar_show_badge', true);
+            $topbarBadgeText = \App\Models\Setting::get('header_topbar_badge_text', '24/7 Port Call & Emergency Squads');
+            $topbarBadgeIcon = \App\Models\Setting::get('header_topbar_badge_icon', 'solid:phone-volume');
+
+            $topbarShowTagline = (bool) \App\Models\Setting::get('header_topbar_show_tagline', true);
+            $topbarTagline = \App\Models\Setting::get('header_topbar_tagline', 'Authorized Multi-Brand Turbocharger Engineering');
+
+            $topbarShowPhone = (bool) \App\Models\Setting::get('header_topbar_show_phone', true);
+            $topbarPhone = \App\Models\Setting::get('header_topbar_phone') ?: \App\Models\Setting::get('contact_phone', '+880 1800-000000');
+            $topbarPhoneIcon = \App\Models\Setting::get('header_topbar_phone_icon', 'solid:phone');
+
+            $topbarShowEmail = (bool) \App\Models\Setting::get('header_topbar_show_email', true);
+            $topbarEmail = \App\Models\Setting::get('header_topbar_email') ?: \App\Models\Setting::get('contact_email', 'operations@nordroy.com');
+            $topbarEmailIcon = \App\Models\Setting::get('header_topbar_email_icon', 'solid:envelope');
+
+            $topbarShowSocial = (bool) \App\Models\Setting::get('header_topbar_show_social', false);
+            $topbarShowLang = (bool) \App\Models\Setting::get('header_topbar_show_lang', true);
+            $topbarShowPortal = (bool) \App\Models\Setting::get('header_topbar_show_portal', true);
+            $topbarPortalText = \App\Models\Setting::get('header_topbar_portal_text', 'Admin Portal →');
+            $topbarPortalUrl = \App\Models\Setting::get('header_topbar_portal_url', route('admin.dashboard'));
+
+            $topbarCustomItemsRaw = \App\Models\Setting::get('header_topbar_custom_items');
+            $topbarCustomItems = [];
+            if ($topbarCustomItemsRaw) {
+                $topbarCustomItems = is_array($topbarCustomItemsRaw) ? $topbarCustomItemsRaw : (json_decode($topbarCustomItemsRaw, true) ?? []);
+            }
+
+            // Retrieve settings social links
+            $topbarSocialLinks = [];
+            if ($topbarShowSocial) {
+                $rawSocial = \App\Models\Setting::get('social_links_data');
+                if ($rawSocial) {
+                    $topbarSocialLinks = is_array($rawSocial) ? $rawSocial : (json_decode($rawSocial, true) ?? []);
+                }
+            }
+
             // ==================== DYNAMIC NAVBAR SETTINGS ====================
+            $headerWidth = \App\Models\Setting::get('header_width', 'container');
+            $headerWidthClass = match($headerWidth) {
+                'fluid' => 'w-full px-4 sm:px-8',
+                'narrow' => 'max-w-6xl mx-auto px-4 sm:px-8',
+                default => 'max-w-[1536px] mx-auto px-4 sm:px-8',
+            };
             $headerSticky = (bool) \App\Models\Setting::get('header_sticky', true);
             $headerHeight = \App\Models\Setting::get('header_height', '80px');
-            $headerBgStyle = \App\Models\Setting::get('header_bg_style', 'frosted');
-            $headerFrostedOpacity = max(10, min(90, (int) \App\Models\Setting::get('header_frosted_opacity', 85)));
-            $headerOpacityDecimal = $headerFrostedOpacity / 100;
+            $headerBgType = \App\Models\Setting::get('header_bg_type') ?: (\App\Models\Setting::get('header_bg_style') ?: 'glass');
+            $headerGlassOpacity = max(10, min(90, (int) \App\Models\Setting::get('header_glass_opacity', (int) \App\Models\Setting::get('header_frosted_opacity', 85))));
+            $headerOpacityDecimal = $headerGlassOpacity / 100;
+
             $headerCustomLightBg = \App\Models\Setting::get('header_custom_light_bg', '#ffffff');
             $headerCustomDarkBg = \App\Models\Setting::get('header_custom_dark_bg', '#07131e');
             $headerCustomLightText = \App\Models\Setting::get('header_custom_light_text', '#0f172a');
             $headerCustomDarkText = \App\Models\Setting::get('header_custom_dark_text', '#f8fafc');
+
+            $headerGradientDir = \App\Models\Setting::get('header_gradient_dir', 'to right');
+            $headerGradientFrom = \App\Models\Setting::get('header_gradient_from', '#002538');
+            $headerGradientVia = \App\Models\Setting::get('header_gradient_via', '#003C58');
+            $headerGradientTo = \App\Models\Setting::get('header_gradient_to', '#024d70');
+
+            $headerBorderStyle = \App\Models\Setting::get('header_border_style', 'border');
+            $headerBorderClass = match($headerBorderStyle) {
+                'none' => 'border-b-0 shadow-none',
+                'shadow' => 'shadow-lg border-b-0',
+                default => 'border-b border-slate-200/90 dark:border-slate-800',
+            };
 
             $headerBrandTitle = \App\Models\Setting::get('header_brand_title') ?: \App\Models\Setting::get('site_name', 'Nordroy Marine');
             $headerLogoLight = \App\Models\Setting::get('header_logo_light') ?: $siteLogoLight;
@@ -368,14 +425,56 @@
         @endphp
 
         <style>
-            @if($headerBgStyle === 'frosted')
+            /* Dynamic Topbar Background Material */
+            @if($topbarBgType === 'glass')
+                #corporate-topbar {
+                    background-color: rgba(255, 255, 255, {{ $topbarGlassOpacity / 100 }}) !important;
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                }
+                html.dark #corporate-topbar {
+                    background-color: rgba(5, 15, 24, {{ $topbarGlassOpacity / 100 }}) !important;
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                }
+            @elseif($topbarBgType === 'gradient')
+                #corporate-topbar {
+                    background: linear-gradient({{ $topbarGradientDir }}, {{ $topbarGradientFrom }}{{ $topbarGradientVia ? ', ' . $topbarGradientVia : '' }}, {{ $topbarGradientTo }}) !important;
+                    color: #ffffff !important;
+                }
+                #corporate-topbar a, #corporate-topbar span {
+                    color: #ffffff !important;
+                }
+            @elseif($topbarBgType === 'solid_custom')
+                #corporate-topbar {
+                    background-color: {{ $topbarLightBg }} !important;
+                    color: {{ $topbarLightText }} !important;
+                }
+                html.dark #corporate-topbar {
+                    background-color: {{ $topbarDarkBg }} !important;
+                    color: {{ $topbarDarkText }} !important;
+                }
+            @elseif($topbarBgType === 'transparent')
+                #corporate-topbar {
+                    background-color: transparent !important;
+                    backdrop-filter: none !important;
+                }
+            @endif
+
+            /* Dynamic Navbar Background Material */
+            @if($headerBgType === 'glass' || $headerBgType === 'frosted')
                 .glass-nav {
                     background-color: rgba(255, 255, 255, {{ $headerOpacityDecimal }}) !important;
                 }
                 html.dark .glass-nav {
                     background-color: rgba(7, 19, 30, {{ $headerOpacityDecimal }}) !important;
                 }
-            @elseif($headerBgStyle === 'custom')
+            @elseif($headerBgType === 'gradient')
+                .glass-nav {
+                    background: linear-gradient({{ $headerGradientDir }}, {{ $headerGradientFrom }}{{ $headerGradientVia ? ', ' . $headerGradientVia : '' }}, {{ $headerGradientTo }}) !important;
+                    backdrop-filter: none !important;
+                }
+            @elseif($headerBgType === 'solid_custom' || $headerBgType === 'custom')
                 .glass-nav {
                     background-color: {{ $headerCustomLightBg }} !important;
                     color: {{ $headerCustomLightText }} !important;
@@ -384,7 +483,7 @@
                     background-color: {{ $headerCustomDarkBg }} !important;
                     color: {{ $headerCustomDarkText }} !important;
                 }
-            @elseif($headerBgStyle === 'solid')
+            @elseif($headerBgType === 'solid')
                 .glass-nav {
                     background-color: #ffffff !important;
                     backdrop-filter: none !important;
@@ -393,7 +492,7 @@
                     background-color: #07131e !important;
                     backdrop-filter: none !important;
                 }
-            @elseif($headerBgStyle === 'transparent')
+            @elseif($headerBgType === 'transparent')
                 .glass-nav {
                     background-color: transparent !important;
                     backdrop-filter: none !important;
@@ -403,32 +502,97 @@
 
         @if($topbarEnabled)
         <!-- TOP CORPORATE EMERGENCY & STATS STRIP -->
-        <div class="bg-white/95 dark:bg-[#050f18]/95 text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px] py-2 px-4 sm:px-8 transition-colors">
-            <div class="max-w-[1536px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div class="flex items-center gap-3">
+        <div id="corporate-topbar" class="bg-white/95 dark:bg-[#050f18]/95 text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 text-[11px] py-2 transition-colors">
+            <div class="{{ $topbarWidthClass }} flex flex-col sm:flex-row items-center justify-between gap-2">
+                <!-- Column 1: Left Zone -->
+                <div class="flex items-center flex-wrap gap-3">
+                    @if($topbarShowBadge && $topbarBadgeText)
                     <span class="font-bold text-xs text-[#003C58] dark:text-cyan-400 tracking-tight flex items-center gap-1.5">
                         @if($topbarBadgeIcon)
                             <x-icon :name="$topbarBadgeIcon" class="w-3.5 h-3.5 shrink-0" />
                         @endif
                         <span>{{ __($topbarBadgeText) }}</span>
                     </span>
-                    @if($topbarTagline)
+                    @endif
+
+                    @if($topbarShowTagline && $topbarTagline)
                         <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
                         <span class="hidden md:inline text-slate-500 dark:text-slate-400 font-medium">{{ __($topbarTagline) }}</span>
                     @endif
+
+                    <!-- Custom Items in Left Zone -->
+                    @foreach($topbarCustomItems as $cItem)
+                        @if(($cItem['zone'] ?? 'left') === 'left' && ($cItem['is_active'] ?? true))
+                            <span class="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
+                            @if(!empty($cItem['url']))
+                                <a href="{{ $cItem['url'] }}" target="{{ $cItem['target'] ?? '_self' }}" class="inline-flex items-center gap-1 font-semibold hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">
+                                    @if(!empty($cItem['icon']))
+                                        <x-icon :name="$cItem['icon']" class="w-3.5 h-3.5 shrink-0" />
+                                    @endif
+                                    <span>{{ $cItem['text'] }}</span>
+                                </a>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 font-medium">
+                                    @if(!empty($cItem['icon']))
+                                        <x-icon :name="$cItem['icon']" class="w-3.5 h-3.5 shrink-0" />
+                                    @endif
+                                    <span>{{ $cItem['text'] }}</span>
+                                </span>
+                            @endif
+                        @endif
+                    @endforeach
                 </div>
-                <div class="flex items-center gap-3 sm:gap-4 text-xs">
-                    @if($topbarPhone)
+
+                <!-- Column 2: Right Zone -->
+                <div class="flex items-center flex-wrap gap-3 sm:gap-4 text-xs">
+                    @if($topbarShowPhone && $topbarPhone)
                     <a href="tel:{{ $topbarPhone }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors flex items-center gap-1.5 font-semibold">
                         <x-icon :name="$topbarPhoneIcon" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400 shrink-0" />
                         <span>{{ $topbarPhone }}</span>
                     </a>
                     @endif
-                    @if($topbarEmail)
+
+                    @if($topbarShowEmail && $topbarEmail)
                     <a href="mailto:{{ $topbarEmail }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors hidden sm:flex items-center gap-1.5">
                         <x-icon :name="$topbarEmailIcon" class="w-3.5 h-3.5 text-[#003C58] dark:text-cyan-400 shrink-0" />
                         <span>{{ $topbarEmail }}</span>
                     </a>
+                    @endif
+
+                    <!-- Custom Items in Right Zone -->
+                    @foreach($topbarCustomItems as $cItem)
+                        @if(($cItem['zone'] ?? 'left') === 'right' && ($cItem['is_active'] ?? true))
+                            @if(!empty($cItem['url']))
+                                <a href="{{ $cItem['url'] }}" target="{{ $cItem['target'] ?? '_self' }}" class="inline-flex items-center gap-1 font-semibold hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">
+                                    @if(!empty($cItem['icon']))
+                                        <x-icon :name="$cItem['icon']" class="w-3.5 h-3.5 shrink-0" />
+                                    @endif
+                                    <span>{{ $cItem['text'] }}</span>
+                                </a>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 font-medium">
+                                    @if(!empty($cItem['icon']))
+                                        <x-icon :name="$cItem['icon']" class="w-3.5 h-3.5 shrink-0" />
+                                    @endif
+                                    <span>{{ $cItem['text'] }}</span>
+                                </span>
+                            @endif
+                        @endif
+                    @endforeach
+
+                    <!-- Dynamic Social Links from Settings -->
+                    @if($topbarShowSocial && count($topbarSocialLinks) > 0)
+                        <div class="hidden sm:flex items-center gap-2">
+                            @foreach($topbarSocialLinks as $social)
+                                @if(!empty($social['url']) && ($social['is_active'] ?? true))
+                                    <a href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer"
+                                       class="text-slate-400 hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors"
+                                       title="{{ $social['title'] ?? 'Social' }}">
+                                        <x-icon :name="$social['icon'] ?? 'brands:facebook'" class="w-3.5 h-3.5 shrink-0" />
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
                     @endif
 
                     <!-- Dynamic Multi-Language Switcher Dropdown -->
@@ -489,7 +653,7 @@
                         @endif
                     @endif
 
-                    @if($topbarShowPortal)
+                    @if($topbarShowPortal && $topbarPortalText)
                     <a href="{{ $topbarPortalUrl }}" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-colors">
                         {{ __($topbarPortalText) }}
                     </a>
@@ -500,8 +664,8 @@
         @endif
 
         <!-- STICKY GLASSMORPHISM PUBLIC HEADER -->
-        <header class="{{ $headerSticky ? 'sticky top-0 ' : '' }}z-40 glass-nav border-b border-slate-200/90 dark:border-slate-800 transition-colors duration-200">
-            <div class="max-w-[1536px] mx-auto px-4 sm:px-8 flex items-center justify-between"
+        <header class="{{ $headerSticky ? 'sticky top-0 ' : '' }}z-40 glass-nav {{ $headerBorderClass }} transition-colors duration-200">
+            <div class="{{ $headerWidthClass }} flex items-center justify-between"
                  style="height: {{ $headerHeight }};">
                 
                 <!-- Brand Logo & Title (Light & Dark Mode Responsive Pairing) -->
@@ -520,6 +684,39 @@
 
                 <!-- DESKTOP MULTI-LAYER NAVIGATION LINKS WITH CLEAN SUBMENUS (Consistent Title Case) -->
                 <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200 tracking-normal">
+                    @if($primaryMenu && $primaryMenu->rootItems->count() > 0)
+                        @foreach($primaryMenu->rootItems as $menuItem)
+                            @if($menuItem->children->count() > 0)
+                                <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                                    <button type="button" class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors inline-flex items-center gap-1 cursor-pointer">
+                                        <span>{{ $menuItem->getTranslation('title', app()->getLocale()) ?: $menuItem->title }}</span>
+                                        <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                    <div x-show="open" 
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                         x-transition:leave-end="opacity-0 translate-y-2"
+                                         class="absolute left-0 mt-1 w-64 rounded-2xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl py-3 px-2 z-50"
+                                         style="display: none;">
+                                        @foreach($menuItem->children as $sub)
+                                            <a href="{{ $sub->url }}" target="{{ $sub->target ?? '_self' }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-[#003C58] dark:hover:text-cyan-400 transition-all">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#003C58] dark:bg-cyan-400"></span>
+                                                <span>{{ $sub->getTranslation('title', app()->getLocale()) ?: $sub->title }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <a href="{{ $menuItem->url }}" target="{{ $menuItem->target ?? '_self' }}"
+                                   class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors">
+                                    {{ $menuItem->getTranslation('title', app()->getLocale()) ?: $menuItem->title }}
+                                </a>
+                            @endif
+                        @endforeach
+                    @else
                     
                     <!-- 1. Home Link -->
                     <a href="{{ route('home') }}" 
@@ -646,6 +843,7 @@
                        class="px-3 py-2 rounded-lg hover:text-[#003C58] dark:hover:text-cyan-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors {{ request()->routeIs('contact') ? 'text-[#003C58] dark:text-cyan-400 font-bold' : '' }}">
                         {{ __('Contact') }}
                     </a>
+                    @endif
 
                 </nav>
 
