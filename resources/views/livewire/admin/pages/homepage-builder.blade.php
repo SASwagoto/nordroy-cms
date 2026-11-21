@@ -1084,7 +1084,7 @@
                     <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                         <div>
                             <h2 class="text-sm font-bold text-slate-900 dark:text-white">Hero Layout &amp; Backdrop Configuration</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Controls container width, vertical padding, dot matrix grid overlay, and dual-mode background engines.</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Controls column distribution, container width, vertical padding, dot matrix grid overlay, and dual-mode background engines.</p>
                         </div>
                         <label class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors">
                             <input type="checkbox" wire:model.live="hero_enabled"
@@ -1094,6 +1094,69 @@
                     </div>
 
                     <div class="space-y-6 {{ $hero_enabled ? '' : 'opacity-50 pointer-events-none' }}">
+                        <!-- Grid Columns & Layout Split -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="solid:table-columns" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Column Distribution &amp; Alignment</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Column Split Ratio -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Column Distribution</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_column_split }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_column_split"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20">
+                                        <option value="7_5">7 / 5 Columns (Default Maritime Split)</option>
+                                        <option value="6_6">6 / 6 Columns (Balanced 50/50 Split)</option>
+                                        <option value="8_4">8 / 4 Columns (Content Dominant 67/33)</option>
+                                        <option value="5_7">5 / 7 Columns (Instrument Showcase Dominant)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Column Order (Swap Left / Right) -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Column Ordering</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_column_order === 'visual_first' ? 'Visual First' : 'Content First' }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_column_order"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20">
+                                        <option value="content_first">Content Left &bull; Visual Right (Standard)</option>
+                                        <option value="visual_first">Visual Left &bull; Content Right (Flipped)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Content Alignment -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Content Alignment</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ strtoupper($hero_alignment) }}</span>
+                                    </label>
+                                    <div class="grid grid-cols-3 gap-1 p-0.5 rounded-xl bg-slate-200 dark:bg-slate-800">
+                                        <button type="button" wire:click="$set('hero_alignment', 'left')"
+                                                class="py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 {{ $hero_alignment === 'left' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs' : 'text-slate-600 dark:text-slate-400' }}">
+                                            <x-icon name="solid:bars-staggered" class="w-3 h-3" />
+                                            <span>Left</span>
+                                        </button>
+                                        <button type="button" wire:click="$set('hero_alignment', 'center')"
+                                                class="py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 {{ $hero_alignment === 'center' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs' : 'text-slate-600 dark:text-slate-400' }}">
+                                            <x-icon name="solid:bars-staggered" class="w-3 h-3 rotate-180" />
+                                            <span>Center</span>
+                                        </button>
+                                        <button type="button" wire:click="$set('hero_alignment', 'right')"
+                                                class="py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 {{ $hero_alignment === 'right' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs' : 'text-slate-600 dark:text-slate-400' }}">
+                                            <x-icon name="solid:bars-staggered" class="w-3 h-3 scale-x-[-1]" />
+                                            <span>Right</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Geometry & Container Settings -->
                         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
                             <div class="flex items-center gap-2">
@@ -1113,7 +1176,7 @@
                                         <option value="container">Standard Corporate Container (max-w-7xl)</option>
                                         <option value="fluid">Fluid Container (max-w-[1536px])</option>
                                         <option value="fluid_full">Full Width Fluid (w-full)</option>
-                                        <option value="ultrawide">Ultra-Wide Heavy Duty (max-w-[1720px])</option>
+                                        <option value="ultrawide">Ultra-Wide Heavy Duty (max-w-[1728px])</option>
                                         <option value="desktop">Fixed Desktop Layout (max-w-6xl)</option>
                                         <option value="narrow">Focused Compact Width (max-w-5xl)</option>
                                         <option value="content_focused">Content-Focused Reader (max-w-4xl)</option>
@@ -1136,14 +1199,25 @@
                                 </div>
                             </div>
 
-                            <!-- Geometric Dot Matrix Grid Overlay -->
-                            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                                <div>
-                                    <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Industrial Dot Matrix Grid Overlay</label>
-                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Renders a subtle radial micro-grid pattern across the Hero section backdrop.</p>
+                            <!-- Geometric Dot Matrix Grid Overlay & Scroll Animations -->
+                            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Dot Matrix Grid Overlay</label>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Subtle radial micro-grid pattern across backdrop.</p>
+                                    </div>
+                                    <input type="checkbox" wire:model.live="hero_grid_enabled"
+                                           class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-[#003C58] dark:text-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
                                 </div>
-                                <input type="checkbox" wire:model.live="hero_grid_enabled"
-                                       class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-[#003C58] dark:text-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+
+                                <div class="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Homepage Scroll Animations</label>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Executive hardware-accelerated scroll reveal effect.</p>
+                                    </div>
+                                    <input type="checkbox" wire:model.live="home_scroll_animations"
+                                           class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-[#003C58] dark:text-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                                </div>
                             </div>
                         </div>
 
@@ -1389,12 +1463,98 @@
 
                     <!-- Main Headline & Subtitle -->
                     <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
-                        <div class="flex items-center gap-2">
-                            <x-icon name="solid:heading" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
-                            <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Hero Statement &amp; Subtitle</span>
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="solid:heading" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Hero Statement &amp; Subtitle</span>
+                            </div>
+                            <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                                <input type="checkbox" wire:model.live="hero_title_highlight_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                <span>Multicolor Headline Scope</span>
+                            </label>
                         </div>
 
                         <div class="space-y-4">
+                            <!-- Multicolor Scope vs Single Headline -->
+                            @if($hero_title_highlight_enabled)
+                            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                                    <span>Multicolor Headline Breakdown</span>
+                                    <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">Prefix + Highlight + Suffix</span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <!-- Prefix -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Prefix Text</label>
+                                        <input type="text" wire:model.live="hero_title_prefix" placeholder="Precision Turbocharger Overhauls &"
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    </div>
+
+                                    <!-- Highlight -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400 text-cyan-600 dark:text-cyan-400">Highlighted Accent Text</label>
+                                        <input type="text" wire:model.live="hero_title_highlight" placeholder="Marine Propulsion"
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-cyan-500/50 text-cyan-600 dark:text-cyan-300 font-bold">
+                                    </div>
+
+                                    <!-- Suffix -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Suffix Text</label>
+                                        <input type="text" wire:model.live="hero_title_suffix" placeholder="Support."
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                    <!-- Highlight Style -->
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Highlight Color / Gradient Preset</label>
+                                        <select wire:model.live="hero_title_highlight_style"
+                                                class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            <option value="gradient_cyan">Electric Cyan Gradient (Default Brand)</option>
+                                            <option value="gradient_amber">Maritime Amber / Gold Gradient</option>
+                                            <option value="brand_primary">Corporate Navy Primary Solid</option>
+                                            <option value="gradient_emerald">Emerald Engineering Efficiency</option>
+                                            <option value="solid_custom">Custom Solid Hex Color</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Custom Hex Color if selected -->
+                                    @if($hero_title_highlight_style === 'solid_custom')
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Custom Accent Color</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="color" wire:model.live="hero_title_highlight_custom" class="w-8 h-8 rounded border-0 cursor-pointer">
+                                            <input type="text" wire:model="hero_title_highlight_custom" class="flex-1 px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Live Interactive Preview -->
+                                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left space-y-1">
+                                    <span class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Live Headline Preview</span>
+                                    <div class="text-base sm:text-lg font-black text-white tracking-tight">
+                                        <span>{{ $hero_title_prefix }}</span>
+                                        @if($hero_title_highlight)
+                                            @if($hero_title_highlight_style === 'gradient_cyan')
+                                                <span class="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 via-teal-300 to-sky-500 font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @elseif($hero_title_highlight_style === 'gradient_amber')
+                                                <span class="text-transparent bg-clip-text bg-linear-to-r from-amber-400 via-orange-300 to-yellow-500 font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @elseif($hero_title_highlight_style === 'brand_primary')
+                                                <span class="text-[#003C58] dark:text-cyan-400 font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @elseif($hero_title_highlight_style === 'gradient_emerald')
+                                                <span class="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 via-teal-300 to-cyan-400 font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @else
+                                                <span style="color: {{ $hero_title_highlight_custom }};" class="font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @endif
+                                        @endif
+                                        <span>{{ $hero_title_suffix }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @else
                             <!-- Headline -->
                             <div class="space-y-1.5">
                                 <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Primary Headline Statement</label>
@@ -1403,6 +1563,7 @@
                                           class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20"></textarea>
                                 <p class="text-[10px] text-slate-500 dark:text-slate-400">Main value proposition statement displayed in prominent display typography.</p>
                             </div>
+                            @endif
 
                             <!-- Subtitle -->
                             <div class="space-y-1.5">
@@ -1677,6 +1838,126 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Capability Feature Bullets (Additional Content System) -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <x-icon name="solid:list-check" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Capability Feature Bullets</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Showcase up to 4 quick bullet points beneath action buttons.</p>
+                            </div>
+                            <input type="checkbox" wire:model.live="hero_bullets_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 {{ $hero_bullets_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                            @foreach([1, 2, 3, 4] as $bNum)
+                            <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Bullet Item #{{ $bNum }}</label>
+                                    <input type="checkbox" wire:model.live="hero_bullet{{ $bNum }}_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                </div>
+
+                                <div class="space-y-2 {{ ${'hero_bullet' . $bNum . '_enabled'} ? '' : 'opacity-40 pointer-events-none' }}">
+                                    <input type="text" wire:model="hero_bullet{{ $bNum }}_text" placeholder="Bullet #{{ $bNum }} text..."
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+
+                                    <div x-data="{
+                                            iconVal: @entangle('hero_bullet' . $bNum . '_icon'),
+                                            get iconUrl() {
+                                                if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/circle-check.svg';
+                                                if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                    return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                                }
+                                                if (this.iconVal.includes(':')) {
+                                                    const p = this.iconVal.split(':');
+                                                    return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                                }
+                                                return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                            }
+                                         }"
+                                         @click="$dispatch('open-icon-picker', { targetField: 'hero_bullet{{ $bNum }}_icon' })"
+                                         class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                        <div class="w-5 h-5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 p-0.5 text-cyan-600 dark:text-cyan-400">
+                                            <img :src="iconUrl" :alt="iconVal" class="w-3.5 h-3.5 object-contain dark:invert" 
+                                                 onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                            <div style="display:none;" class="w-3.5 h-3.5 items-center justify-center">
+                                                <x-icon :name="${'hero_bullet' . $bNum . '_icon'} ?: 'solid:circle-check'" class="w-3.5 h-3.5" />
+                                            </div>
+                                        </div>
+                                        <span class="text-xs font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'Pick Icon'"></span>
+                                        <span class="text-[10px] text-cyan-500 font-bold">Pick</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Emergency / Advisory Notice Strip (Additional Content System) -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <x-icon name="solid:bullhorn" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Emergency / Advisory Notice Strip</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">High-visibility advisory alert strip placed before CTA buttons.</p>
+                            </div>
+                            <input type="checkbox" wire:model.live="hero_notice_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                        </div>
+
+                        <div class="space-y-3 {{ $hero_notice_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Notice Text -->
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Text</label>
+                                    <input type="text" wire:model="hero_notice_text" placeholder="URGENT: Flying Squads Available for Immediate Outer Anchorage Dispatch"
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                </div>
+
+                                <!-- Notice Link URL -->
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Link URL (Optional)</label>
+                                    <input type="text" wire:model="hero_notice_url" placeholder="#emergency or /contact"
+                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                </div>
+                            </div>
+
+                            <!-- Notice Icon Picker -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Icon</label>
+                                <div x-data="{
+                                        iconVal: @entangle('hero_notice_icon'),
+                                        get iconUrl() {
+                                            if (!this.iconVal) return '/assets/plugins/fontawesome/svgs/solid/bolt.svg';
+                                            if (this.iconVal.startsWith('storage/') || this.iconVal.startsWith('http') || this.iconVal.startsWith('/')) {
+                                                return this.iconVal.startsWith('http') ? this.iconVal : '/' + this.iconVal.replace(/^\/+/, '');
+                                            }
+                                            if (this.iconVal.includes(':')) {
+                                                const p = this.iconVal.split(':');
+                                                return '/assets/plugins/fontawesome/svgs/' + p[0] + '/' + p[1] + '.svg';
+                                            }
+                                            return '/assets/plugins/fontawesome/svgs/solid/' + this.iconVal + '.svg';
+                                        }
+                                     }"
+                                     @click="$dispatch('open-icon-picker', { targetField: 'hero_notice_icon' })"
+                                     class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 cursor-pointer transition-all group h-[34px]">
+                                    <div class="w-5 h-5 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 p-0.5 text-amber-500">
+                                        <img :src="iconUrl" :alt="iconVal" class="w-3.5 h-3.5 object-contain dark:invert" 
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+                                        <div style="display:none;" class="w-3.5 h-3.5 items-center justify-center">
+                                            <x-icon :name="$hero_notice_icon ?: 'solid:bolt'" class="w-3.5 h-3.5" />
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-mono truncate flex-1 text-slate-700 dark:text-slate-300" x-text="iconVal || 'Pick Icon'"></span>
+                                    <span class="text-[10px] text-cyan-500 font-bold">Pick</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 @endif
 
@@ -1696,42 +1977,177 @@
                     </div>
 
                     <div class="space-y-6 {{ $hero_visual_enabled ? '' : 'opacity-40 pointer-events-none' }}">
-                        <!-- Dial Controls -->
+                        <!-- Showcase Dimensions & Card Backdrop Style -->
                         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="solid:swatchbook" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Showcase Dimensions &amp; Backdrop Styling</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Dial Size -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Dial Dimension / Size</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_visual_size }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_visual_size"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20">
+                                        <option value="compact">Compact Dial (300px)</option>
+                                        <option value="standard">Standard Dial (360px - Recommended)</option>
+                                        <option value="large">Large Dial (420px)</option>
+                                        <option value="extra_large">Extra Large Showcase (480px)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Card Backdrop Style -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Showcase Card Style</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_visual_bg_style }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_visual_bg_style"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20">
+                                        <option value="cockpit_card">Cockpit Dark Card (Navy 950 Blend)</option>
+                                        <option value="frosted_glass">Frosted Glassmorphism</option>
+                                        <option value="ambient_glow">Ambient Cyan Cockpit Glow</option>
+                                        <option value="transparent">Transparent (Frameless Dial)</option>
+                                        <option value="solid_custom">Solid Custom Hex Color</option>
+                                    </select>
+                                </div>
+
+                                <!-- Outer Border Toggle -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Showcase Border Frame</label>
+                                    <div class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-[38px]">
+                                        <span class="text-xs text-slate-600 dark:text-slate-400">Outer Border Ring</span>
+                                        <input type="checkbox" wire:model.live="hero_visual_border"
+                                               class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($hero_visual_bg_style === 'solid_custom')
+                            <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Custom Showcase Background Color</label>
+                                <input type="color" wire:model.live="hero_visual_custom_bg" class="w-8 h-8 rounded border-0 cursor-pointer">
+                                <input type="text" wire:model="hero_visual_custom_bg" class="w-32 px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                            </div>
+                            @endif
+                        </div>
+
+                        <!-- Turbine Tachometer Dial & Rotation Dynamics -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                                 <div class="flex items-center gap-2">
                                     <x-icon name="solid:gauge" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
-                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Turbine Tachometer Dial</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Turbine Tachometer Dial &amp; Rotation</span>
                                 </div>
                                 <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
-                                    <input type="checkbox" wire:model="hero_tacho_animated" class="rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
-                                    <span>Turbine Rotation Animation</span>
+                                    <input type="checkbox" wire:model.live="hero_tacho_animated" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    <span>Turbine Rotation Active</span>
                                 </label>
                             </div>
 
-                            <!-- Graduation Labels (Top, Right, Bottom, Left) -->
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Dial Graduation Points (4 Cardinal Quadrants)</label>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Top (0°)</span>
+                            <!-- Speed & Direction -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 {{ $hero_tacho_animated ? '' : 'opacity-40 pointer-events-none' }}">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Rotation Velocity</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ strtoupper($hero_tacho_speed) }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_tacho_speed"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        <option value="slow">Cruising Speed (30s Slow RPM Rotation)</option>
+                                        <option value="normal">Standard Operational (12s Balanced Rotation)</option>
+                                        <option value="fast">High Velocity (6s Rapid Rotation)</option>
+                                        <option value="boost">Maximum Power Boost (3s Hyper Rotation)</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Rotation Direction</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_tacho_direction === 'reverse' ? 'Counter-Clockwise' : 'Clockwise' }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_tacho_direction"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                        <option value="normal">Clockwise (Standard Engine Rotation)</option>
+                                        <option value="reverse">Counter-Clockwise (Reverse Flow)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Graduation Labels (Top, Right, Bottom, Left with Individual Toggles) -->
+                            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Dial Graduation Points (4 Cardinal Quadrants)</label>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Toggle each individual cardinal text and modify its readout label.</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <!-- Top (0°) -->
+                                    <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Top (0°)</span>
+                                            <input type="checkbox" wire:model.live="hero_tacho_top_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                        </div>
                                         <input type="text" wire:model="hero_tacho_top" placeholder="0° / RPM"
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono {{ $hero_tacho_top_enabled ? '' : 'opacity-40 pointer-events-none' }}">
                                     </div>
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Right (90°)</span>
+
+                                    <!-- Right (90°) -->
+                                    <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Right (90°)</span>
+                                            <input type="checkbox" wire:model.live="hero_tacho_right_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                        </div>
                                         <input type="text" wire:model="hero_tacho_right" placeholder="90°"
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono {{ $hero_tacho_right_enabled ? '' : 'opacity-40 pointer-events-none' }}">
                                     </div>
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Bottom (180°)</span>
+
+                                    <!-- Bottom (180°) -->
+                                    <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Bottom (180°)</span>
+                                            <input type="checkbox" wire:model.live="hero_tacho_bottom_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                        </div>
                                         <input type="text" wire:model="hero_tacho_bottom" placeholder="180°"
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono {{ $hero_tacho_bottom_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                    </div>
+
+                                    <!-- Left (270°) -->
+                                    <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Left (270°)</span>
+                                            <input type="checkbox" wire:model.live="hero_tacho_left_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                        </div>
+                                        <input type="text" wire:model="hero_tacho_left" placeholder="270°"
+                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono {{ $hero_tacho_left_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Center Readout Overlay -->
+                            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="text-xs font-bold text-slate-800 dark:text-slate-200">Center Tachometer Readout Overlay</label>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Numeric RPM / Operational readout superimposed over center turbine hub.</p>
+                                    </div>
+                                    <input type="checkbox" wire:model.live="hero_tacho_center_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 {{ $hero_tacho_center_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Readout Center Value</label>
+                                        <input type="text" wire:model="hero_tacho_center_val" placeholder="100K"
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
                                     </div>
                                     <div class="space-y-1">
-                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-bold">Left (270°)</span>
-                                        <input type="text" wire:model="hero_tacho_left" placeholder="270°"
-                                               class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-mono">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Readout Label</label>
+                                        <input type="text" wire:model="hero_tacho_center_label" placeholder="MAX RPM"
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
                                     </div>
                                 </div>
                             </div>
@@ -1739,35 +2155,58 @@
 
                         <!-- Technical HUD Box under Dial -->
                         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
-                            <div class="flex items-center gap-2">
-                                <x-icon name="solid:rectangle-list" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
-                                <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Technical HUD Specification Box</span>
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <x-icon name="solid:rectangle-list" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Technical HUD Specification Box</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Customizable 3-line military/industrial spec block beneath dial.</p>
+                                </div>
+                                <input type="checkbox" wire:model.live="hero_hud_enabled" class="w-4 h-4 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
                             </div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Customizable 3-line military/industrial spec block positioned beneath the turbine dial.</p>
 
-                            <div class="space-y-3">
+                            <div class="space-y-3 {{ $hero_hud_enabled ? '' : 'opacity-40 pointer-events-none' }}">
                                 <!-- Line 1 -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input type="text" wire:model="hero_hud_l1_label" placeholder="EQUIPMENT:"
-                                           class="px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
-                                    <input type="text" wire:model="hero_hud_l1_val" placeholder="HEAVY EXHAUST TURBOCHARGER"
-                                           class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">HUD Specification Line 1</span>
+                                        <input type="checkbox" wire:model.live="hero_hud_l1_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $hero_hud_l1_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <input type="text" wire:model="hero_hud_l1_label" placeholder="EQUIPMENT:"
+                                               class="px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
+                                        <input type="text" wire:model="hero_hud_l1_val" placeholder="HEAVY EXHAUST TURBOCHARGER"
+                                               class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                    </div>
                                 </div>
 
                                 <!-- Line 2 -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input type="text" wire:model="hero_hud_l2_label" placeholder="AUTHORIZED:"
-                                           class="px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
-                                    <input type="text" wire:model="hero_hud_l2_val" placeholder="ABB • MAN • KBB • MHI • NAPIER"
-                                           class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">HUD Specification Line 2</span>
+                                        <input type="checkbox" wire:model.live="hero_hud_l2_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $hero_hud_l2_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <input type="text" wire:model="hero_hud_l2_label" placeholder="AUTHORIZED:"
+                                               class="px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
+                                        <input type="text" wire:model="hero_hud_l2_val" placeholder="ABB • MAN • KBB • MHI • NAPIER"
+                                               class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                    </div>
                                 </div>
 
                                 <!-- Line 3 -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <input type="text" wire:model="hero_hud_l3_label" placeholder="WORKSHOP RADIUS:"
-                                           class="px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
-                                    <input type="text" wire:model="hero_hud_l3_val" placeholder="CHATTOGRAM • MONGLA • GLOBAL"
-                                           class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">HUD Specification Line 3</span>
+                                        <input type="checkbox" wire:model.live="hero_hud_l3_enabled" class="w-3.5 h-3.5 rounded text-[#003C58] dark:text-cyan-500 focus:ring-0">
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 {{ $hero_hud_l3_enabled ? '' : 'opacity-40 pointer-events-none' }}">
+                                        <input type="text" wire:model="hero_hud_l3_label" placeholder="WORKSHOP RADIUS:"
+                                               class="px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-slate-600 dark:text-slate-400">
+                                        <input type="text" wire:model="hero_hud_l3_val" placeholder="CHATTOGRAM • MONGLA • GLOBAL"
+                                               class="sm:col-span-2 px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                                    </div>
                                 </div>
                             </div>
                         </div>

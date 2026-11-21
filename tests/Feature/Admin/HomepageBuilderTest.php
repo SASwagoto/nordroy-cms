@@ -258,6 +258,7 @@ class HomepageBuilderTest extends TestCase
         $this->actingAs($this->admin);
 
         Livewire::test(HomepageBuilder::class)
+            ->set('hero_title_highlight_enabled', false)
             ->set('hero_badge1_text', 'Premier Turbocharger Center')
             ->set('hero_badge1_icon', 'solid:shield-check')
             ->set('hero_title', 'World Class Marine Engineering')
@@ -318,6 +319,113 @@ class HomepageBuilderTest extends TestCase
         $frontend->assertSee('TEST TURBINE UNIT');
     }
 
+    public function test_admin_can_update_hero_column_split_order_and_alignment(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_column_split', '6_6')
+            ->set('hero_column_order', 'visual_first')
+            ->set('hero_alignment', 'center')
+            ->set('home_scroll_animations', true)
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('6_6', Setting::get('home_hero_column_split'));
+        $this->assertEquals('visual_first', Setting::get('home_hero_column_order'));
+        $this->assertEquals('center', Setting::get('home_hero_alignment'));
+        $this->assertEquals('1', Setting::get('theme_scroll_animations'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('lg:col-span-6');
+        $frontend->assertSee('order-2');
+        $frontend->assertSee('text-center');
+        $frontend->assertSee('reveal-init');
+    }
+
+    public function test_admin_can_update_hero_multicolor_headline(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_title_highlight_enabled', true)
+            ->set('hero_title_prefix', 'Next-Gen Turbochargers &')
+            ->set('hero_title_highlight', 'Deep-Sea Marine Power')
+            ->set('hero_title_suffix', 'Engineering Systems.')
+            ->set('hero_title_highlight_style', 'gradient_amber')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('1', Setting::get('home_hero_title_highlight_enabled'));
+        $this->assertEquals('Next-Gen Turbochargers &', Setting::get('home_hero_title_prefix'));
+        $this->assertEquals('Deep-Sea Marine Power', Setting::get('home_hero_title_highlight'));
+        $this->assertEquals('Engineering Systems.', Setting::get('home_hero_title_suffix'));
+        $this->assertEquals('gradient_amber', Setting::get('home_hero_title_highlight_style'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Next-Gen Turbochargers &');
+        $frontend->assertSee('Deep-Sea Marine Power');
+        $frontend->assertSee('Engineering Systems.');
+        $frontend->assertSee('from-amber-400');
+    }
+
+    public function test_admin_can_update_extra_bullets_and_emergency_notice(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_bullets_enabled', true)
+            ->set('hero_bullet1_enabled', true)
+            ->set('hero_bullet1_text', 'Class-Certified Overhauls (DNV / Lloyd)')
+            ->set('hero_notice_enabled', true)
+            ->set('hero_notice_text', 'SPECIAL NOTICE: 24/7 Deep Sea Flying Squad Alert')
+            ->set('hero_notice_url', '/contact#squad')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('1', Setting::get('home_hero_bullets_enabled'));
+        $this->assertEquals('Class-Certified Overhauls (DNV / Lloyd)', Setting::get('home_hero_bullet1_text'));
+        $this->assertEquals('1', Setting::get('home_hero_notice_enabled'));
+        $this->assertEquals('SPECIAL NOTICE: 24/7 Deep Sea Flying Squad Alert', Setting::get('home_hero_notice_text'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Class-Certified Overhauls (DNV / Lloyd)');
+        $frontend->assertSee('SPECIAL NOTICE: 24/7 Deep Sea Flying Squad Alert');
+        $frontend->assertSee('/contact#squad');
+    }
+
+    public function test_admin_can_update_turbine_visual_size_speed_and_readouts(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_visual_size', 'extra_large')
+            ->set('hero_visual_bg_style', 'ambient_glow')
+            ->set('hero_tacho_speed', 'boost')
+            ->set('hero_tacho_direction', 'reverse')
+            ->set('hero_tacho_center_enabled', true)
+            ->set('hero_tacho_center_val', '120K')
+            ->set('hero_tacho_center_label', 'PEAK SPEED')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('extra_large', Setting::get('home_hero_visual_size'));
+        $this->assertEquals('ambient_glow', Setting::get('home_hero_visual_bg_style'));
+        $this->assertEquals('boost', Setting::get('home_hero_tacho_speed'));
+        $this->assertEquals('reverse', Setting::get('home_hero_tacho_direction'));
+        $this->assertEquals('120K', Setting::get('home_hero_tacho_center_val'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('turbine-speed-boost');
+        $frontend->assertSee('turbine-reverse');
+        $frontend->assertSee('120K');
+        $frontend->assertSee('PEAK SPEED');
+    }
+
     public function test_restore_production_design_restores_hero_banner_defaults(): void
     {
         $this->actingAs($this->admin);
@@ -325,13 +433,19 @@ class HomepageBuilderTest extends TestCase
         // Intentionally pollute hero settings
         Setting::set('home_hero_title', 'Polluted Title');
         Setting::set('home_metric1_value', '999');
+        Setting::set('home_hero_column_split', '5_7');
+        Setting::set('home_hero_visual_size', 'compact');
 
         Livewire::test(HomepageBuilder::class)
             ->call('restoreProductionDesign')
             ->assertSet('hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.')
-            ->assertSet('hero_metric1_value', '100,000');
+            ->assertSet('hero_metric1_value', '100,000')
+            ->assertSet('hero_column_split', '7_5')
+            ->assertSet('hero_visual_size', 'standard');
 
         $this->assertEquals('Precision Turbocharger Overhauls & Marine Propulsion Support.', Setting::get('home_hero_title'));
         $this->assertEquals('100,000', Setting::get('home_metric1_value'));
+        $this->assertEquals('7_5', Setting::get('home_hero_column_split'));
+        $this->assertEquals('standard', Setting::get('home_hero_visual_size'));
     }
 }

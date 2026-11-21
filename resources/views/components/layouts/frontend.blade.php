@@ -187,7 +187,59 @@
             to { transform: rotate(360deg); }
         }
         .animate-turbine {
-            animation: turbine-spin 4s linear infinite;
+            animation: turbine-spin 12s linear infinite;
+        }
+        .turbine-speed-slow { animation-duration: 30s !important; }
+        .turbine-speed-normal { animation-duration: 12s !important; }
+        .turbine-speed-fast { animation-duration: 6s !important; }
+        .turbine-speed-boost { animation-duration: 3s !important; }
+        .turbine-reverse { animation-direction: reverse !important; }
+
+        /* =========================================================================
+           EXECUTIVE SCROLL REVEAL ANIMATIONS (Lightweight & Hardware-Accelerated)
+           ========================================================================= */
+        @media (prefers-reduced-motion: no-preference) {
+            .reveal-init {
+                opacity: 0;
+                will-change: transform, opacity;
+                transition-property: opacity, transform;
+                transition-duration: 0.8s;
+                transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .reveal-fade-up {
+                transform: translateY(28px);
+            }
+            .reveal-fade-down {
+                transform: translateY(-28px);
+            }
+            .reveal-slide-left {
+                transform: translateX(-36px);
+            }
+            .reveal-slide-right {
+                transform: translateX(36px);
+            }
+            .reveal-scale {
+                transform: scale(0.95);
+            }
+            .reveal-fade {
+                transform: none;
+            }
+
+            /* Active State */
+            .reveal-active {
+                opacity: 1 !important;
+                transform: translate(0, 0) scale(1) !important;
+            }
+
+            /* Cascade Stagger Delays */
+            .reveal-delay-75  { transition-delay: 75ms; }
+            .reveal-delay-100 { transition-delay: 100ms; }
+            .reveal-delay-150 { transition-delay: 150ms; }
+            .reveal-delay-200 { transition-delay: 200ms; }
+            .reveal-delay-250 { transition-delay: 250ms; }
+            .reveal-delay-300 { transition-delay: 300ms; }
+            .reveal-delay-400 { transition-delay: 400ms; }
+            .reveal-delay-500 { transition-delay: 500ms; }
         }
 
         .icon-glow {
@@ -1199,5 +1251,58 @@
     </div>
 
     @livewireScripts
+
+    @if(\App\Models\Setting::get('theme_scroll_animations', '1') == '1')
+    <script>
+        (function() {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelectorAll('.reveal-init').forEach(function(el) {
+                    el.classList.add('reveal-active');
+                });
+                return;
+            }
+
+            var initScrollReveal = function() {
+                var targets = document.querySelectorAll('.reveal-init:not(.reveal-active)');
+                if (!targets.length) return;
+
+                if (!('IntersectionObserver' in window)) {
+                    targets.forEach(function(el) { el.classList.add('reveal-active'); });
+                    return;
+                }
+
+                var observer = new IntersectionObserver(function(entries, obs) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('reveal-active');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.05,
+                    rootMargin: "0px 0px -20px 0px"
+                });
+
+                targets.forEach(function(el) {
+                    observer.observe(el);
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initScrollReveal);
+            } else {
+                initScrollReveal();
+            }
+
+            document.addEventListener('livewire:navigated', function() {
+                setTimeout(initScrollReveal, 100);
+            });
+        })();
+    </script>
+    @else
+    <style>
+        .reveal-init { opacity: 1 !important; transform: none !important; }
+    </style>
+    @endif
 </body>
 </html>
