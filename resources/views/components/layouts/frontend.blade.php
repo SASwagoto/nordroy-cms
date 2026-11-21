@@ -313,12 +313,19 @@
         @php
             // ==================== DYNAMIC TOPBAR SETTINGS ====================
             $topbarEnabled = (bool) \App\Models\Setting::get('header_topbar_enabled', true);
-            $topbarWidth = \App\Models\Setting::get('header_topbar_width', 'container');
-            $topbarWidthClass = match($topbarWidth) {
+            // ==================== UNIFIED HEADER & TOPBAR CONTAINER GEOMETRY ====================
+            $headerWidth = \App\Models\Setting::get('header_width', 'container');
+            $topbarWidth = \App\Models\Setting::get('header_topbar_width', $headerWidth);
+            if ($topbarWidth !== $headerWidth) {
+                $topbarWidth = $headerWidth;
+            }
+
+            $headerWidthClass = match($headerWidth) {
                 'fluid' => 'w-full px-4 sm:px-8',
-                'narrow' => 'max-w-6xl mx-auto px-4 sm:px-8',
-                default => 'max-w-[1536px] mx-auto px-4 sm:px-8',
+                'narrow' => 'w-full max-w-6xl mx-auto px-4 sm:px-8',
+                default => 'w-full max-w-[1536px] mx-auto px-4 sm:px-8',
             };
+            $topbarWidthClass = $headerWidthClass;
             $topbarBgType = \App\Models\Setting::get('header_topbar_bg_type', 'theme_default');
             $topbarGlassOpacity = max(10, min(90, (int) \App\Models\Setting::get('header_topbar_glass_opacity', 90)));
             $topbarLightBg = \App\Models\Setting::get('header_topbar_light_bg', '#ffffff');
@@ -368,12 +375,6 @@
             }
 
             // ==================== DYNAMIC NAVBAR SETTINGS ====================
-            $headerWidth = \App\Models\Setting::get('header_width', 'container');
-            $headerWidthClass = match($headerWidth) {
-                'fluid' => 'w-full px-4 sm:px-8',
-                'narrow' => 'max-w-6xl mx-auto px-4 sm:px-8',
-                default => 'max-w-[1536px] mx-auto px-4 sm:px-8',
-            };
             $headerSticky = (bool) \App\Models\Setting::get('header_sticky', true);
             $headerHeight = \App\Models\Setting::get('header_height', '80px');
             $headerBgType = \App\Models\Setting::get('header_bg_type') ?: (\App\Models\Setting::get('header_bg_style') ?: 'glass');

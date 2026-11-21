@@ -193,4 +193,24 @@ class HomepageBuilderTest extends TestCase
         $this->assertEquals('24/7 Port Call & Emergency Squads', Setting::get('header_topbar_badge_text'));
         $this->assertEquals('Nordroy Marine', Setting::get('header_brand_title'));
     }
+
+    public function test_topbar_and_navbar_width_are_strictly_synchronized_on_frontend(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('topbar_width', 'fluid')
+            ->assertSet('header_width', 'fluid')
+            ->set('header_width', 'narrow')
+            ->assertSet('topbar_width', 'narrow')
+            ->call('saveHeader')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('narrow', Setting::get('header_topbar_width'));
+        $this->assertEquals('narrow', Setting::get('header_width'));
+
+        $frontendResponse = $this->get('/');
+        $frontendResponse->assertStatus(200);
+        $frontendResponse->assertSee('max-w-6xl mx-auto px-4 sm:px-8');
+    }
 }
