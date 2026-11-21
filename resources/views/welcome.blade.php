@@ -86,7 +86,6 @@
                                 {{ \App\Models\Setting::get('home_metric3_label', 'OEM Spares in Stock') }}
                             </span>
                         </div>
-                        </div>
                     </div>
 
                 </div>
@@ -119,12 +118,14 @@
                                 <!-- The Spinning Turbine (Clear, Distinct, Dual Mode with zero artificial cyan glow) -->
                                 @php
                                     $heroTurbineLight = \App\Models\Setting::get('site_icon', 'assets/images/icon.png');
-                                    $heroTurbineDark = \App\Models\Setting::get('site_icon_dark', 'assets/images/icon-dark.png') ?: $heroTurbineLight;
+                                    $heroTurbineDark = \App\Models\Setting::get('site_icon_dark') ?: $heroTurbineLight;
+                                    $heroTurbineLightUrl = str_starts_with($heroTurbineLight, 'http') ? $heroTurbineLight : asset($heroTurbineLight);
+                                    $heroTurbineDarkUrl = str_starts_with($heroTurbineDark, 'http') ? $heroTurbineDark : asset($heroTurbineDark);
                                 @endphp
-                                <img src="{{ asset($heroTurbineLight) }}" 
+                                <img src="{{ $heroTurbineLightUrl }}" 
                                      alt="Nordroy Precision Marine Turbine" 
                                      class="w-36 h-36 sm:w-40 sm:h-40 object-contain animate-turbine drop-shadow-[0_4px_16px_rgba(0,60,88,0.22)] dark:hidden relative z-20" />
-                                <img src="{{ asset($heroTurbineDark) }}" 
+                                <img src="{{ $heroTurbineDarkUrl }}" 
                                      alt="Nordroy Precision Marine Turbine" 
                                      class="w-36 h-36 sm:w-40 sm:h-40 object-contain animate-turbine drop-shadow-[0_6px_20px_rgba(0,0,0,0.6)] hidden dark:block relative z-20" />
                             </div>
