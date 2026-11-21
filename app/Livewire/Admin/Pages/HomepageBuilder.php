@@ -260,23 +260,8 @@ class HomepageBuilder extends Component
         }
     }
 
-    public function updatedTopbarWidth(string $value): void
-    {
-        $this->header_width = $value;
-    }
-
-    public function updatedHeaderWidth(string $value): void
-    {
-        $this->topbar_width = $value;
-    }
-
     public function saveHeader(): void
     {
-        // Enforce strict container width alignment across entire header (Topbar & Navbar)
-        if ($this->topbar_width !== $this->header_width) {
-            $this->topbar_width = $this->header_width;
-        }
-
         // Enforce clamped opacity: NEVER 0% or 100%
         $this->topbar_glass_opacity = max(10, min(90, (int) $this->topbar_glass_opacity));
         $this->header_glass_opacity = max(10, min(90, (int) $this->header_glass_opacity));

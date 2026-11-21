@@ -177,15 +177,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Topbar Width -->
                                 <div class="space-y-1.5">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Container Width</label>
-                                        <span class="text-[10px] font-semibold text-cyan-600 dark:text-cyan-400">Synced Header Geometry</span>
-                                    </div>
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Topbar Container Width</label>
                                     <select wire:model.live="topbar_width"
                                             class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                                        <option value="container">Boxed Container (max-w-[1536px] - Default)</option>
-                                        <option value="fluid">Container Fluid (Full Width - 100%)</option>
-                                        <option value="narrow">Narrow Container (max-w-6xl)</option>
+                                        <option value="container">Corporate Boxed (max-w-[1536px] - Default)</option>
+                                        <option value="fluid">Container Fluid (Full Width - 100% with Standard Padding)</option>
+                                        <option value="fluid_full">Full Bleed Edge-to-Edge (100% Flush Padding)</option>
+                                        <option value="ultrawide">Ultra-Wide Screen (max-w-[1728px] / 108rem)</option>
+                                        <option value="desktop">Standard Desktop (max-w-7xl / 1280px)</option>
+                                        <option value="narrow">Narrow Container (max-w-6xl / 1152px)</option>
+                                        <option value="content_focused">Focused Compact (max-w-5xl / 1024px)</option>
                                     </select>
                                 </div>
 
@@ -677,15 +678,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <!-- Navbar Width -->
                         <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Container Width</label>
-                                <span class="text-[10px] font-semibold text-cyan-600 dark:text-cyan-400">Synced Header Geometry</span>
-                            </div>
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Navbar Container Width</label>
                             <select wire:model.live="header_width"
                                     class="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
-                                <option value="container">Boxed Container (max-w-[1536px] - Default)</option>
-                                <option value="fluid">Container Fluid (Full Width - 100%)</option>
-                                <option value="narrow">Narrow Container (max-w-6xl)</option>
+                                <option value="container">Corporate Boxed (max-w-[1536px] - Default)</option>
+                                <option value="fluid">Container Fluid (Full Width - 100% with Standard Padding)</option>
+                                <option value="fluid_full">Full Bleed Edge-to-Edge (100% Flush Padding)</option>
+                                <option value="ultrawide">Ultra-Wide Screen (max-w-[1728px] / 108rem)</option>
+                                <option value="desktop">Standard Desktop (max-w-7xl / 1280px)</option>
+                                <option value="narrow">Narrow Container (max-w-6xl / 1152px)</option>
+                                <option value="content_focused">Focused Compact (max-w-5xl / 1024px)</option>
                             </select>
                         </div>
 

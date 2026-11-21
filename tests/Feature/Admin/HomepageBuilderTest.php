@@ -194,20 +194,26 @@ class HomepageBuilderTest extends TestCase
         $this->assertEquals('Nordroy Marine', Setting::get('header_brand_title'));
     }
 
-    public function test_topbar_and_navbar_width_are_strictly_synchronized_on_frontend(): void
+    public function test_topbar_and_navbar_width_and_background_are_completely_independent(): void
     {
         $this->actingAs($this->admin);
 
         Livewire::test(HomepageBuilder::class)
             ->set('topbar_width', 'fluid')
-            ->assertSet('header_width', 'fluid')
             ->set('header_width', 'narrow')
-            ->assertSet('topbar_width', 'narrow')
+            ->assertSet('topbar_width', 'fluid')
+            ->assertSet('header_width', 'narrow')
+            ->set('topbar_bg_type', 'solid_custom')
+            ->set('header_bg_type', 'glass')
+            ->assertSet('topbar_bg_type', 'solid_custom')
+            ->assertSet('header_bg_type', 'glass')
             ->call('saveHeader')
             ->assertHasNoErrors();
 
-        $this->assertEquals('narrow', Setting::get('header_topbar_width'));
+        $this->assertEquals('fluid', Setting::get('header_topbar_width'));
         $this->assertEquals('narrow', Setting::get('header_width'));
+        $this->assertEquals('solid_custom', Setting::get('header_topbar_bg_type'));
+        $this->assertEquals('glass', Setting::get('header_bg_type'));
 
         $frontendResponse = $this->get('/');
         $frontendResponse->assertStatus(200);
