@@ -643,4 +643,168 @@ class HomepageBuilderTest extends TestCase
         $this->assertEquals('Precision Overhaul Services', Setting::get('home_services_title'));
         $this->assertEquals('ISO 9001:2015 & DNV Certified', Setting::get('home_footer_cert_text'));
     }
+
+    public function test_admin_can_configure_universal_section_styler(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('sectionStylers.services.bg_type', 'gradient')
+            ->set('sectionStylers.services.gradient_dir', 'to bottom right')
+            ->set('sectionStylers.services.gradient_from', '#003C58')
+            ->set('sectionStylers.services.gradient_to', '#0f172a')
+            ->set('sectionStylers.services.width', 'narrow')
+            ->set('sectionStylers.services.padding', 'spacious')
+            ->set('sectionStylers.services.align', 'center')
+            ->call('saveServices')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('gradient', Setting::get('home_services_bg_type'));
+        $this->assertEquals('to bottom right', Setting::get('home_services_gradient_dir'));
+        $this->assertEquals('#003C58', Setting::get('home_services_gradient_from'));
+        $this->assertEquals('#0f172a', Setting::get('home_services_gradient_to'));
+        $this->assertEquals('narrow', Setting::get('home_services_width'));
+        $this->assertEquals('spacious', Setting::get('home_services_padding'));
+        $this->assertEquals('center', Setting::get('home_services_align'));
+
+        // Frontend renders with styling
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('to bottom right');
+    }
+
+    public function test_admin_can_manage_static_items_repeaters(): void
+    {
+        $this->actingAs($this->admin);
+
+        $testComponent = Livewire::test(HomepageBuilder::class)
+            ->call('addStaticService')
+            ->set('services_static_items.6.title', 'Subsea Dynamic Balancing')
+            ->set('services_static_items.6.category', 'SUBSEA')
+            ->set('services_static_items.6.excerpt', 'Specialized underwater high-speed balancing services.')
+            ->call('saveServices');
+
+        $savedServices = Setting::getJson('home_services_static_items');
+        $this->assertCount(7, $savedServices);
+        $this->assertEquals('Subsea Dynamic Balancing', $savedServices[6]['title']);
+
+        // Remove item
+        $testComponent->call('removeStaticService', 6)
+            ->call('saveServices');
+
+        $savedAfterRemoval = Setting::getJson('home_services_static_items');
+        $this->assertCount(6, $savedAfterRemoval);
+
+        // Parts static items
+        $testComponent->call('addStaticPart')
+            ->set('parts_static_items.6.name', 'Ceramic Bearing Set')
+            ->set('parts_static_items.6.part_number', 'CR-9000-X')
+            ->call('saveParts');
+
+        $savedParts = Setting::getJson('home_parts_static_items');
+        $this->assertCount(7, $savedParts);
+        $this->assertEquals('Ceramic Bearing Set', $savedParts[6]['name']);
+    }
+
+    public function test_admin_can_create_customize_and_delete_custom_sections(): void
+    {
+        $this->actingAs($this->admin);
+
+        $test = Livewire::test(HomepageBuilder::class)
+            ->call('openAddSectionModal')
+            ->assertSet('showAddSectionModal', true)
+            ->set('newSectionType', 'cta_banner')
+            ->set('newSectionTitle', 'Emergency Flying Squad Standby')
+            ->call('addCustomSection')
+            ->assertSet('showAddSectionModal', false);
+
+        $customSections = Setting::getJson('home_custom_sections');
+        $this->assertCount(1, $customSections);
+        $secId = array_key_first($customSections);
+        $this->assertEquals('Emergency Flying Squad Standby', $customSections[$secId]['title']);
+        $this->assertEquals('cta_banner', $customSections[$secId]['type']);
+
+        // Check it was added to sections order
+        $order = Setting::getJson('home_sections_order');
+        $this->assertContains($secId, $order);
+
+        // Customize the custom section
+        $test->set("customSections.{$secId}.badge", 'IMMEDIATE DISPATCH')
+            ->set("customSections.{$secId}.button1_text", 'Call Duty Engineer')
+            ->call('saveCustomSection', $secId);
+
+        $updatedCustom = Setting::getJson('home_custom_sections');
+        $this->assertEquals('IMMEDIATE DISPATCH', $updatedCustom[$secId]['badge']);
+        $this->assertEquals('Call Duty Engineer', $updatedCustom[$secId]['button1_text']);
+
+        // Frontend renders custom section
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Emergency Flying Squad Standby');
+        $response->assertSee('IMMEDIATE DISPATCH');
+
+        // Delete custom section
+        $test->call('removeCustomSection', $secId);
+
+        $afterDelete = Setting::getJson('home_custom_sections');
+        $this->assertEmpty($afterDelete);
+
+        $orderAfterDelete = Setting::getJson('home_sections_order');
+        $this->assertNotContains($secId, $orderAfterDelete);
+    }
+
+    public function test_admin_can_configure_enhanced_corporate_footer(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('footer_show_logo', true)
+            ->set('footer_logo_type', 'site')
+            ->set('footer_logo_height', 48)
+            ->set('footer_col1_enabled', true)
+            ->set('footer_col2_enabled', true)
+            ->set('footer_col2_title', 'Engine Components')
+            ->set('footer_col2_mode', 'custom')
+            ->set('footer_col2_links', [
+                ['label' => 'Rotor Assemblies', 'url' => '/products#rotors'],
+                ['label' => 'Nozzle Rings', 'url' => '/products#nozzles'],
+            ])
+            ->set('footer_col3_enabled', false)
+            ->set('footer_col4_enabled', true)
+            ->set('footer_show_phone', true)
+            ->set('footer_phone', '+880 1711-223344')
+            ->set('footer_show_email', true)
+            ->set('footer_email', 'superintendent@nordroy.com')
+            ->call('saveFooter')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('48', Setting::get('home_footer_logo_height'));
+        $this->assertEquals('Engine Components', Setting::get('home_footer_col2_title'));
+        $this->assertEquals('0', Setting::get('home_footer_col3_enabled'));
+        $this->assertEquals('+880 1711-223344', Setting::get('home_footer_phone'));
+        $this->assertEquals('superintendent@nordroy.com', Setting::get('home_footer_email'));
+
+        // Frontend verification
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Engine Components');
+        $response->assertSee('Rotor Assemblies');
+        $response->assertSee('Nozzle Rings');
+        $response->assertSee('+880 1711-223344');
+        $response->assertSee('superintendent@nordroy.com');
+    }
+
+    public function test_settings_are_cached_in_memory_and_cleared_on_update(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Initial fetch primes cache
+        $val1 = Setting::get('site_name', 'Nordroy Marine');
+        $this->assertEquals('Nordroy Marine', $val1);
+
+        // Update via Setting::set() automatically flushes cache
+        Setting::set('site_name', 'Nordroy Global Marine');
+        $val2 = Setting::get('site_name');
+        $this->assertEquals('Nordroy Global Marine', $val2);
+    }
 }

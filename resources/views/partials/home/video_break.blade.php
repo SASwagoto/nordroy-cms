@@ -15,8 +15,8 @@
      TRANSPARENT MARINE VIDEO WINDOW BREAK (Turbo Internacional Style)
      Panoramic viewport over background marine video with adaptive executive glass glaze
      ===================================================================== -->
-<section id="video-break" class="py-16 sm:py-24 bg-transparent relative overflow-hidden flex items-center justify-center text-center">
-    <div class="reveal-init reveal-scale reveal-delay-150 max-w-4xl mx-auto px-6 py-10 sm:px-12 sm:py-14 rounded-3xl bg-white/85 dark:bg-[#07131e]/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-6 relative z-10">
+<x-section-styler-wrap sectionKey="video_break" id="video-break">
+    <div class="reveal-init reveal-scale reveal-delay-150 max-w-4xl mx-auto px-6 py-10 sm:px-12 sm:py-14 rounded-3xl bg-white/85 dark:bg-[#07131e]/85 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-6 relative z-10 text-center">
         <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800 shadow-2xs">
             {{ __($videoBreakBadge) }}
         </span>
@@ -39,4 +39,4 @@
             @endif
         </div>
     </div>
-</section>
+</x-section-styler-wrap>

@@ -19,6 +19,9 @@
     <!-- Body -->
     <div class="p-6 space-y-6 {{ $photos_enabled ? '' : 'opacity-40 pointer-events-none' }}">
         
+        <!-- Universal Section Styler Component -->
+        <x-homepage-builder.section-styler prefix="photos" />
+
         <!-- Architecture -->
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center gap-2">
@@ -72,6 +75,55 @@
                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
             </div>
         </div>
+
+        <!-- Static Photos Repeater -->
+        @if($photos_mode === 'static')
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <x-icon name="solid:camera" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Static Gallery Photos ({{ count($photos_static_items) }})</span>
+                </div>
+                <button type="button" wire:click="addStaticPhoto"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 transition-colors cursor-pointer flex items-center gap-1">
+                    <x-icon name="solid:plus" class="w-3 h-3" />
+                    <span>Add Photo</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                @foreach($photos_static_items as $phIdx => $photo)
+                <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 relative group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Photo 0{{ $phIdx + 1 }}</span>
+                        <button type="button" wire:click="removeStaticPhoto({{ $phIdx }})"
+                                class="w-5 h-5 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Photo">
+                            <x-icon name="solid:xmark" class="w-3 h-3" />
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Photo Title</label>
+                        <input type="text" wire:model="photos_static_items.{{ $phIdx }}.title"
+                               class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-bold">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Subtitle / Tag</label>
+                        <input type="text" wire:model="photos_static_items.{{ $phIdx }}.subtitle"
+                               class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Image Asset Path / URL</label>
+                        <input type="text" wire:model="photos_static_items.{{ $phIdx }}.image_url"
+                               class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
     </div>
 

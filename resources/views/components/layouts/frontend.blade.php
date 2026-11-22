@@ -1133,26 +1133,63 @@
             $footerWorkshopAddr = \App\Models\Setting::get('home_footer_workshop_addr', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.');
             $footerHqAddr = \App\Models\Setting::get('home_footer_hq_addr', \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh'));
             $footerEmergencyPhone = \App\Models\Setting::get('home_footer_phone', \App\Models\Setting::get('contact_phone', '+880 1800-000000'));
+            $footerEmail = \App\Models\Setting::get('home_footer_email', \App\Models\Setting::get('contact_email', 'operations@nordroy.com'));
             $footerCopyright = \App\Models\Setting::get('home_footer_copyright', '© ' . date('Y') . ' ' . \App\Models\Setting::get('site_name', 'Nordroy Marine') . '. All rights reserved. Maritime Engineering & Industrial Overhauls.');
             $footerShowLogin = (bool) \App\Models\Setting::get('home_footer_show_login', true);
+
+            // Enhanced Studio Settings
+            $footerShowLogo = (bool) \App\Models\Setting::get('home_footer_show_logo', true);
+            $footerLogoType = \App\Models\Setting::get('home_footer_logo_type', 'site');
+            $footerCustomLogo = \App\Models\Setting::get('home_footer_custom_logo', '');
+            $footerLogoHeight = (int) \App\Models\Setting::get('home_footer_logo_height', 40);
+
+            $footerCol1Enabled = (bool) \App\Models\Setting::get('home_footer_col1_enabled', true);
+            $footerCol2Enabled = (bool) \App\Models\Setting::get('home_footer_col2_enabled', true);
+            $footerCol3Enabled = (bool) \App\Models\Setting::get('home_footer_col3_enabled', true);
+            $footerCol4Enabled = (bool) \App\Models\Setting::get('home_footer_col4_enabled', true);
+
+            $footerCol2Mode = \App\Models\Setting::get('home_footer_col2_mode', 'custom');
+            $footerCol2MenuId = \App\Models\Setting::get('home_footer_col2_menu_id', '');
+            $footerCol2Links = \App\Models\Setting::getJson('home_footer_col2_links', []);
+
+            $footerCol3Mode = \App\Models\Setting::get('home_footer_col3_mode', 'custom');
+            $footerCol3MenuId = \App\Models\Setting::get('home_footer_col3_menu_id', '');
+            $footerCol3Links = \App\Models\Setting::getJson('home_footer_col3_links', []);
+
+            $footerShowPhone = (bool) \App\Models\Setting::get('home_footer_show_phone', true);
+            $footerShowEmail = (bool) \App\Models\Setting::get('home_footer_show_email', true);
+
+            $gridColsClass = $footerCol1Enabled ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-5' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
         @endphp
 
         @if($footerEnabled)
         <footer class="bg-slate-100/95 dark:bg-[#040e17]/95 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 pt-16 pb-12 transition-colors duration-200">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
+                <div class="grid {{ $gridColsClass }} gap-10 pb-12 border-b border-slate-200 dark:border-slate-800/80">
                     
+                    @if($footerCol1Enabled)
                     <!-- Col 1: Brand Info & Mission (2 cols on lg) -->
                     <div class="lg:col-span-2 space-y-4">
-                        <!-- Light Mode Logo: Visible in Light Mode, hidden in Dark Mode -->
-                        <img src="{{ asset($siteLogoLight) }}" 
-                             alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                             class="h-10 w-auto object-contain dark:hidden" />
-                        <!-- Dark Mode Logo: Visible in Dark Mode, hidden in Light Mode -->
-                        <img src="{{ asset($siteLogoDark) }}" 
-                             alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
-                             class="h-10 w-auto object-contain hidden dark:block" />
+                        @if($footerShowLogo)
+                            @if($footerLogoType === 'custom' && !empty($footerCustomLogo))
+                                <img src="{{ asset($footerCustomLogo) }}" 
+                                     alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
+                                     style="height: {{ $footerLogoHeight }}px" 
+                                     class="w-auto object-contain" />
+                            @else
+                                <!-- Light Mode Logo: Visible in Light Mode, hidden in Dark Mode -->
+                                <img src="{{ asset($siteLogoLight) }}" 
+                                     alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
+                                     style="height: {{ $footerLogoHeight }}px" 
+                                     class="w-auto object-contain dark:hidden" />
+                                <!-- Dark Mode Logo: Visible in Dark Mode, hidden in Light Mode -->
+                                <img src="{{ asset($siteLogoDark) }}" 
+                                     alt="{{ \App\Models\Setting::get('site_name', 'Nordroy Marine') }}" 
+                                     style="height: {{ $footerLogoHeight }}px" 
+                                     class="w-auto object-contain hidden dark:block" />
+                            @endif
+                        @endif
                         
                         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
                             {{ __($footerBio) }}
@@ -1176,50 +1213,110 @@
                         </div>
                         @endif
                     </div>
+                    @endif
 
+                    @if($footerCol2Enabled)
                     <!-- Col 2: Products & Spare Parts -->
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol2Title) }}</h4>
-                        <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blades &amp; Rotors</a></li>
-                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">CHRA Replacement Cartridges</a></li>
-                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Nozzle Rings &amp; Diffusers</a></li>
-                            <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Hydrodynamic Bearing Bushes</a></li>
-                            <li><a href="{{ route('careers') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors font-semibold text-cyan-600 dark:text-cyan-400">Careers &amp; Opportunities &rarr;</a></li>
-                        </ul>
+                        @if($footerCol2Mode === 'menu' && !empty($footerCol2MenuId))
+                            @php
+                                $menu2 = \App\Models\Menu::find($footerCol2MenuId);
+                                $menu2Items = $menu2 ? $menu2->menuItems()->whereNull('parent_id')->orderBy('order')->get() : collect();
+                            @endphp
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                @forelse($menu2Items as $mItem)
+                                    <li><a href="{{ $mItem->url ?: '#' }}" target="{{ $mItem->target ?: '_self' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">{{ $mItem->title }}</a></li>
+                                @empty
+                                    <li class="text-slate-400 italic">No menu items configured</li>
+                                @endforelse
+                            </ul>
+                        @elseif(!empty($footerCol2Links))
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                @foreach($footerCol2Links as $l)
+                                    <li><a href="{{ $l['url'] ?? '#' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">{{ $l['label'] ?? '' }}</a></li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blades &amp; Rotors</a></li>
+                                <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">CHRA Replacement Cartridges</a></li>
+                                <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Nozzle Rings &amp; Diffusers</a></li>
+                                <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Hydrodynamic Bearing Bushes</a></li>
+                                <li><a href="{{ route('careers') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors font-semibold text-cyan-600 dark:text-cyan-400">Careers &amp; Opportunities &rarr;</a></li>
+                            </ul>
+                        @endif
                     </div>
+                    @endif
 
+                    @if($footerCol3Enabled)
                     <!-- Col 3: Technical Services -->
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol3Title) }}</h4>
-                        <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                            <li><a href="{{ route('services') }}#balancing" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Dynamic Rotor Balancing</a></li>
-                            <li><a href="{{ route('services') }}#overhaul" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blading &amp; Welding</a></li>
-                            <li><a href="{{ route('services') }}#cartridge" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Cartridge Reconditioning</a></li>
-                            <li><a href="{{ route('services') }}#ultrasonic" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Ultrasonic Chemical Cleaning</a></li>
-                            <li><a href="{{ route('services') }}#flying-squad" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">24/7 Port Emergency Call</a></li>
-                        </ul>
+                        @if($footerCol3Mode === 'menu' && !empty($footerCol3MenuId))
+                            @php
+                                $menu3 = \App\Models\Menu::find($footerCol3MenuId);
+                                $menu3Items = $menu3 ? $menu3->menuItems()->whereNull('parent_id')->orderBy('order')->get() : collect();
+                            @endphp
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                @forelse($menu3Items as $mItem)
+                                    <li><a href="{{ $mItem->url ?: '#' }}" target="{{ $mItem->target ?: '_self' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">{{ $mItem->title }}</a></li>
+                                @empty
+                                    <li class="text-slate-400 italic">No menu items configured</li>
+                                @endforelse
+                            </ul>
+                        @elseif(!empty($footerCol3Links))
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                @foreach($footerCol3Links as $l)
+                                    <li><a href="{{ $l['url'] ?? '#' }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">{{ $l['label'] ?? '' }}</a></li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                                <li><a href="{{ route('services') }}#balancing" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Dynamic Rotor Balancing</a></li>
+                                <li><a href="{{ route('services') }}#overhaul" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blading &amp; Welding</a></li>
+                                <li><a href="{{ route('services') }}#cartridge" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Cartridge Reconditioning</a></li>
+                                <li><a href="{{ route('services') }}#ultrasonic" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Ultrasonic Chemical Cleaning</a></li>
+                                <li><a href="{{ route('services') }}#flying-squad" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">24/7 Port Emergency Call</a></li>
+                            </ul>
+                        @endif
                     </div>
+                    @endif
 
+                    @if($footerCol4Enabled)
                     <!-- Col 4: Corporate Offices & Workshops -->
                     <div class="space-y-3">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol4Title) }}</h4>
                         <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2.5">
+                            @if($footerWorkshopAddr)
                             <div>
                                 <p class="font-bold text-slate-800 dark:text-slate-200">Chattogram Port Workshop:</p>
                                 <p>{{ $footerWorkshopAddr }}</p>
                             </div>
+                            @endif
+                            @if($footerHqAddr)
                             <div>
                                 <p class="font-bold text-slate-800 dark:text-slate-200">Dhaka Corporate HQ:</p>
                                 <p>{{ $footerHqAddr }}</p>
                             </div>
+                            @endif
+                            @if($footerShowPhone && $footerEmergencyPhone)
                             <div class="pt-1">
                                 <a href="tel:{{ $footerEmergencyPhone }}" class="text-[#003C58] dark:text-cyan-400 font-bold block">
                                     Emergency: {{ $footerEmergencyPhone }}
                                 </a>
                             </div>
+                            @endif
+                            @if($footerShowEmail && $footerEmail)
+                            <div>
+                                <a href="mailto:{{ $footerEmail }}" class="text-slate-600 dark:text-slate-400 hover:text-[#003C58] dark:hover:text-cyan-400 block truncate">
+                                    {{ $footerEmail }}
+                                </a>
+                            </div>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
                 </div>
 

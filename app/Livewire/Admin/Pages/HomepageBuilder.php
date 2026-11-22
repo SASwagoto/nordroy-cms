@@ -405,8 +405,53 @@ class HomepageBuilder extends Component
     public string $footer_copyright = '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.';
     public bool $footer_show_login = true;
 
+    // Footer Studio Enhancements
+    public bool $footer_show_logo = true;
+    public string $footer_logo_type = 'site_logo'; // 'site_logo', 'custom_logo'
+    public string $footer_custom_logo = '';
+    public int $footer_logo_height = 40;
+    public bool $footer_col1_enabled = true;
+    public bool $footer_col2_enabled = true;
+    public bool $footer_col3_enabled = true;
+    public bool $footer_col4_enabled = true;
+    public string $footer_col2_mode = 'custom'; // 'custom', 'menu'
+    public ?int $footer_col2_menu_id = null;
+    public array $footer_col2_links = [];
+    public string $footer_col3_mode = 'custom'; // 'custom', 'menu'
+    public ?int $footer_col3_menu_id = null;
+    public array $footer_col3_links = [];
+    public string $footer_email = 'operations@nordroy.com';
+    public bool $footer_show_phone = true;
+    public bool $footer_show_email = true;
+
+    // ==========================================
+    // UNIVERSAL SECTION STYLERS
+    // ==========================================
+    public array $sectionStylers = [];
+
+    // ==========================================
+    // CUSTOM SECTIONS STUDIO
+    // ==========================================
+    public array $customSections = [];
+    public bool $showAddSectionModal = false;
+    public string $newSectionType = 'content_block';
+    public string $newSectionTitle = '';
+
+    // ==========================================
+    // REPEATERS FOR STATIC SECTIONS CONTENT
+    // ==========================================
+    public array $services_static_items = [];
+    public array $parts_static_items = [];
+    public array $photos_static_items = [];
+    public array $videos_static_items = [];
+    public array $metrics_items = [];
+
+    // Precached link options
+    public array $internalLinkOptions = [];
+
     public function mount(): void
     {
+        $this->internalLinkOptions = $this->getInternalLinkOptions();
         $this->loadSettings();
     }
 
@@ -756,17 +801,127 @@ class HomepageBuilder extends Component
 
         // 12. Corporate Footer
         $this->footer_enabled       = (bool) Setting::get('home_footer_enabled', true);
+        $this->footer_show_logo     = (bool) Setting::get('home_footer_show_logo', true);
+        $this->footer_logo_type     = Setting::get('home_footer_logo_type', 'site_logo');
+        $this->footer_custom_logo   = Setting::get('home_footer_custom_logo', '');
+        $this->footer_logo_height   = (int) Setting::get('home_footer_logo_height', 40);
+
+        $this->footer_col1_enabled  = (bool) Setting::get('home_footer_col1_enabled', true);
+        $this->footer_col2_enabled  = (bool) Setting::get('home_footer_col2_enabled', true);
+        $this->footer_col3_enabled  = (bool) Setting::get('home_footer_col3_enabled', true);
+        $this->footer_col4_enabled  = (bool) Setting::get('home_footer_col4_enabled', true);
+
         $this->footer_bio           = Setting::get('home_footer_bio', 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.');
         $this->footer_show_social   = (bool) Setting::get('home_footer_show_social', true);
         $this->footer_cert_text     = Setting::get('home_footer_cert_text', 'ISO 9001:2015 & DNV Certified');
         $this->footer_col2_title    = Setting::get('home_footer_col2_title', 'OEM Spare Parts');
+        $this->footer_col2_mode     = Setting::get('home_footer_col2_mode', 'custom');
+        $this->footer_col2_menu_id  = Setting::get('home_footer_col2_menu_id') ? (int) Setting::get('home_footer_col2_menu_id') : null;
+        $this->footer_col2_links    = Setting::getJson('home_footer_col2_links', [
+            ['text' => 'Turbine Blades & Rotors', 'url' => '/products'],
+            ['text' => 'CHRA Replacement Cartridges', 'url' => '/products'],
+            ['text' => 'Nozzle Rings & Diffusers', 'url' => '/products'],
+            ['text' => 'Hydrodynamic Bearing Bushes', 'url' => '/products'],
+            ['text' => 'Careers & Opportunities →', 'url' => '/careers'],
+        ]);
+
         $this->footer_col3_title    = Setting::get('home_footer_col3_title', 'Technical Services');
+        $this->footer_col3_mode     = Setting::get('home_footer_col3_mode', 'custom');
+        $this->footer_col3_menu_id  = Setting::get('home_footer_col3_menu_id') ? (int) Setting::get('home_footer_col3_menu_id') : null;
+        $this->footer_col3_links    = Setting::getJson('home_footer_col3_links', [
+            ['text' => 'Dynamic Rotor Balancing', 'url' => '/services#balancing'],
+            ['text' => 'Turbine Blading & Welding', 'url' => '/services#overhaul'],
+            ['text' => 'Cartridge Reconditioning', 'url' => '/services#cartridge'],
+            ['text' => 'Ultrasonic Chemical Cleaning', 'url' => '/services#ultrasonic'],
+            ['text' => '24/7 Port Emergency Call', 'url' => '/services#flying-squad'],
+        ]);
+
         $this->footer_col4_title    = Setting::get('home_footer_col4_title', 'Port & HQ Offices');
         $this->footer_workshop_addr = Setting::get('home_footer_workshop_addr', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.');
         $this->footer_hq_addr       = Setting::get('home_footer_hq_addr', 'Gulshan Industrial Area, Dhaka, Bangladesh');
         $this->footer_phone         = Setting::get('home_footer_phone', Setting::get('contact_phone', '+880 1800-000000'));
+        $this->footer_email         = Setting::get('home_footer_email', Setting::get('contact_email', 'operations@nordroy.com'));
+        $this->footer_show_phone    = (bool) Setting::get('home_footer_show_phone', true);
+        $this->footer_show_email    = (bool) Setting::get('home_footer_show_email', true);
         $this->footer_copyright     = Setting::get('home_footer_copyright', '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.');
         $this->footer_show_login    = (bool) Setting::get('home_footer_show_login', true);
+
+        // Load Static Repeaters
+        $this->services_static_items = Setting::getJson('home_services_static_items', [
+            ['title' => 'Dynamic Rotor Balancing (100k RPM)', 'category' => 'BALANCING', 'icon' => 'solid:gauge', 'excerpt' => 'Elimination of micro-vibrations with computerized dynamic balancing up to 100,000 RPM, certified with comprehensive tolerance test sheets.', 'url' => '/services#balancing'],
+            ['title' => 'Turbine Blading & TIG Welding', 'category' => 'WELDING', 'icon' => 'solid:fire-flame-curved', 'excerpt' => 'Precision laser and micro-TIG rebuilding of eroded turbine blade profiles, shroud rings, and metallurgical crack restoration.', 'url' => '/services#overhaul'],
+            ['title' => 'Cartridge (CHRA) Exchange', 'category' => 'CHRA', 'icon' => 'solid:arrows-rotate', 'excerpt' => 'Pre-assembled, factory-balanced cartridge replacement modules for rapid turnaround times during tight vessel port calls.', 'url' => '/services#cartridge'],
+            ['title' => 'Ultrasonic Chemical Cleaning', 'category' => 'CHEMICAL', 'icon' => 'solid:spray-can', 'excerpt' => 'Multi-stage ultrasonic immersion tanks with specialized alkaline solvents to dissolve stubborn heavy fuel oil carbon deposits.', 'url' => '/services#ultrasonic'],
+            ['title' => 'Bearing Journal Micro-Polishing', 'category' => 'MACHINING', 'icon' => 'solid:microchip', 'excerpt' => 'Superfinishing and micro-polishing of journal shaft bearing journals to mirror finish, ensuring hydrodynamic oil film integrity.', 'url' => '/services#bearing'],
+            ['title' => '24/7 Port Emergency Flying Squads', 'category' => 'EMERGENCY', 'icon' => 'solid:helicopter', 'excerpt' => 'Mobilized within 60 minutes for outer anchorage or container terminal emergency berth call repairs and class society surveyor trials.', 'url' => '/contact#emergency'],
+        ]);
+
+        $this->parts_static_items = Setting::getJson('home_parts_static_items', [
+            ['name' => 'Turbine Blades', 'part_number' => 'Nimonic 80A / 90', 'icon' => 'solid:fan', 'url' => '/products'],
+            ['name' => 'Rotor Shafts', 'part_number' => 'Forged Alloy Steel', 'icon' => 'solid:circle-notch', 'url' => '/products'],
+            ['name' => 'Nozzle Rings', 'part_number' => 'High-Temp Resistant', 'icon' => 'solid:ring', 'url' => '/products'],
+            ['name' => 'Bearing Bushes', 'part_number' => 'Hydrodynamic Bronze', 'icon' => 'solid:compact-disc', 'url' => '/products'],
+            ['name' => 'Sealing Bushes', 'part_number' => 'Labyrinth Alloy', 'icon' => 'solid:shield', 'url' => '/products'],
+            ['name' => 'Compressor Wheels', 'part_number' => 'Milled Billet Ti/Al', 'icon' => 'solid:gear', 'url' => '/products'],
+        ]);
+
+        $this->photos_static_items = Setting::getJson('home_photos_static_items', [
+            ['title' => 'Dynamic Balancing Bay', 'subtitle' => '100,000 RPM Schenck Rig', 'image_url' => 'assets/images/gallery/gallery-balancing.webp'],
+            ['title' => 'Turbine Blading & Welding', 'subtitle' => 'Micro-TIG Rebuilding', 'image_url' => 'assets/images/gallery/gallery-welding.webp'],
+            ['title' => 'CHRA Cartridge Assembly', 'subtitle' => 'Cleanroom Inspection', 'image_url' => 'assets/images/gallery/gallery-cartridge.webp'],
+            ['title' => 'Ultrasonic Chemical Wash', 'subtitle' => 'Carbon Removal Baths', 'image_url' => 'assets/images/gallery/gallery-ultrasonic.webp'],
+            ['title' => 'Compressor Wheel Machining', 'subtitle' => 'CNC 5-Axis Precision', 'image_url' => 'assets/images/gallery/gallery-cnc.webp'],
+            ['title' => 'Non-Destructive Testing', 'subtitle' => 'Fluorescent Dye Penetrant', 'image_url' => 'assets/images/gallery/gallery-ndt.webp'],
+            ['title' => 'Outer Anchorage Flying Squad', 'subtitle' => 'Container Vessel Boarding', 'image_url' => 'assets/images/gallery/gallery-shipboard.webp'],
+            ['title' => 'Genuine OEM Spares Warehouse', 'subtitle' => 'Over 10,000 Spares in Stock', 'image_url' => 'assets/images/gallery/gallery-warehouse.webp'],
+        ]);
+
+        $this->videos_static_items = Setting::getJson('home_videos_static_items', [
+            ['title' => 'Dynamic Rotor Balancing at 100,000 RPM', 'category' => 'BALANCING PROCEDURE', 'description' => 'Real-time sensor vibration diagnostics on Schenck calibration rig.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-balancing.webp'],
+            ['title' => 'Precision TIG Shroud Ring & Blade Rebuilding', 'category' => 'WELDING & METALLURGY', 'description' => 'Laser-guided profile restoration on eroded high-temp exhaust gas blades.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-welding.webp'],
+            ['title' => '24/7 Outer Anchorage Emergency Squad Mobilization', 'category' => 'PORT CALL MOBILIZATION', 'description' => 'Marine flying squads boarding bulk carrier at Chattogram outer anchorage.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-shipboard.webp'],
+        ]);
+
+        $this->metrics_items = Setting::getJson('home_metrics_items', [
+            ['value' => Setting::get('home_metrics_stat1_val', '30+'), 'label' => Setting::get('home_metrics_stat1_lbl', 'Years of Excellence'), 'icon' => 'solid:award'],
+            ['value' => Setting::get('home_metrics_stat2_val', '1,450+'), 'label' => Setting::get('home_metrics_stat2_lbl', 'Turbomachines Overhauled'), 'icon' => 'solid:gears'],
+            ['value' => Setting::get('home_metrics_stat3_val', '12+'), 'label' => Setting::get('home_metrics_stat3_lbl', 'Global Ports Covered'), 'icon' => 'solid:anchor'],
+            ['value' => Setting::get('home_metrics_stat4_val', '100%'), 'label' => Setting::get('home_metrics_stat4_lbl', 'Calibrated Schenck Testing'), 'icon' => 'solid:shield-check'],
+        ]);
+
+        // Load Universal Section Stylers
+        $stylerSections = self::DEFAULT_SECTIONS_ORDER;
+        foreach ($stylerSections as $secKey) {
+            $this->sectionStylers[$secKey] = [
+                'bg_type'       => Setting::get("home_{$secKey}_bg_type", 'theme_default'),
+                'bg_light'      => Setting::get("home_{$secKey}_bg_light", '#ffffff'),
+                'bg_dark'       => Setting::get("home_{$secKey}_bg_dark", '#0b1b2b'),
+                'gradient_dir'  => Setting::get("home_{$secKey}_gradient_dir", '135deg'),
+                'gradient_from' => Setting::get("home_{$secKey}_gradient_from", '#002538'),
+                'gradient_to'   => Setting::get("home_{$secKey}_gradient_to", '#07131e'),
+                'glass_opacity' => max(10, min(90, (int) Setting::get("home_{$secKey}_glass_opacity", 90))),
+                'align'         => Setting::get("home_{$secKey}_align", 'left'),
+                'width'         => Setting::get("home_{$secKey}_width", 'container'),
+                'padding'       => Setting::get("home_{$secKey}_padding", 'standard'),
+            ];
+        }
+
+        // Load Custom Sections
+        $this->customSections = Setting::getJson('home_custom_sections', []);
+        foreach ($this->customSections as $cKey => $cData) {
+            $this->sectionStylers[$cKey] = [
+                'bg_type'       => $cData['bg_type'] ?? 'theme_default',
+                'bg_light'      => $cData['bg_light'] ?? '#ffffff',
+                'bg_dark'       => $cData['bg_dark'] ?? '#0b1b2b',
+                'gradient_dir'  => $cData['gradient_dir'] ?? '135deg',
+                'gradient_from' => $cData['gradient_from'] ?? '#002538',
+                'gradient_to'   => $cData['gradient_to'] ?? '#07131e',
+                'glass_opacity' => max(10, min(90, (int) ($cData['glass_opacity'] ?? 90))),
+                'align'         => $cData['align'] ?? 'left',
+                'width'         => $cData['width'] ?? 'container',
+                'padding'       => $cData['padding'] ?? 'standard',
+            ];
+        }
 
         // Sections Enabled map
         $this->sectionsEnabled = [
@@ -782,12 +937,16 @@ class HomepageBuilder extends Component
             'parts'       => $this->parts_enabled,
             'rfq'         => $this->rfq_enabled,
         ];
+
+        foreach ($this->customSections as $cKey => $cData) {
+            $this->sectionsEnabled[$cKey] = (bool) ($cData['is_enabled'] ?? true);
+        }
     }
 
     public function selectSection(string $section): void
     {
         $allowed = array_merge(['header', 'hero', 'footer'], self::DEFAULT_SECTIONS_ORDER);
-        if (in_array($section, $allowed)) {
+        if (in_array($section, $allowed) || str_starts_with($section, 'custom_')) {
             $this->selectedSection = $section;
         }
     }
@@ -829,11 +988,16 @@ class HomepageBuilder extends Component
         if (array_key_exists($key, $this->sectionsEnabled)) {
             $newState = !($this->sectionsEnabled[$key] ?? true);
             $this->sectionsEnabled[$key] = $newState;
-            $prop = $key . '_enabled';
-            if (property_exists($this, $prop)) {
-                $this->{$prop} = $newState;
+            if (str_starts_with($key, 'custom_') && isset($this->customSections[$key])) {
+                $this->customSections[$key]['is_enabled'] = $newState;
+                Setting::set('home_custom_sections', json_encode($this->customSections), 'homepage', 'json');
+            } else {
+                $prop = $key . '_enabled';
+                if (property_exists($this, $prop)) {
+                    $this->{$prop} = $newState;
+                }
+                Setting::set('home_' . $key . '_enabled', $newState ? '1' : '0');
             }
-            Setting::set('home_' . $key . '_enabled', $newState ? '1' : '0');
             $this->dispatch('flash-message', [
                 'type' => 'success',
                 'message' => ucfirst(str_replace('_', ' ', $key)) . ' visibility toggled.',
@@ -849,6 +1013,304 @@ class HomepageBuilder extends Component
             'type' => 'success',
             'message' => 'Homepage section order reset to corporate standard defaults.',
         ]);
+    }
+
+    // ==========================================
+    // CUSTOM SECTIONS MANAGEMENT
+    // ==========================================
+    public function openAddSectionModal(): void
+    {
+        $this->newSectionTitle = '';
+        $this->newSectionType = 'content_block';
+        $this->showAddSectionModal = true;
+    }
+
+    public function closeAddSectionModal(): void
+    {
+        $this->showAddSectionModal = false;
+    }
+
+    public function addCustomSection(): void
+    {
+        $title = trim($this->newSectionTitle);
+        if (empty($title)) {
+            $this->addError('newSectionTitle', 'Section title is required.');
+            return;
+        }
+
+        $id = 'custom_' . time();
+        $this->customSections[$id] = [
+            'id' => $id,
+            'title' => $title,
+            'type' => $this->newSectionType,
+            'badge' => 'Special Capability',
+            'subtitle' => 'Customized corporate module configured via Homepage Builder.',
+            'content' => 'High-precision engineering and overhaul operations executed with certified metallurgical integrity.',
+            'is_enabled' => true,
+            'cta1_text' => 'Explore Services →',
+            'cta1_url' => '/services',
+            'cta2_text' => 'Contact Duty Desk',
+            'cta2_url' => '/contact',
+            'features' => [
+                ['title' => 'Calibrated Precision', 'desc' => 'High quality marine engineering feature with certified tolerance test sheets.', 'icon' => 'solid:shield-check'],
+                ['title' => 'Turn-Key Reliability', 'desc' => 'Precision laser inspection and dynamic balancing up to 100,000 RPM.', 'icon' => 'solid:gauge'],
+                ['title' => '24/7 Rapid Mobilization', 'desc' => 'Global outer anchorage and berth call emergency response squads.', 'icon' => 'solid:anchor'],
+            ],
+            'faqs' => [
+                ['question' => 'What is the standard turnaround time for emergency port calls?', 'answer' => 'Emergency flying squads are mobilized within 60 minutes for outer anchorage or container terminal calls.'],
+                ['question' => 'Are non-destructive testing reports certified by classification societies?', 'answer' => 'Yes, all balancing and NDT reports are certified according to DNV and Lloyd\'s Register standards.'],
+            ],
+            'html_content' => '<div class="p-8 text-center text-slate-500 font-mono text-xs">Custom HTML Content Block</div>',
+        ];
+
+        $this->sectionStylers[$id] = [
+            'bg_type' => 'theme_default',
+            'bg_light' => '#ffffff',
+            'bg_dark' => '#0b1b2b',
+            'gradient_dir' => '135deg',
+            'gradient_from' => '#002538',
+            'gradient_to' => '#07131e',
+            'glass_opacity' => 90,
+            'align' => 'left',
+            'width' => 'container',
+            'padding' => 'standard',
+        ];
+
+        $this->sectionsOrder[] = $id;
+        $this->sectionsEnabled[$id] = true;
+
+        Setting::set('home_custom_sections', json_encode($this->customSections), 'homepage', 'json');
+        Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+        $this->saveSectionStyler($id);
+
+        $this->showAddSectionModal = false;
+        $this->selectedSection = $id;
+
+        $this->dispatch('flash-message', [
+            'type' => 'success',
+            'message' => "Custom section '{$title}' added successfully.",
+        ]);
+    }
+
+    public function removeCustomSection(string $id): void
+    {
+        if (isset($this->customSections[$id])) {
+            unset($this->customSections[$id]);
+            unset($this->sectionStylers[$id]);
+            unset($this->sectionsEnabled[$id]);
+            $this->sectionsOrder = array_values(array_filter($this->sectionsOrder, fn($k) => $k !== $id));
+
+            Setting::set('home_custom_sections', json_encode($this->customSections), 'homepage', 'json');
+            Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+
+            if ($this->selectedSection === $id) {
+                $this->selectedSection = 'header';
+            }
+
+            $this->dispatch('flash-message', [
+                'type' => 'success',
+                'message' => 'Custom section deleted successfully.',
+            ]);
+        }
+    }
+
+    public function saveCustomSection(string $id): void
+    {
+        if (!isset($this->customSections[$id])) return;
+
+        if (isset($this->sectionStylers[$id])) {
+            $styler = $this->sectionStylers[$id];
+            $this->customSections[$id]['bg_type'] = $styler['bg_type'] ?? 'theme_default';
+            $this->customSections[$id]['bg_light'] = $styler['bg_light'] ?? '#ffffff';
+            $this->customSections[$id]['bg_dark'] = $styler['bg_dark'] ?? '#0b1b2b';
+            $this->customSections[$id]['gradient_dir'] = $styler['gradient_dir'] ?? '135deg';
+            $this->customSections[$id]['gradient_from'] = $styler['gradient_from'] ?? '#002538';
+            $this->customSections[$id]['gradient_to'] = $styler['gradient_to'] ?? '#07131e';
+            $this->customSections[$id]['glass_opacity'] = $styler['glass_opacity'] ?? 90;
+            $this->customSections[$id]['align'] = $styler['align'] ?? 'left';
+            $this->customSections[$id]['width'] = $styler['width'] ?? 'container';
+            $this->customSections[$id]['padding'] = $styler['padding'] ?? 'standard';
+        }
+
+        Setting::set('home_custom_sections', json_encode($this->customSections), 'homepage', 'json');
+        $this->saveSectionStyler($id);
+
+        session()->flash('message', 'Custom section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Custom section saved.']);
+    }
+
+    public function addCustomSectionFeature(string $id): void
+    {
+        if (isset($this->customSections[$id])) {
+            $this->customSections[$id]['features'][] = [
+                'title' => 'New Engineering Feature',
+                'desc' => 'Detailed technical specification and capability note.',
+                'icon' => 'solid:circle-check',
+            ];
+        }
+    }
+
+    public function removeCustomSectionFeature(string $id, int $index): void
+    {
+        if (isset($this->customSections[$id]['features'][$index])) {
+            unset($this->customSections[$id]['features'][$index]);
+            $this->customSections[$id]['features'] = array_values($this->customSections[$id]['features']);
+        }
+    }
+
+    public function addCustomSectionFaq(string $id): void
+    {
+        if (isset($this->customSections[$id])) {
+            $this->customSections[$id]['faqs'][] = [
+                'question' => 'New Question Title?',
+                'answer' => 'Answer detailing corporate operational procedures.',
+            ];
+        }
+    }
+
+    public function removeCustomSectionFaq(string $id, int $index): void
+    {
+        if (isset($this->customSections[$id]['faqs'][$index])) {
+            unset($this->customSections[$id]['faqs'][$index]);
+            $this->customSections[$id]['faqs'] = array_values($this->customSections[$id]['faqs']);
+        }
+    }
+
+    // ==========================================
+    // UNIVERSAL SECTION STYLER SAVE METHOD
+    // ==========================================
+    public function saveSectionStyler(string $key): void
+    {
+        if (!isset($this->sectionStylers[$key])) return;
+        $styler = $this->sectionStylers[$key];
+        Setting::set("home_{$key}_bg_type", $styler['bg_type'] ?? 'theme_default');
+        Setting::set("home_{$key}_bg_light", $styler['bg_light'] ?? '#ffffff');
+        Setting::set("home_{$key}_bg_dark", $styler['bg_dark'] ?? '#0b1b2b');
+        Setting::set("home_{$key}_gradient_dir", $styler['gradient_dir'] ?? '135deg');
+        Setting::set("home_{$key}_gradient_from", $styler['gradient_from'] ?? '#002538');
+        Setting::set("home_{$key}_gradient_to", $styler['gradient_to'] ?? '#07131e');
+        Setting::set("home_{$key}_glass_opacity", max(10, min(90, (int) ($styler['glass_opacity'] ?? 90))));
+        Setting::set("home_{$key}_align", $styler['align'] ?? 'left');
+        Setting::set("home_{$key}_width", $styler['width'] ?? 'container');
+        Setting::set("home_{$key}_padding", $styler['padding'] ?? 'standard');
+    }
+
+    // ==========================================
+    // STATIC SECTIONS REPEATERS METHODS
+    // ==========================================
+    public function addStaticService(): void
+    {
+        $this->services_static_items[] = [
+            'title' => 'New Precision Overhaul Service',
+            'category' => 'CAPABILITY',
+            'icon' => 'solid:wrench',
+            'excerpt' => 'Description of specialized marine engineering capabilities.',
+            'url' => '/services',
+        ];
+    }
+    public function removeStaticService(int $index): void
+    {
+        if (isset($this->services_static_items[$index])) {
+            unset($this->services_static_items[$index]);
+            $this->services_static_items = array_values($this->services_static_items);
+        }
+    }
+
+    public function addStaticPart(): void
+    {
+        $this->parts_static_items[] = [
+            'name' => 'New OEM Replacement Part',
+            'part_number' => 'OEM Standard Specification',
+            'icon' => 'solid:gears',
+            'url' => '/products',
+        ];
+    }
+    public function removeStaticPart(int $index): void
+    {
+        if (isset($this->parts_static_items[$index])) {
+            unset($this->parts_static_items[$index]);
+            $this->parts_static_items = array_values($this->parts_static_items);
+        }
+    }
+
+    public function addStaticPhoto(): void
+    {
+        $this->photos_static_items[] = [
+            'title' => 'Workshop Facility Inspection',
+            'subtitle' => 'High-Precision Bay',
+            'image_url' => 'assets/images/gallery/gallery-balancing.webp',
+        ];
+    }
+    public function removeStaticPhoto(int $index): void
+    {
+        if (isset($this->photos_static_items[$index])) {
+            unset($this->photos_static_items[$index]);
+            $this->photos_static_items = array_values($this->photos_static_items);
+        }
+    }
+
+    public function addStaticVideo(): void
+    {
+        $this->videos_static_items[] = [
+            'title' => 'Engineering Balancing Procedure',
+            'category' => 'PROCEDURE',
+            'description' => 'Real-time procedure demonstration with dynamic sensor readouts.',
+            'video_url' => 'assets/videos/background-marine.mp4',
+            'thumbnail_url' => 'assets/images/gallery/gallery-balancing.webp',
+        ];
+    }
+    public function removeStaticVideo(int $index): void
+    {
+        if (isset($this->videos_static_items[$index])) {
+            unset($this->videos_static_items[$index]);
+            $this->videos_static_items = array_values($this->videos_static_items);
+        }
+    }
+
+    public function addMetricItem(): void
+    {
+        $this->metrics_items[] = [
+            'value' => '100%',
+            'label' => 'New Metric Milestone',
+            'icon' => 'solid:chart-simple',
+        ];
+    }
+    public function removeMetricItem(int $index): void
+    {
+        if (isset($this->metrics_items[$index])) {
+            unset($this->metrics_items[$index]);
+            $this->metrics_items = array_values($this->metrics_items);
+        }
+    }
+
+    public function addFooterCol2Link(): void
+    {
+        $this->footer_col2_links[] = [
+            'text' => 'New Navigation Link',
+            'url' => '/products',
+        ];
+    }
+    public function removeFooterCol2Link(int $index): void
+    {
+        if (isset($this->footer_col2_links[$index])) {
+            unset($this->footer_col2_links[$index]);
+            $this->footer_col2_links = array_values($this->footer_col2_links);
+        }
+    }
+
+    public function addFooterCol3Link(): void
+    {
+        $this->footer_col3_links[] = [
+            'text' => 'New Navigation Link',
+            'url' => '/services',
+        ];
+    }
+    public function removeFooterCol3Link(int $index): void
+    {
+        if (isset($this->footer_col3_links[$index])) {
+            unset($this->footer_col3_links[$index]);
+            $this->footer_col3_links = array_values($this->footer_col3_links);
+        }
     }
 
     public function setHeroTab(string $tab): void
@@ -1130,6 +1592,7 @@ class HomepageBuilder extends Component
         Setting::set('home_partners_bg_style', $this->partners_bg_style);
         Setting::set('home_partners_brands_list', trim($this->partners_brands_list));
 
+        $this->saveSectionStyler('partners');
         $this->sectionsEnabled['partners'] = $this->partners_enabled;
         session()->flash('message', 'Partners & OEM Ticker section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Partners section saved.']);
@@ -1159,6 +1622,7 @@ class HomepageBuilder extends Component
         Setting::set('home_about_quote_role', trim($this->about_quote_role));
         Setting::set('home_about_quote_initials', trim($this->about_quote_initials));
 
+        $this->saveSectionStyler('about');
         $this->sectionsEnabled['about'] = $this->about_enabled;
         session()->flash('message', 'About Us & Pillars section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'About Us section saved.']);
@@ -1172,7 +1636,9 @@ class HomepageBuilder extends Component
         Setting::set('home_services_subtitle', trim($this->services_subtitle));
         Setting::set('home_services_mode', $this->services_mode);
         Setting::set('home_services_limit', (string) max(1, min(24, (int) $this->services_limit)));
+        Setting::set('home_services_static_items', json_encode(array_values($this->services_static_items)), 'homepage', 'json');
 
+        $this->saveSectionStyler('services');
         $this->sectionsEnabled['services'] = $this->services_enabled;
         session()->flash('message', 'Precision Services section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Services section saved.']);
@@ -1189,6 +1655,7 @@ class HomepageBuilder extends Component
         Setting::set('home_video_break_cta2_text', trim($this->video_break_cta2_text));
         Setting::set('home_video_break_cta2_url', trim($this->video_break_cta2_url));
 
+        $this->saveSectionStyler('video_break');
         $this->sectionsEnabled['video_break'] = $this->video_break_enabled;
         session()->flash('message', 'Marine Video Window Break section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Video Break saved.']);
@@ -1215,6 +1682,7 @@ class HomepageBuilder extends Component
         Setting::set('home_blueprint_value2', trim($this->blueprint_value2));
         Setting::set('home_blueprint_value3', trim($this->blueprint_value3));
 
+        $this->saveSectionStyler('blueprint');
         $this->sectionsEnabled['blueprint'] = $this->blueprint_enabled;
         session()->flash('message', 'Corporate Blueprint (Mission & Vision) saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Blueprint saved.']);
@@ -1227,6 +1695,7 @@ class HomepageBuilder extends Component
         Setting::set('home_projects_title', trim($this->projects_title));
         Setting::set('home_projects_subtitle', trim($this->projects_subtitle));
 
+        $this->saveSectionStyler('projects');
         $this->sectionsEnabled['projects'] = $this->projects_enabled;
         session()->flash('message', 'Featured Projects section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Projects section saved.']);
@@ -1240,7 +1709,9 @@ class HomepageBuilder extends Component
         Setting::set('home_videos_subtitle', trim($this->videos_subtitle));
         Setting::set('home_videos_mode', $this->videos_mode);
         Setting::set('home_videos_limit', (string) max(1, min(12, (int) $this->videos_limit)));
+        Setting::set('home_videos_static_items', json_encode(array_values($this->videos_static_items)), 'homepage', 'json');
 
+        $this->saveSectionStyler('videos');
         $this->sectionsEnabled['videos'] = $this->videos_enabled;
         session()->flash('message', 'Video Gallery section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Video Gallery saved.']);
@@ -1254,7 +1725,9 @@ class HomepageBuilder extends Component
         Setting::set('home_photos_subtitle', trim($this->photos_subtitle));
         Setting::set('home_photos_mode', $this->photos_mode);
         Setting::set('home_photos_limit', (string) max(1, min(24, (int) $this->photos_limit)));
+        Setting::set('home_photos_static_items', json_encode(array_values($this->photos_static_items)), 'homepage', 'json');
 
+        $this->saveSectionStyler('photos');
         $this->sectionsEnabled['photos'] = $this->photos_enabled;
         session()->flash('message', 'Photo Gallery section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Photo Gallery saved.']);
@@ -1271,7 +1744,9 @@ class HomepageBuilder extends Component
         Setting::set('home_metrics_stat3_lbl', trim($this->metric_counter3_lbl));
         Setting::set('home_metrics_stat4_val', trim($this->metric_counter4_val));
         Setting::set('home_metrics_stat4_lbl', trim($this->metric_counter4_lbl));
+        Setting::set('home_metrics_items', json_encode(array_values($this->metrics_items)), 'homepage', 'json');
 
+        $this->saveSectionStyler('metrics');
         $this->sectionsEnabled['metrics'] = $this->metrics_enabled;
         session()->flash('message', 'Metrics Counters section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Metrics section saved.']);
@@ -1285,7 +1760,9 @@ class HomepageBuilder extends Component
         Setting::set('home_parts_subtitle', trim($this->parts_subtitle));
         Setting::set('home_parts_mode', $this->parts_mode);
         Setting::set('home_parts_limit', (string) max(1, min(24, (int) $this->parts_limit)));
+        Setting::set('home_parts_static_items', json_encode(array_values($this->parts_static_items)), 'homepage', 'json');
 
+        $this->saveSectionStyler('parts');
         $this->sectionsEnabled['parts'] = $this->parts_enabled;
         session()->flash('message', 'Genuine Spare Parts section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Parts section saved.']);
@@ -1299,6 +1776,7 @@ class HomepageBuilder extends Component
         Setting::set('home_rfq_subtitle', trim($this->rfq_subtitle));
         Setting::set('home_rfq_btn_text', trim($this->rfq_btn_text));
 
+        $this->saveSectionStyler('rfq');
         $this->sectionsEnabled['rfq'] = $this->rfq_enabled;
         session()->flash('message', '24/7 Operations RFQ Desk section saved successfully.');
         $this->dispatch('flash-message', ['type' => 'success', 'message' => 'RFQ Desk saved.']);
@@ -1307,15 +1785,36 @@ class HomepageBuilder extends Component
     public function saveFooter(): void
     {
         Setting::set('home_footer_enabled', $this->footer_enabled ? '1' : '0');
+        Setting::set('home_footer_show_logo', $this->footer_show_logo ? '1' : '0');
+        Setting::set('home_footer_logo_type', $this->footer_logo_type);
+        Setting::set('home_footer_custom_logo', trim($this->footer_custom_logo));
+        Setting::set('home_footer_logo_height', $this->footer_logo_height);
+
+        Setting::set('home_footer_col1_enabled', $this->footer_col1_enabled ? '1' : '0');
+        Setting::set('home_footer_col2_enabled', $this->footer_col2_enabled ? '1' : '0');
+        Setting::set('home_footer_col3_enabled', $this->footer_col3_enabled ? '1' : '0');
+        Setting::set('home_footer_col4_enabled', $this->footer_col4_enabled ? '1' : '0');
+
         Setting::set('home_footer_bio', trim($this->footer_bio));
         Setting::set('home_footer_show_social', $this->footer_show_social ? '1' : '0');
         Setting::set('home_footer_cert_text', trim($this->footer_cert_text));
         Setting::set('home_footer_col2_title', trim($this->footer_col2_title));
+        Setting::set('home_footer_col2_mode', $this->footer_col2_mode);
+        Setting::set('home_footer_col2_menu_id', $this->footer_col2_menu_id ? (string) $this->footer_col2_menu_id : '');
+        Setting::set('home_footer_col2_links', json_encode(array_values($this->footer_col2_links)), 'homepage', 'json');
+
         Setting::set('home_footer_col3_title', trim($this->footer_col3_title));
+        Setting::set('home_footer_col3_mode', $this->footer_col3_mode);
+        Setting::set('home_footer_col3_menu_id', $this->footer_col3_menu_id ? (string) $this->footer_col3_menu_id : '');
+        Setting::set('home_footer_col3_links', json_encode(array_values($this->footer_col3_links)), 'homepage', 'json');
+
         Setting::set('home_footer_col4_title', trim($this->footer_col4_title));
         Setting::set('home_footer_workshop_addr', trim($this->footer_workshop_addr));
         Setting::set('home_footer_hq_addr', trim($this->footer_hq_addr));
         Setting::set('home_footer_phone', trim($this->footer_phone));
+        Setting::set('home_footer_email', trim($this->footer_email));
+        Setting::set('home_footer_show_phone', $this->footer_show_phone ? '1' : '0');
+        Setting::set('home_footer_show_email', $this->footer_show_email ? '1' : '0');
         Setting::set('home_footer_copyright', trim($this->footer_copyright));
         Setting::set('home_footer_show_login', $this->footer_show_login ? '1' : '0');
 
@@ -1325,6 +1824,11 @@ class HomepageBuilder extends Component
 
     public function saveCurrentSection(): void
     {
+        if (str_starts_with($this->selectedSection, 'custom_')) {
+            $this->saveCustomSection($this->selectedSection);
+            return;
+        }
+
         match ($this->selectedSection) {
             'header'      => $this->saveHeader(),
             'hero'        => $this->saveHero(),
@@ -1662,8 +2166,99 @@ class HomepageBuilder extends Component
         $this->rfq_btn_text         = 'Submit Technical RFQ to Duty Desk';
         $this->saveRfq();
 
+        // Restore Static Repeaters
+        $this->services_static_items = [
+            ['title' => 'Dynamic Rotor Balancing (100k RPM)', 'category' => 'BALANCING', 'icon' => 'solid:gauge', 'excerpt' => 'Elimination of micro-vibrations with computerized dynamic balancing up to 100,000 RPM, certified with comprehensive tolerance test sheets.', 'url' => '/services#balancing'],
+            ['title' => 'Turbine Blading & TIG Welding', 'category' => 'WELDING', 'icon' => 'solid:fire-flame-curved', 'excerpt' => 'Precision laser and micro-TIG rebuilding of eroded turbine blade profiles, shroud rings, and metallurgical crack restoration.', 'url' => '/services#overhaul'],
+            ['title' => 'Cartridge (CHRA) Exchange', 'category' => 'CHRA', 'icon' => 'solid:arrows-rotate', 'excerpt' => 'Pre-assembled, factory-balanced cartridge replacement modules for rapid turnaround times during tight vessel port calls.', 'url' => '/services#cartridge'],
+            ['title' => 'Ultrasonic Chemical Cleaning', 'category' => 'CHEMICAL', 'icon' => 'solid:spray-can', 'excerpt' => 'Multi-stage ultrasonic immersion tanks with specialized alkaline solvents to dissolve stubborn heavy fuel oil carbon deposits.', 'url' => '/services#ultrasonic'],
+            ['title' => 'Bearing Journal Micro-Polishing', 'category' => 'MACHINING', 'icon' => 'solid:microchip', 'excerpt' => 'Superfinishing and micro-polishing of journal shaft bearing journals to mirror finish, ensuring hydrodynamic oil film integrity.', 'url' => '/services#bearing'],
+            ['title' => '24/7 Port Emergency Flying Squads', 'category' => 'EMERGENCY', 'icon' => 'solid:helicopter', 'excerpt' => 'Mobilized within 60 minutes for outer anchorage or container terminal emergency berth call repairs and class society surveyor trials.', 'url' => '/contact#emergency'],
+        ];
+        $this->saveServices();
+
+        $this->parts_static_items = [
+            ['name' => 'Turbine Blades', 'part_number' => 'Nimonic 80A / 90', 'icon' => 'solid:fan', 'url' => '/products'],
+            ['name' => 'Rotor Shafts', 'part_number' => 'Forged Alloy Steel', 'icon' => 'solid:circle-notch', 'url' => '/products'],
+            ['name' => 'Nozzle Rings', 'part_number' => 'High-Temp Resistant', 'icon' => 'solid:ring', 'url' => '/products'],
+            ['name' => 'Bearing Bushes', 'part_number' => 'Hydrodynamic Bronze', 'icon' => 'solid:compact-disc', 'url' => '/products'],
+            ['name' => 'Sealing Bushes', 'part_number' => 'Labyrinth Alloy', 'icon' => 'solid:shield', 'url' => '/products'],
+            ['name' => 'Compressor Wheels', 'part_number' => 'Milled Billet Ti/Al', 'icon' => 'solid:gear', 'url' => '/products'],
+        ];
+        $this->saveParts();
+
+        $this->photos_static_items = [
+            ['title' => 'Dynamic Balancing Bay', 'subtitle' => '100,000 RPM Schenck Rig', 'image_url' => 'assets/images/gallery/gallery-balancing.webp'],
+            ['title' => 'Turbine Blading & Welding', 'subtitle' => 'Micro-TIG Rebuilding', 'image_url' => 'assets/images/gallery/gallery-welding.webp'],
+            ['title' => 'CHRA Cartridge Assembly', 'subtitle' => 'Cleanroom Inspection', 'image_url' => 'assets/images/gallery/gallery-cartridge.webp'],
+            ['title' => 'Ultrasonic Chemical Wash', 'subtitle' => 'Carbon Removal Baths', 'image_url' => 'assets/images/gallery/gallery-ultrasonic.webp'],
+            ['title' => 'Compressor Wheel Machining', 'subtitle' => 'CNC 5-Axis Precision', 'image_url' => 'assets/images/gallery/gallery-cnc.webp'],
+            ['title' => 'Non-Destructive Testing', 'subtitle' => 'Fluorescent Dye Penetrant', 'image_url' => 'assets/images/gallery/gallery-ndt.webp'],
+            ['title' => 'Outer Anchorage Flying Squad', 'subtitle' => 'Container Vessel Boarding', 'image_url' => 'assets/images/gallery/gallery-shipboard.webp'],
+            ['title' => 'Genuine OEM Spares Warehouse', 'subtitle' => 'Over 10,000 Spares in Stock', 'image_url' => 'assets/images/gallery/gallery-warehouse.webp'],
+        ];
+        $this->savePhotos();
+
+        $this->videos_static_items = [
+            ['title' => 'Dynamic Rotor Balancing at 100,000 RPM', 'category' => 'BALANCING PROCEDURE', 'description' => 'Real-time sensor vibration diagnostics on Schenck calibration rig.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-balancing.webp'],
+            ['title' => 'Precision TIG Shroud Ring & Blade Rebuilding', 'category' => 'WELDING & METALLURGY', 'description' => 'Laser-guided profile restoration on eroded high-temp exhaust gas blades.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-welding.webp'],
+            ['title' => '24/7 Outer Anchorage Emergency Squad Mobilization', 'category' => 'PORT CALL MOBILIZATION', 'description' => 'Marine flying squads boarding bulk carrier at Chattogram outer anchorage.', 'video_url' => 'assets/videos/background-marine.mp4', 'thumbnail_url' => 'assets/images/gallery/gallery-shipboard.webp'],
+        ];
+        $this->saveVideos();
+
+        $this->metrics_items = [
+            ['value' => '30+', 'label' => 'Years of Excellence', 'icon' => 'solid:award'],
+            ['value' => '1,450+', 'label' => 'Turbomachines Overhauled', 'icon' => 'solid:gears'],
+            ['value' => '12+', 'label' => 'Global Ports Covered', 'icon' => 'solid:anchor'],
+            ['value' => '100%', 'label' => 'Calibrated Schenck Testing', 'icon' => 'solid:shield-check'],
+        ];
+        $this->saveMetrics();
+
+        // Restore Universal Section Stylers
+        foreach (self::DEFAULT_SECTIONS_ORDER as $secKey) {
+            $this->sectionStylers[$secKey] = [
+                'bg_type'       => 'theme_default',
+                'bg_light'      => '#ffffff',
+                'bg_dark'       => '#0b1b2b',
+                'gradient_dir'  => '135deg',
+                'gradient_from' => '#002538',
+                'gradient_to'   => '#07131e',
+                'glass_opacity' => 90,
+                'align'         => 'left',
+                'width'         => 'container',
+                'padding'       => 'standard',
+            ];
+            $this->saveSectionStyler($secKey);
+        }
+
         // 12. Footer
         $this->footer_enabled       = true;
+        $this->footer_show_logo     = true;
+        $this->footer_logo_type     = 'site_logo';
+        $this->footer_custom_logo   = '';
+        $this->footer_logo_height   = 40;
+        $this->footer_col1_enabled  = true;
+        $this->footer_col2_enabled  = true;
+        $this->footer_col3_enabled  = true;
+        $this->footer_col4_enabled  = true;
+        $this->footer_col2_mode     = 'custom';
+        $this->footer_col2_menu_id  = null;
+        $this->footer_col2_links    = [
+            ['text' => 'Turbine Blades & Rotors', 'url' => '/products'],
+            ['text' => 'CHRA Replacement Cartridges', 'url' => '/products'],
+            ['text' => 'Nozzle Rings & Diffusers', 'url' => '/products'],
+            ['text' => 'Hydrodynamic Bearing Bushes', 'url' => '/products'],
+            ['text' => 'Careers & Opportunities →', 'url' => '/careers'],
+        ];
+        $this->footer_col3_mode     = 'custom';
+        $this->footer_col3_menu_id  = null;
+        $this->footer_col3_links    = [
+            ['text' => 'Dynamic Rotor Balancing', 'url' => '/services#balancing'],
+            ['text' => 'Turbine Blading & Welding', 'url' => '/services#overhaul'],
+            ['text' => 'Cartridge Reconditioning', 'url' => '/services#cartridge'],
+            ['text' => 'Ultrasonic Chemical Cleaning', 'url' => '/services#ultrasonic'],
+            ['text' => '24/7 Port Emergency Call', 'url' => '/services#flying-squad'],
+        ];
         $this->footer_bio           = 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.';
         $this->footer_show_social   = true;
         $this->footer_cert_text     = 'ISO 9001:2015 & DNV Certified';
@@ -1673,6 +2268,9 @@ class HomepageBuilder extends Component
         $this->footer_workshop_addr = 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.';
         $this->footer_hq_addr       = 'Gulshan Industrial Area, Dhaka, Bangladesh';
         $this->footer_phone         = '+880 1800-000000';
+        $this->footer_email         = 'operations@nordroy.com';
+        $this->footer_show_phone    = true;
+        $this->footer_show_email    = true;
         $this->footer_copyright     = '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.';
         $this->footer_show_login    = true;
         $this->saveFooter();
@@ -1860,7 +2458,7 @@ class HomepageBuilder extends Component
             'availableMenus'       => $availableMenus,
             'selectedMenu'         => $selectedMenu,
             'availableSocialLinks' => $availableSocialLinks,
-            'internalLinkOptions'  => $this->getInternalLinkOptions(),
+            'internalLinkOptions'  => !empty($this->internalLinkOptions) ? $this->internalLinkOptions : $this->getInternalLinkOptions(),
         ]);
     }
 }

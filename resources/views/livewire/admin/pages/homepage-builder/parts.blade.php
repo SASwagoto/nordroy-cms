@@ -19,6 +19,9 @@
     <!-- Body -->
     <div class="p-6 space-y-6 {{ $parts_enabled ? '' : 'opacity-40 pointer-events-none' }}">
         
+        <!-- Universal Section Styler Component -->
+        <x-homepage-builder.section-styler prefix="parts" />
+
         <!-- Architecture -->
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center gap-2">
@@ -72,6 +75,62 @@
                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
             </div>
         </div>
+
+        <!-- Static Parts Cards Repeater -->
+        @if($parts_mode === 'static')
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <x-icon name="solid:boxes-stacked" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Static Spare Parts Cards ({{ count($parts_static_items) }})</span>
+                </div>
+                <button type="button" wire:click="addStaticPart"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 transition-colors cursor-pointer flex items-center gap-1">
+                    <x-icon name="solid:plus" class="w-3 h-3" />
+                    <span>Add Spare Part</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @foreach($parts_static_items as $pIdx => $item)
+                <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 relative group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Part 0{{ $pIdx + 1 }}</span>
+                        <button type="button" wire:click="removeStaticPart({{ $pIdx }})"
+                                class="w-5 h-5 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Part">
+                            <x-icon name="solid:xmark" class="w-3 h-3" />
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Component Name</label>
+                        <input type="text" wire:model="parts_static_items.{{ $pIdx }}.name"
+                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-bold">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Specification / Material</label>
+                        <input type="text" wire:model="parts_static_items.{{ $pIdx }}.part_number"
+                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Icon</label>
+                            <input type="text" wire:model="parts_static_items.{{ $pIdx }}.icon"
+                                   class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target URL</label>
+                            <input type="text" wire:model="parts_static_items.{{ $pIdx }}.url"
+                                   class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
     </div>
 

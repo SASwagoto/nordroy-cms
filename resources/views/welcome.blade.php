@@ -584,7 +584,9 @@
     @endphp
 
     @foreach($sectionsOrder as $secKey)
-        @if(view()->exists('partials.home.' . $secKey))
+        @if(str_starts_with($secKey, 'custom_'))
+            @include('partials.home.custom_section', ['customKey' => $secKey])
+        @elseif(view()->exists('partials.home.' . $secKey))
             @include('partials.home.' . $secKey)
         @endif
     @endforeach

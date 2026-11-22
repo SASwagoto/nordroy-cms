@@ -16,7 +16,18 @@
             'rfq'         => ['title' => 'RFQ Duty Desk', 'short' => 'RFQ Desk', 'badge' => 'Reorderable', 'icon' => 'solid:headset', 'desc' => '24/7 emergency response quote form'],
             'footer'      => ['title' => 'Corporate Footer', 'short' => 'Footer', 'badge' => 'Locked', 'icon' => 'solid:table-cells', 'desc' => 'Bio, addresses, columns, copyright'],
         ];
-        $currentSection = $sectionMeta[$selectedSection] ?? $sectionMeta['header'];
+        if (str_starts_with($selectedSection, 'custom_')) {
+            $customTitle = $customSections[$selectedSection]['title'] ?? 'Custom Section';
+            $currentSection = [
+                'title' => $customTitle,
+                'short' => \Illuminate\Support\Str::limit($customTitle, 16),
+                'badge' => 'Custom',
+                'icon'  => 'solid:puzzle-piece',
+                'desc'  => ucfirst(str_replace('_', ' ', $customSections[$selectedSection]['type'] ?? 'content_block')),
+            ];
+        } else {
+            $currentSection = $sectionMeta[$selectedSection] ?? $sectionMeta['header'];
+        }
     @endphp
 
     <!-- Top Action Bar -->
@@ -147,17 +158,33 @@
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             Body Sections (Reorderable)
                         </span>
-                        <button type="button" wire:click="resetSectionsOrder" title="Reset to standard corporate order"
-                                class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer flex items-center gap-1">
-                            <x-icon name="solid:arrows-rotate" class="w-2.5 h-2.5" />
-                            <span>Reset Order</span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" wire:click="openAddSectionModal" title="Create a new custom homepage section"
+                                    class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer flex items-center gap-1">
+                                <x-icon name="solid:plus" class="w-2.5 h-2.5" />
+                                <span>+ Add Section</span>
+                            </button>
+                            <button type="button" wire:click="resetSectionsOrder" title="Reset to standard corporate order"
+                                    class="text-[10px] font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline cursor-pointer flex items-center gap-0.5">
+                                <x-icon name="solid:arrows-rotate" class="w-2.5 h-2.5" />
+                                <span>Reset</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- DYNAMIC REORDERABLE SECTIONS LIST -->
                     @foreach($sectionsOrder as $idx => $secKey)
                         @php
-                            $sec = $sectionMeta[$secKey] ?? ['title' => ucfirst($secKey), 'icon' => 'solid:cubes', 'desc' => ''];
+                            if (str_starts_with($secKey, 'custom_')) {
+                                $cData = $customSections[$secKey] ?? null;
+                                $sec = [
+                                    'title' => $cData['title'] ?? 'Custom Section',
+                                    'icon'  => 'solid:puzzle-piece',
+                                    'desc'  => ucfirst(str_replace('_', ' ', $cData['type'] ?? 'content_block')),
+                                ];
+                            } else {
+                                $sec = $sectionMeta[$secKey] ?? ['title' => ucfirst($secKey), 'icon' => 'solid:cubes', 'desc' => ''];
+                            }
                             $isEnabled = $sectionsEnabled[$secKey] ?? true;
                         @endphp
                         <div wire:click="selectSection('{{ $secKey }}')"
@@ -176,7 +203,7 @@
                                 </div>
                             </div>
 
-                            <!-- Controls: Move Up, Move Down, Toggle Visibility -->
+                            <!-- Controls: Move Up, Move Down, Toggle Visibility, Delete -->
                             <div class="flex items-center gap-1 shrink-0" @click.stop>
                                 <!-- Move Up -->
                                 <button type="button" wire:click.stop="moveSectionUp('{{ $secKey }}')" 
@@ -200,6 +227,15 @@
                                         class="w-6 h-6 rounded-md border flex items-center justify-center transition-colors cursor-pointer {{ $isEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-400' }}">
                                     <x-icon :name="$isEnabled ? 'solid:eye' : 'solid:eye-slash'" class="w-2.5 h-2.5" />
                                 </button>
+
+                                @if(str_starts_with($secKey, 'custom_'))
+                                <button type="button" wire:click.stop="removeCustomSection('{{ $secKey }}')"
+                                        wire:confirm="Permanently delete custom section '{{ $sec['title'] }}'?"
+                                        title="Delete Section"
+                                        class="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 flex items-center justify-center text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-colors cursor-pointer">
+                                    <x-icon name="solid:trash" class="w-2.5 h-2.5" />
+                                </button>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -2485,9 +2521,65 @@
             @if(in_array($selectedSection, ['partners', 'about', 'services', 'video_break', 'blueprint', 'projects', 'videos', 'photos', 'metrics', 'parts', 'rfq', 'footer']))
                 @include('livewire.admin.pages.homepage-builder.' . $selectedSection)
             @endif
+
+            {{-- Custom Section Studio --}}
+            @if(str_starts_with($selectedSection, 'custom_') && isset($customSections[$selectedSection]))
+                @include('livewire.admin.pages.homepage-builder.components.custom-section-studio', ['customKey' => $selectedSection])
+            @endif
         </div>
 
     </div>
+
+    <!-- Add Custom Section Modal -->
+    @if($showAddSectionModal)
+    <div class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                        <x-icon name="solid:plus" class="w-4 h-4" />
+                    </span>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Add New Custom Section</h3>
+                </div>
+                <button type="button" wire:click="closeAddSectionModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                    <x-icon name="solid:xmark" class="w-4 h-4" />
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Section Title</label>
+                    <input type="text" wire:model="newSectionTitle" placeholder="e.g. Environmental Decarbonization"
+                           class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                    @error('newSectionTitle') <span class="text-[10px] text-rose-500 font-semibold">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Layout Preset</label>
+                    <select wire:model="newSectionType"
+                            class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                        <option value="content_block">Rich Content Block (Heading, Text &amp; CTAs)</option>
+                        <option value="cta_banner">Action Callout Banner (Wide CTA Bar)</option>
+                        <option value="features_grid">Features Grid (Multi-Column Card Items)</option>
+                        <option value="faq_accordion">FAQ Accordion (Expandable Q&amp;A)</option>
+                        <option value="custom_html">Raw Custom HTML / Embed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" wire:click="closeAddSectionModal"
+                        class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" wire:click="addCustomSection"
+                        class="px-5 py-2 text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 rounded-xl transition-colors cursor-pointer shadow-sm">
+                    Create Section
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Vector Icon Picker Modal -->
     <x-icon-picker-modal />

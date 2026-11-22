@@ -34,7 +34,9 @@ class Setting extends Model
         }
 
         try {
-            static::$runtimeCache = static::pluck('value', 'key')->toArray();
+            static::$runtimeCache = Cache::rememberForever('cms_settings_all', function () {
+                return static::pluck('value', 'key')->toArray();
+            });
         } catch (\Throwable $e) {
             static::$runtimeCache = [];
         }

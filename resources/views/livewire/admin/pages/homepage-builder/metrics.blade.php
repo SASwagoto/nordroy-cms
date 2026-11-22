@@ -19,6 +19,9 @@
     <!-- Body -->
     <div class="p-6 space-y-6 {{ $metrics_enabled ? '' : 'opacity-40 pointer-events-none' }}">
         
+        <!-- Universal Section Styler Component -->
+        <x-homepage-builder.section-styler prefix="metrics" />
+
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
@@ -82,6 +85,53 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- Dynamic Metrics Items Repeater -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <x-icon name="solid:chart-pie" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Customizable Performance Counter Items ({{ count($metrics_items) }})</span>
+                </div>
+                <button type="button" wire:click="addMetricItem"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 transition-colors cursor-pointer flex items-center gap-1">
+                    <x-icon name="solid:plus" class="w-3 h-3" />
+                    <span>Add Counter</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                @foreach($metrics_items as $mIdx => $mItem)
+                <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 relative group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Counter 0{{ $mIdx + 1 }}</span>
+                        <button type="button" wire:click="removeMetricItem({{ $mIdx }})"
+                                class="w-5 h-5 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Counter">
+                            <x-icon name="solid:xmark" class="w-3 h-3" />
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Milestone Value</label>
+                        <input type="text" wire:model="metrics_items.{{ $mIdx }}.value"
+                               class="w-full px-2.5 py-1 text-sm rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono font-black text-slate-900 dark:text-white">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Milestone Label</label>
+                        <input type="text" wire:model="metrics_items.{{ $mIdx }}.label"
+                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Icon Identifier</label>
+                        <input type="text" wire:model="metrics_items.{{ $mIdx }}.icon"
+                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
 

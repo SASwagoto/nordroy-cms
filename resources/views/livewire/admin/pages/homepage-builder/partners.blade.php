@@ -19,6 +19,9 @@
     <!-- Body -->
     <div class="p-6 space-y-6 {{ $partners_enabled ? '' : 'opacity-40 pointer-events-none' }}">
         
+        <!-- Universal Section Styler Component -->
+        <x-homepage-builder.section-styler prefix="partners" />
+
         <!-- Mode & Ticker Dynamics -->
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center gap-2">

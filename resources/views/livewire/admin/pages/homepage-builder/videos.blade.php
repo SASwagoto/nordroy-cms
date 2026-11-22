@@ -19,6 +19,9 @@
     <!-- Body -->
     <div class="p-6 space-y-6 {{ $videos_enabled ? '' : 'opacity-40 pointer-events-none' }}">
         
+        <!-- Universal Section Styler Component -->
+        <x-homepage-builder.section-styler prefix="videos" />
+
         <!-- Architecture -->
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
             <div class="flex items-center gap-2">
@@ -72,6 +75,69 @@
                        class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
             </div>
         </div>
+
+        <!-- Static Videos Repeater -->
+        @if($videos_mode === 'static')
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <x-icon name="solid:circle-play" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Static Video Cards ({{ count($videos_static_items) }})</span>
+                </div>
+                <button type="button" wire:click="addStaticVideo"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 transition-colors cursor-pointer flex items-center gap-1">
+                    <x-icon name="solid:plus" class="w-3 h-3" />
+                    <span>Add Video Card</span>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                @foreach($videos_static_items as $vIdx => $vItem)
+                <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 relative group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Video 0{{ $vIdx + 1 }}</span>
+                        <button type="button" wire:click="removeStaticVideo({{ $vIdx }})"
+                                class="w-5 h-5 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Video">
+                            <x-icon name="solid:xmark" class="w-3 h-3" />
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Video Title</label>
+                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.title"
+                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-bold">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Category / Procedure Tag</label>
+                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.category"
+                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Video Description</label>
+                        <textarea wire:model="videos_static_items.{{ $vIdx }}.description" rows="2"
+                                  class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Video File URL (MP4)</label>
+                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.video_url"
+                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Thumbnail Poster Image URL</label>
+                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.thumbnail_url"
+                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
     </div>
 

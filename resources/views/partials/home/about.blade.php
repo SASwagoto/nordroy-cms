@@ -29,74 +29,77 @@
 <!-- =====================================================================
      CONGLOMERATE OVERVIEW & CORPORATE PILLARS (Dana Group Style)
      ===================================================================== -->
-<section id="about" class="reveal-init reveal-fade-up py-20 lg:py-28 bg-white dark:bg-[#07131e] text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 transition-colors">
-    <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
+<x-section-styler-wrap sectionKey="about" id="about">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            <!-- Left: Corporate Presentation (7 cols) -->
-            <div class="lg:col-span-7 space-y-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800">
-                    {{ __($aboutBadge) }}
-                </div>
-                
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white font-heading leading-tight">
-                    {{ __($aboutTitle) }}
-                </h2>
-                
-                <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {{ __($aboutDescription) }}
-                </p>
-
-                <!-- 3 Strategic Pillars -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                    <div class="reveal-init reveal-fade-up reveal-delay-100 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
-                        <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
-                            <x-icon :name="$aboutP1Icon" class="w-5 h-5" />
-                        </div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP1Title) }}</h4>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP1Desc) }}</p>
-                    </div>
-
-                    <div class="reveal-init reveal-fade-up reveal-delay-200 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
-                        <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
-                            <x-icon :name="$aboutP2Icon" class="w-5 h-5" />
-                        </div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP2Title) }}</h4>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP2Desc) }}</p>
-                    </div>
-
-                    <div class="reveal-init reveal-fade-up reveal-delay-300 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
-                        <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
-                            <x-icon :name="$aboutP3Icon" class="w-5 h-5" />
-                        </div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP3Title) }}</h4>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP3Desc) }}</p>
-                    </div>
-                </div>
-
+        <!-- Left: Corporate Presentation (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900 text-[#003C58] dark:text-cyan-400 border border-slate-200 dark:border-slate-800">
+                {{ __($aboutBadge) }}
             </div>
+            
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white font-heading leading-tight">
+                {{ __($aboutTitle) }}
+            </h2>
+            
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                {{ __($aboutDescription) }}
+            </p>
 
-            <!-- Right: Executive Leadership Quote Box (Dana Group inspired) (5 cols) -->
-            <div class="lg:col-span-5 reveal-init reveal-scale reveal-delay-200">
-                <div class="p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-lg relative space-y-6">
-                    <div class="text-[#003C58] dark:text-cyan-400 opacity-30 text-5xl font-serif leading-none">&ldquo;</div>
-                    <blockquote class="text-sm sm:text-base text-slate-700 dark:text-slate-300 italic leading-relaxed">
+            <!-- 3 Strategic Pillars -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                    <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
+                        <x-icon :name="$aboutP1Icon" class="w-5 h-5" />
+                    </div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP1Title) }}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP1Desc) }}</p>
+                </div>
+
+                <div class="reveal-init reveal-fade-up reveal-delay-200 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                    <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
+                        <x-icon :name="$aboutP2Icon" class="w-5 h-5" />
+                    </div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP2Title) }}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP2Desc) }}</p>
+                </div>
+
+                <div class="reveal-init reveal-fade-up reveal-delay-300 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                    <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
+                        <x-icon :name="$aboutP3Icon" class="w-5 h-5" />
+                    </div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutP3Title) }}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ __($aboutP3Desc) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Executive Quote Card (5 cols) -->
+        <div class="lg:col-span-5 reveal-init reveal-fade-left reveal-delay-200">
+            <div class="relative p-8 sm:p-10 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 text-slate-200/30 dark:text-slate-800/40 pointer-events-none">
+                    <x-icon name="solid:quote-right" class="w-40 h-40" />
+                </div>
+                
+                <div class="relative space-y-6">
+                    <div class="w-10 h-10 rounded-xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
+                        <x-icon name="solid:quote-left" class="w-5 h-5" />
+                    </div>
+                    <blockquote class="text-sm sm:text-base font-serif italic text-slate-700 dark:text-slate-300 leading-relaxed">
                         {{ __($aboutQuoteText) }}
                     </blockquote>
                     <div class="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-[#003C58] text-white flex items-center justify-center font-bold text-sm">
+                        <div class="w-11 h-11 rounded-full bg-[#003C58] text-white flex items-center justify-center font-bold text-sm">
                             {{ $aboutQuoteInitials }}
                         </div>
                         <div>
-                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-heading">{{ __($aboutQuoteAuthor) }}</h4>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($aboutQuoteAuthor) }}</h4>
                             <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ __($aboutQuoteRole) }}</p>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
     </div>
-</section>
+</x-section-styler-wrap>
