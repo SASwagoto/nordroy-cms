@@ -1122,6 +1122,22 @@
         </main>
 
         <!-- ==================== CORPORATE FOOTER (Light Mode: Clean Light Slate, Dark Mode: Shipyard Navy) ==================== -->
+        @php
+            $footerEnabled = (bool) \App\Models\Setting::get('home_footer_enabled', true);
+            $footerBio = \App\Models\Setting::get('home_footer_bio', 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.');
+            $footerShowSocial = (bool) \App\Models\Setting::get('home_footer_show_social', true);
+            $footerCertText = \App\Models\Setting::get('home_footer_cert_text', 'ISO 9001:2015 & DNV Certified');
+            $footerCol2Title = \App\Models\Setting::get('home_footer_col2_title', 'OEM Spare Parts');
+            $footerCol3Title = \App\Models\Setting::get('home_footer_col3_title', 'Technical Services');
+            $footerCol4Title = \App\Models\Setting::get('home_footer_col4_title', 'Port & HQ Offices');
+            $footerWorkshopAddr = \App\Models\Setting::get('home_footer_workshop_addr', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.');
+            $footerHqAddr = \App\Models\Setting::get('home_footer_hq_addr', \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh'));
+            $footerEmergencyPhone = \App\Models\Setting::get('home_footer_phone', \App\Models\Setting::get('contact_phone', '+880 1800-000000'));
+            $footerCopyright = \App\Models\Setting::get('home_footer_copyright', '© ' . date('Y') . ' ' . \App\Models\Setting::get('site_name', 'Nordroy Marine') . '. All rights reserved. Maritime Engineering & Industrial Overhauls.');
+            $footerShowLogin = (bool) \App\Models\Setting::get('home_footer_show_login', true);
+        @endphp
+
+        @if($footerEnabled)
         <footer class="bg-slate-100/95 dark:bg-[#040e17]/95 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 pt-16 pb-12 transition-colors duration-200">
             <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
                 
@@ -1139,9 +1155,10 @@
                              class="h-10 w-auto object-contain hidden dark:block" />
                         
                         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
-                            A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.
+                            {{ __($footerBio) }}
                         </p>
 
+                        @if($footerShowSocial)
                         <!-- Social Media Links (Rendered Dynamically from Settings Engine) -->
                         <div class="flex items-center gap-2 pt-2">
                             @php
@@ -1157,11 +1174,12 @@
                                 <a href="#" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white"><x-icon name="solid:globe" class="w-3.5 h-3.5" /></a>
                             @endforelse
                         </div>
+                        @endif
                     </div>
 
                     <!-- Col 2: Products & Spare Parts -->
                     <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">OEM Spare Parts</h4>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol2Title) }}</h4>
                         <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                             <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blades &amp; Rotors</a></li>
                             <li><a href="{{ route('products') }}" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">CHRA Replacement Cartridges</a></li>
@@ -1173,7 +1191,7 @@
 
                     <!-- Col 3: Technical Services -->
                     <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Technical Services</h4>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol3Title) }}</h4>
                         <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                             <li><a href="{{ route('services') }}#balancing" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Dynamic Rotor Balancing</a></li>
                             <li><a href="{{ route('services') }}#overhaul" class="hover:text-[#003C58] dark:hover:text-cyan-400 transition-colors">Turbine Blading &amp; Welding</a></li>
@@ -1185,19 +1203,19 @@
 
                     <!-- Col 4: Corporate Offices & Workshops -->
                     <div class="space-y-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">Port &amp; HQ Offices</h4>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white font-heading">{{ __($footerCol4Title) }}</h4>
                         <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2.5">
                             <div>
                                 <p class="font-bold text-slate-800 dark:text-slate-200">Chattogram Port Workshop:</p>
-                                <p>Near Marine Academy Jetty, Chattogram Port, Bangladesh.</p>
+                                <p>{{ $footerWorkshopAddr }}</p>
                             </div>
                             <div>
                                 <p class="font-bold text-slate-800 dark:text-slate-200">Dhaka Corporate HQ:</p>
-                                <p>{{ \App\Models\Setting::get('company_address', 'Gulshan Industrial Area, Dhaka, Bangladesh') }}</p>
+                                <p>{{ $footerHqAddr }}</p>
                             </div>
                             <div class="pt-1">
-                                <a href="tel:{{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}" class="text-[#003C58] dark:text-cyan-400 font-bold block">
-                                    Emergency: {{ \App\Models\Setting::get('contact_phone', '+880 1800-000000') }}
+                                <a href="tel:{{ $footerEmergencyPhone }}" class="text-[#003C58] dark:text-cyan-400 font-bold block">
+                                    Emergency: {{ $footerEmergencyPhone }}
                                 </a>
                             </div>
                         </div>
@@ -1207,21 +1225,26 @@
 
                 <!-- Bottom Copyright Strip -->
                 <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                    <p>&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'Nordroy CMS') }}. All rights reserved. Maritime Engineering &amp; Industrial Overhauls.</p>
+                    <p>{{ $footerCopyright }}</p>
                     <div class="flex items-center gap-5 flex-wrap">
                         <a href="{{ route('careers') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Careers</a>
                         <a href="{{ route('photo-gallery') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Photo Gallery</a>
                         <a href="{{ route('video-gallery') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Video Gallery</a>
+                        @if($footerCertText)
                         <span class="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-semibold">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            ISO 9001:2015 &amp; DNV Certified
+                            {{ $footerCertText }}
                         </span>
+                        @endif
+                        @if($footerShowLogin)
                         <a href="{{ route('login') }}" class="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Staff Login</a>
+                        @endif
                     </div>
                 </div>
 
             </div>
         </footer>
+        @endif
 
     </div>
 

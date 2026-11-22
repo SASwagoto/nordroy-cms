@@ -52,10 +52,8 @@ class HomepageBuilderTest extends TestCase
         $response->assertSee('Header (Topbar &amp; Navbar)', false);
         $response->assertSee('Hero Banner');
         $response->assertSee('LOCKED');
-        $response->assertSee('2 Active Sections (Locked)');
-        // Future sections should NOT be in the sidebar yet
-        $response->assertDontSee('8 Sections');
-        $response->assertDontSee('OEM Partner Ticker');
+        $response->assertSee('Body Sections (Reorderable)');
+        $response->assertSee('Corporate Footer Studio');
     }
 
     public function test_header_and_hero_sections_are_locked_and_can_be_selected(): void
@@ -66,8 +64,12 @@ class HomepageBuilderTest extends TestCase
             ->assertSet('selectedSection', 'header')
             ->call('selectSection', 'hero')
             ->assertSet('selectedSection', 'hero')
-            ->call('selectSection', 'services') // Invalid / unreleased section
-            ->assertSet('selectedSection', 'hero')
+            ->call('selectSection', 'services')
+            ->assertSet('selectedSection', 'services')
+            ->call('selectSection', 'footer')
+            ->assertSet('selectedSection', 'footer')
+            ->call('selectSection', 'invalid_unknown_section') // Should reject invalid sections
+            ->assertSet('selectedSection', 'footer')
             ->call('selectSection', 'header')
             ->assertSet('selectedSection', 'header');
     }
@@ -514,5 +516,131 @@ class HomepageBuilderTest extends TestCase
         $this->assertEquals('standard', Setting::get('home_hero_visual_size'));
         $this->assertEquals('standard', Setting::get('home_hero_title_size'));
         $this->assertEquals('spacious', Setting::get('home_hero_visual_padding'));
+    }
+
+    public function test_admin_can_reorder_homepage_sections_and_reset_order(): void
+    {
+        $this->actingAs($this->admin);
+
+        $defaultOrder = HomepageBuilder::DEFAULT_SECTIONS_ORDER;
+        $this->assertEquals('partners', $defaultOrder[0]);
+        $this->assertEquals('about', $defaultOrder[1]);
+
+        // Move partners down -> swap with about
+        Livewire::test(HomepageBuilder::class)
+            ->call('moveSectionDown', 'partners')
+            ->assertSet('sectionsOrder.0', 'about')
+            ->assertSet('sectionsOrder.1', 'partners');
+
+        $stored = json_decode(Setting::get('home_sections_order'), true);
+        $this->assertEquals('about', $stored[0]);
+        $this->assertEquals('partners', $stored[1]);
+
+        // Move partners back up -> restore order
+        Livewire::test(HomepageBuilder::class)
+            ->call('moveSectionUp', 'partners')
+            ->assertSet('sectionsOrder.0', 'partners')
+            ->assertSet('sectionsOrder.1', 'about');
+
+        // Reset order
+        Livewire::test(HomepageBuilder::class)
+            ->call('resetSectionsOrder')
+            ->assertSet('sectionsOrder', $defaultOrder);
+
+        $storedAfterReset = json_decode(Setting::get('home_sections_order'), true);
+        $this->assertEquals($defaultOrder, $storedAfterReset);
+    }
+
+    public function test_admin_can_toggle_section_visibility(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->assertSet('sectionsEnabled.partners', true)
+            ->call('toggleSectionEnabled', 'partners')
+            ->assertSet('sectionsEnabled.partners', false)
+            ->assertSet('partners_enabled', false);
+
+        $this->assertEquals('0', Setting::get('home_partners_enabled'));
+
+        // Toggle back on
+        Livewire::test(HomepageBuilder::class)
+            ->call('toggleSectionEnabled', 'partners')
+            ->assertSet('sectionsEnabled.partners', true)
+            ->assertSet('partners_enabled', true);
+
+        $this->assertEquals('1', Setting::get('home_partners_enabled'));
+    }
+
+    public function test_admin_can_customize_body_sections_and_footer(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Customize Partners & Services & Footer
+        Livewire::test(HomepageBuilder::class)
+            ->set('partners_tagline', 'Specialized Marine Turbocharger Engineering Alliance')
+            ->set('partners_speed', 'fast')
+            ->call('savePartners')
+            ->set('services_badge', 'Advanced Port Services')
+            ->set('services_title', 'Master Class Dynamic Overhauls')
+            ->call('saveServices')
+            ->set('footer_bio', 'Global Leader in Precision Maritime Turbomachinery Solutions.')
+            ->set('footer_cert_text', 'ISO 9001:2015 & Lloyd\'s Register Approved')
+            ->call('saveFooter');
+
+        $this->assertEquals('Specialized Marine Turbocharger Engineering Alliance', Setting::get('home_partners_tagline'));
+        $this->assertEquals('fast', Setting::get('home_partners_speed'));
+        $this->assertEquals('Advanced Port Services', Setting::get('home_services_badge'));
+        $this->assertEquals('Master Class Dynamic Overhauls', Setting::get('home_services_title'));
+        $this->assertEquals('Global Leader in Precision Maritime Turbomachinery Solutions.', Setting::get('home_footer_bio'));
+        $this->assertEquals('ISO 9001:2015 & Lloyd\'s Register Approved', Setting::get('home_footer_cert_text'));
+
+        // Verify on frontend
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Specialized Marine Turbocharger Engineering Alliance');
+        $frontend->assertSee('Advanced Port Services');
+        $frontend->assertSee('Master Class Dynamic Overhauls');
+        $frontend->assertSee('Global Leader in Precision Maritime Turbomachinery Solutions.');
+        $frontend->assertSee('ISO 9001:2015 & Lloyd\'s Register Approved');
+    }
+
+    public function test_admin_can_toggle_dynamic_vs_static_content_modes(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('services_title', 'Precision Overhaul Services')
+            ->set('services_mode', 'dynamic')
+            ->set('services_limit', 4)
+            ->call('saveServices');
+
+        $this->assertEquals('dynamic', Setting::get('home_services_mode'));
+        $this->assertEquals('4', Setting::get('home_services_limit'));
+
+        // When dynamic table is empty, frontend still renders without 500 error
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('Precision Overhaul Services');
+    }
+
+    public function test_restore_production_design_restores_all_sections_and_footer(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Intentionally pollute multiple sections
+        Setting::set('home_partners_tagline', 'Polluted Partners');
+        Setting::set('home_services_title', 'Polluted Services');
+        Setting::set('home_footer_bio', 'Polluted Footer');
+
+        Livewire::test(HomepageBuilder::class)
+            ->call('restoreProductionDesign')
+            ->assertSet('partners_tagline', 'Multi-Brand Authorized Engineering & Overhauls For Global OEM Platforms')
+            ->assertSet('services_title', 'Precision Overhaul Services')
+            ->assertSet('footer_cert_text', 'ISO 9001:2015 & DNV Certified');
+
+        $this->assertEquals('Multi-Brand Authorized Engineering & Overhauls For Global OEM Platforms', Setting::get('home_partners_tagline'));
+        $this->assertEquals('Precision Overhaul Services', Setting::get('home_services_title'));
+        $this->assertEquals('ISO 9001:2015 & DNV Certified', Setting::get('home_footer_cert_text'));
     }
 }

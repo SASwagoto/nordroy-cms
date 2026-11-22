@@ -261,6 +261,150 @@ class HomepageBuilder extends Component
     public string $hero_hud_l3_label = 'WORKSHOP RADIUS:';
     public string $hero_hud_l3_val = 'CHATTOGRAM • MONGLA • GLOBAL';
 
+    // ==========================================
+    // SECTIONS ORDER & ORCHESTRATION
+    // ==========================================
+    public const DEFAULT_SECTIONS_ORDER = [
+        'partners',
+        'about',
+        'services',
+        'video_break',
+        'blueprint',
+        'projects',
+        'videos',
+        'photos',
+        'metrics',
+        'parts',
+        'rfq',
+    ];
+
+    public array $sectionsOrder = [];
+    public array $sectionsEnabled = [];
+
+    // 1. PARTNERS TICKER
+    public bool $partners_enabled = true;
+    public string $partners_tagline = 'Multi-Brand Authorized Engineering & Overhauls For Global OEM Platforms';
+    public string $partners_mode = 'static'; // 'static', 'dynamic'
+    public string $partners_speed = 'normal'; // 'slow', 'normal', 'fast'
+    public string $partners_bg_style = 'theme_default'; // 'theme_default', 'clean_white', 'transparent'
+    public string $partners_brands_list = 'Accelleron (ABB), MAN Energy Solutions, KBB Kompressorenbau, Napier Turbochargers, Mitsubishi Heavy Industries (MET), PBS Turbo, INNIO Waukesha, Ariel Compressors';
+
+    // 2. ABOUT US & CORPORATE PILLARS
+    public bool $about_enabled = true;
+    public string $about_badge = 'Conglomerate Heritage & Vision';
+    public string $about_title = 'A Heritage of Heavy Industrial Power, Maritime Integrity, & Turn-Key Engineering.';
+    public string $about_description = 'Operating under the high standards of global marine engineering, Nordroy Marine & Turbochargers unites heavy mechanical overhaul workshops, non-destructive metallurgical testing (NDT), dynamic rotor calibration, and comprehensive spare parts logistics under one unified corporate umbrella.';
+    public string $about_p1_icon = 'solid:anchor';
+    public string $about_p1_title = 'Global Port Reach';
+    public string $about_p1_desc = '24/7 flying squads equipped for anchorage and berth call overhauls.';
+    public string $about_p2_icon = 'solid:gauge-high';
+    public string $about_p2_title = 'Calibrated Precision';
+    public string $about_p2_desc = 'Computerized Schenck dynamic balancing up to 100,000 RPM.';
+    public string $about_p3_icon = 'solid:certificate';
+    public string $about_p3_title = 'OEM Alliances';
+    public string $about_p3_desc = 'Direct access to genuine replacement parts and calibrated drawings.';
+    public string $about_quote_text = '"In maritime logistics and heavy power generation, downtime is measured in thousands of dollars per hour. Our mission is to restore engine efficiency with zero deviation from OEM tolerances."';
+    public string $about_quote_author = 'Technical Operations';
+    public string $about_quote_role = 'Turbomachinery Overhaul Division';
+    public string $about_quote_initials = 'NR';
+
+    // 3. PRECISION SERVICES
+    public bool $services_enabled = true;
+    public string $services_badge = 'Workshop & Port Capabilities';
+    public string $services_title = 'Precision Overhaul Services';
+    public string $services_subtitle = 'Engineered according to manufacturer tolerance protocols with calibrated German Schenck balancing rigs.';
+    public string $services_mode = 'static'; // 'static', 'dynamic'
+    public int $services_limit = 6;
+
+    // 4. VIDEO BREAK
+    public bool $video_break_enabled = true;
+    public string $video_break_badge = 'Global Marine Engineering Excellence';
+    public string $video_break_heading = '24/7 Rapid Emergency Response Across 40+ International Ports';
+    public string $video_break_subtitle = 'Our certified flying squads board commercial vessels at anchorage or alongside berths to deliver on-site turbocharger diagnostics, cartridge swap-outs, and dynamic balancing.';
+    public string $video_break_cta1_text = 'View Overhaul Capabilities →';
+    public string $video_break_cta1_url = '/services';
+    public string $video_break_cta2_text = 'Contact Port Operations';
+    public string $video_break_cta2_url = '/contact';
+
+    // 5. BLUEPRINT (MISSION, VISION, VALUES)
+    public bool $blueprint_enabled = true;
+    public string $blueprint_badge = 'Corporate Blueprint';
+    public string $blueprint_title = 'Mission, Vision & Core Values';
+    public string $blueprint_subtitle = 'Guiding principles that define our commitment to global shipowners, captive power operators, and heavy industries.';
+    public string $blueprint_mission_icon = 'solid:bullseye';
+    public string $blueprint_mission_title = 'Our Mission';
+    public string $blueprint_mission_desc = 'To eliminate engine downtime by delivering certified, multi-brand turbocharger overhauls, high-speed dynamic balancing, and genuine OEM parts with unmatched turnaround speed, metallurgical precision, and total engineering transparency.';
+    public string $blueprint_vision_icon = 'solid:eye';
+    public string $blueprint_vision_title = 'Our Vision 2030';
+    public string $blueprint_vision_desc = 'To be the premier independent maritime turbomachinery conglomerate in South Asia and global waters, recognized by international classification societies as the benchmark for quality, technical integrity, and decarbonization retrofits.';
+    public string $blueprint_values_icon = 'solid:shield-halved';
+    public string $blueprint_values_title = 'Core Values';
+    public string $blueprint_value1 = 'Zero-Defect Quality: Strict adherence to ISO 9001 protocols.';
+    public string $blueprint_value2 = 'Rapid Port Agility: 24/7 readiness for urgent port calls.';
+    public string $blueprint_value3 = 'Technical Rigor: Calibrated testing and certified reports.';
+
+    // 6. PROJECTS
+    public bool $projects_enabled = true;
+    public string $projects_badge = 'Execution Proven Track Record';
+    public string $projects_title = 'Featured Industrial & Marine Projects';
+    public string $projects_subtitle = 'A glimpse of recent turn-key overhauls completed on commercial ships and captive power plants.';
+
+    // 7. VIDEOS
+    public bool $videos_enabled = true;
+    public string $videos_badge = 'Workshop & Port In Action';
+    public string $videos_title = 'Video Gallery (Hover to Play)';
+    public string $videos_subtitle = 'Hover your mouse over any video card to stream a live silent preview of our precision balancing and overhaul operations.';
+    public string $videos_mode = 'static'; // 'static', 'dynamic'
+    public int $videos_limit = 3;
+
+    // 8. PHOTOS
+    public bool $photos_enabled = true;
+    public string $photos_badge = 'Visual Facilities';
+    public string $photos_title = 'Workshop & Engineering Gallery';
+    public string $photos_subtitle = 'Click on any photo below to inspect high-resolution images of our port workshops and overhaul facilities.';
+    public string $photos_mode = 'static'; // 'static', 'dynamic'
+    public int $photos_limit = 8;
+
+    // 9. METRICS
+    public bool $metrics_enabled = true;
+    public string $metric_counter1_val = '30+';
+    public string $metric_counter1_lbl = 'Years of Excellence';
+    public string $metric_counter2_val = '1,450+';
+    public string $metric_counter2_lbl = 'Turbomachines Overhauled';
+    public string $metric_counter3_val = '12+';
+    public string $metric_counter3_lbl = 'Global Ports Covered';
+    public string $metric_counter4_val = '100%';
+    public string $metric_counter4_lbl = 'Calibrated Schenck Testing';
+
+    // 10. SPARE PARTS
+    public bool $parts_enabled = true;
+    public string $parts_badge = 'OEM Replacement Inventory';
+    public string $parts_title = 'Genuine Spare Parts Catalog';
+    public string $parts_subtitle = 'Traceable serial numbers with mill test certificates ready for immediate dispatch.';
+    public string $parts_mode = 'static'; // 'static', 'dynamic'
+    public int $parts_limit = 6;
+
+    // 11. RFQ DUTY DESK
+    public bool $rfq_enabled = true;
+    public string $rfq_badge = '24/7 Operations Desk';
+    public string $rfq_title = 'Request Instant Quotation or Emergency Port Call';
+    public string $rfq_subtitle = 'Our duty marine engineering superintendents respond within 45 minutes of RFQ submission.';
+    public string $rfq_btn_text = 'Submit Technical RFQ to Duty Desk';
+
+    // 12. FOOTER STUDIO
+    public bool $footer_enabled = true;
+    public string $footer_bio = 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.';
+    public bool $footer_show_social = true;
+    public string $footer_cert_text = 'ISO 9001:2015 & DNV Certified';
+    public string $footer_col2_title = 'OEM Spare Parts';
+    public string $footer_col3_title = 'Technical Services';
+    public string $footer_col4_title = 'Port & HQ Offices';
+    public string $footer_workshop_addr = 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.';
+    public string $footer_hq_addr = 'Gulshan Industrial Area, Dhaka, Bangladesh';
+    public string $footer_phone = '+880 1800-000000';
+    public string $footer_copyright = '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.';
+    public bool $footer_show_login = true;
+
     public function mount(): void
     {
         $this->loadSettings();
@@ -488,13 +632,223 @@ class HomepageBuilder extends Component
         $this->hero_hud_l3_enabled  = (bool) Setting::get('home_hero_hud_l3_enabled', true);
         $this->hero_hud_l3_label    = Setting::get('home_hero_hud_l3_label', 'WORKSHOP RADIUS:');
         $this->hero_hud_l3_val      = Setting::get('home_hero_hud_l3_val', 'CHATTOGRAM • MONGLA • GLOBAL');
+
+        // ==========================================
+        // LOAD REORDERABLE BODY SECTIONS & FOOTER
+        // ==========================================
+        $storedOrder = Setting::get('home_sections_order');
+        if ($storedOrder) {
+            $decoded = is_array($storedOrder) ? $storedOrder : json_decode($storedOrder, true);
+            $this->sectionsOrder = is_array($decoded) && !empty($decoded) ? array_values($decoded) : self::DEFAULT_SECTIONS_ORDER;
+        } else {
+            $this->sectionsOrder = self::DEFAULT_SECTIONS_ORDER;
+        }
+
+        // 1. Partners Ticker
+        $this->partners_enabled     = (bool) Setting::get('home_partners_enabled', true);
+        $this->partners_tagline     = Setting::get('home_partners_tagline', 'Multi-Brand Authorized Engineering & Overhauls For Global OEM Platforms');
+        $this->partners_mode        = Setting::get('home_partners_mode', 'static');
+        $this->partners_speed       = Setting::get('home_partners_speed', 'normal');
+        $this->partners_bg_style    = Setting::get('home_partners_bg_style', 'theme_default');
+        $this->partners_brands_list = Setting::get('home_partners_brands_list', 'Accelleron (ABB), MAN Energy Solutions, KBB Kompressorenbau, Napier Turbochargers, Mitsubishi Heavy Industries (MET), PBS Turbo, INNIO Waukesha, Ariel Compressors');
+
+        // 2. About Us
+        $this->about_enabled        = (bool) Setting::get('home_about_enabled', true);
+        $this->about_badge          = Setting::get('home_about_badge', 'Conglomerate Heritage & Vision');
+        $this->about_title          = Setting::get('home_about_title', 'A Heritage of Heavy Industrial Power, Maritime Integrity, & Turn-Key Engineering.');
+        $this->about_description    = Setting::get('home_about_description', 'Operating under the high standards of global marine engineering, Nordroy Marine & Turbochargers unites heavy mechanical overhaul workshops, non-destructive metallurgical testing (NDT), dynamic rotor calibration, and comprehensive spare parts logistics under one unified corporate umbrella.');
+        $this->about_p1_icon        = Setting::get('home_about_p1_icon', 'solid:anchor');
+        $this->about_p1_title       = Setting::get('home_about_p1_title', 'Global Port Reach');
+        $this->about_p1_desc        = Setting::get('home_about_p1_desc', '24/7 flying squads equipped for anchorage and berth call overhauls.');
+        $this->about_p2_icon        = Setting::get('home_about_p2_icon', 'solid:gauge-high');
+        $this->about_p2_title       = Setting::get('home_about_p2_title', 'Calibrated Precision');
+        $this->about_p2_desc        = Setting::get('home_about_p2_desc', 'Computerized Schenck dynamic balancing up to 100,000 RPM.');
+        $this->about_p3_icon        = Setting::get('home_about_p3_icon', 'solid:certificate');
+        $this->about_p3_title       = Setting::get('home_about_p3_title', 'OEM Alliances');
+        $this->about_p3_desc        = Setting::get('home_about_p3_desc', 'Direct access to genuine replacement parts and calibrated drawings.');
+        $this->about_quote_text     = Setting::get('home_about_quote_text', '"In maritime logistics and heavy power generation, downtime is measured in thousands of dollars per hour. Our mission is to restore engine efficiency with zero deviation from OEM tolerances."');
+        $this->about_quote_author   = Setting::get('home_about_quote_author', 'Technical Operations');
+        $this->about_quote_role     = Setting::get('home_about_quote_role', 'Turbomachinery Overhaul Division');
+        $this->about_quote_initials = Setting::get('home_about_quote_initials', 'NR');
+
+        // 3. Precision Services
+        $this->services_enabled     = (bool) Setting::get('home_services_enabled', true);
+        $this->services_badge       = Setting::get('home_services_badge', 'Workshop & Port Capabilities');
+        $this->services_title       = Setting::get('home_services_title', 'Precision Overhaul Services');
+        $this->services_subtitle    = Setting::get('home_services_subtitle', 'Engineered according to manufacturer tolerance protocols with calibrated German Schenck balancing rigs.');
+        $this->services_mode        = Setting::get('home_services_mode', 'static');
+        $this->services_limit       = (int) Setting::get('home_services_limit', 6);
+
+        // 4. Video Break
+        $this->video_break_enabled  = (bool) Setting::get('home_video_break_enabled', Setting::get('theme_video_break_enabled', '1') == '1');
+        $this->video_break_badge    = Setting::get('home_video_break_badge', 'Global Marine Engineering Excellence');
+        $this->video_break_heading  = Setting::get('home_video_break_heading', '24/7 Rapid Emergency Response Across 40+ International Ports');
+        $this->video_break_subtitle = Setting::get('home_video_break_subtitle', 'Our certified flying squads board commercial vessels at anchorage or alongside berths to deliver on-site turbocharger diagnostics, cartridge swap-outs, and dynamic balancing.');
+        $this->video_break_cta1_text= Setting::get('home_video_break_cta1_text', 'View Overhaul Capabilities →');
+        $this->video_break_cta1_url = Setting::get('home_video_break_cta1_url', '/services');
+        $this->video_break_cta2_text= Setting::get('home_video_break_cta2_text', 'Contact Port Operations');
+        $this->video_break_cta2_url = Setting::get('home_video_break_cta2_url', '/contact');
+
+        // 5. Blueprint
+        $this->blueprint_enabled    = (bool) Setting::get('home_blueprint_enabled', true);
+        $this->blueprint_badge      = Setting::get('home_blueprint_badge', 'Corporate Blueprint');
+        $this->blueprint_title      = Setting::get('home_blueprint_title', 'Mission, Vision & Core Values');
+        $this->blueprint_subtitle   = Setting::get('home_blueprint_subtitle', 'Guiding principles that define our commitment to global shipowners, captive power operators, and heavy industries.');
+        $this->blueprint_mission_icon = Setting::get('home_blueprint_mission_icon', 'solid:bullseye');
+        $this->blueprint_mission_title= Setting::get('home_blueprint_mission_title', 'Our Mission');
+        $this->blueprint_mission_desc = Setting::get('home_blueprint_mission_desc', 'To eliminate engine downtime by delivering certified, multi-brand turbocharger overhauls, high-speed dynamic balancing, and genuine OEM parts with unmatched turnaround speed, metallurgical precision, and total engineering transparency.');
+        $this->blueprint_vision_icon  = Setting::get('home_blueprint_vision_icon', 'solid:eye');
+        $this->blueprint_vision_title = Setting::get('home_blueprint_vision_title', 'Our Vision 2030');
+        $this->blueprint_vision_desc  = Setting::get('home_blueprint_vision_desc', 'To be the premier independent maritime turbomachinery conglomerate in South Asia and global waters, recognized by international classification societies as the benchmark for quality, technical integrity, and decarbonization retrofits.');
+        $this->blueprint_values_icon  = Setting::get('home_blueprint_values_icon', 'solid:shield-halved');
+        $this->blueprint_values_title = Setting::get('home_blueprint_values_title', 'Core Values');
+        $this->blueprint_value1       = Setting::get('home_blueprint_value1', 'Zero-Defect Quality: Strict adherence to ISO 9001 protocols.');
+        $this->blueprint_value2       = Setting::get('home_blueprint_value2', 'Rapid Port Agility: 24/7 readiness for urgent port calls.');
+        $this->blueprint_value3       = Setting::get('home_blueprint_value3', 'Technical Rigor: Calibrated testing and certified reports.');
+
+        // 6. Featured Projects
+        $this->projects_enabled     = (bool) Setting::get('home_projects_enabled', true);
+        $this->projects_badge       = Setting::get('home_projects_badge', 'Execution Proven Track Record');
+        $this->projects_title       = Setting::get('home_projects_title', 'Featured Industrial & Marine Projects');
+        $this->projects_subtitle    = Setting::get('home_projects_subtitle', 'A glimpse of recent turn-key overhauls completed on commercial ships and captive power plants.');
+
+        // 7. Video Gallery
+        $this->videos_enabled       = (bool) Setting::get('home_videos_enabled', true);
+        $this->videos_badge         = Setting::get('home_videos_badge', 'Workshop & Port In Action');
+        $this->videos_title         = Setting::get('home_videos_title', 'Video Gallery (Hover to Play)');
+        $this->videos_subtitle      = Setting::get('home_videos_subtitle', 'Hover your mouse over any video card to stream a live silent preview of our precision balancing and overhaul operations.');
+        $this->videos_mode          = Setting::get('home_videos_mode', 'static');
+        $this->videos_limit         = (int) Setting::get('home_videos_limit', 3);
+
+        // 8. Photo Gallery
+        $this->photos_enabled       = (bool) Setting::get('home_photos_enabled', true);
+        $this->photos_badge         = Setting::get('home_photos_badge', 'Visual Facilities');
+        $this->photos_title         = Setting::get('home_photos_title', 'Workshop & Engineering Gallery');
+        $this->photos_subtitle      = Setting::get('home_photos_subtitle', 'Click on any photo below to inspect high-resolution images of our port workshops and overhaul facilities.');
+        $this->photos_mode          = Setting::get('home_photos_mode', 'static');
+        $this->photos_limit         = (int) Setting::get('home_photos_limit', 8);
+
+        // 9. Metrics Counters
+        $this->metrics_enabled      = (bool) Setting::get('home_metrics_enabled', true);
+        $this->metric_counter1_val  = Setting::get('home_metrics_stat1_val', '30+');
+        $this->metric_counter1_lbl  = Setting::get('home_metrics_stat1_lbl', 'Years of Excellence');
+        $this->metric_counter2_val  = Setting::get('home_metrics_stat2_val', '1,450+');
+        $this->metric_counter2_lbl  = Setting::get('home_metrics_stat2_lbl', 'Turbomachines Overhauled');
+        $this->metric_counter3_val  = Setting::get('home_metrics_stat3_val', '12+');
+        $this->metric_counter3_lbl  = Setting::get('home_metrics_stat3_lbl', 'Global Ports Covered');
+        $this->metric_counter4_val  = Setting::get('home_metrics_stat4_val', '100%');
+        $this->metric_counter4_lbl  = Setting::get('home_metrics_stat4_lbl', 'Calibrated Schenck Testing');
+
+        // 10. Spare Parts
+        $this->parts_enabled        = (bool) Setting::get('home_parts_enabled', true);
+        $this->parts_badge          = Setting::get('home_parts_badge', 'OEM Replacement Inventory');
+        $this->parts_title          = Setting::get('home_parts_title', 'Genuine Spare Parts Catalog');
+        $this->parts_subtitle       = Setting::get('home_parts_subtitle', 'Traceable serial numbers with mill test certificates ready for immediate dispatch.');
+        $this->parts_mode           = Setting::get('home_parts_mode', 'static');
+        $this->parts_limit          = (int) Setting::get('home_parts_limit', 6);
+
+        // 11. RFQ Duty Desk
+        $this->rfq_enabled          = (bool) Setting::get('home_rfq_enabled', true);
+        $this->rfq_badge            = Setting::get('home_rfq_badge', '24/7 Operations Desk');
+        $this->rfq_title            = Setting::get('home_rfq_title', 'Request Instant Quotation or Emergency Port Call');
+        $this->rfq_subtitle         = Setting::get('home_rfq_subtitle', 'Our duty marine engineering superintendents respond within 45 minutes of RFQ submission.');
+        $this->rfq_btn_text         = Setting::get('home_rfq_btn_text', 'Submit Technical RFQ to Duty Desk');
+
+        // 12. Corporate Footer
+        $this->footer_enabled       = (bool) Setting::get('home_footer_enabled', true);
+        $this->footer_bio           = Setting::get('home_footer_bio', 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.');
+        $this->footer_show_social   = (bool) Setting::get('home_footer_show_social', true);
+        $this->footer_cert_text     = Setting::get('home_footer_cert_text', 'ISO 9001:2015 & DNV Certified');
+        $this->footer_col2_title    = Setting::get('home_footer_col2_title', 'OEM Spare Parts');
+        $this->footer_col3_title    = Setting::get('home_footer_col3_title', 'Technical Services');
+        $this->footer_col4_title    = Setting::get('home_footer_col4_title', 'Port & HQ Offices');
+        $this->footer_workshop_addr = Setting::get('home_footer_workshop_addr', 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.');
+        $this->footer_hq_addr       = Setting::get('home_footer_hq_addr', 'Gulshan Industrial Area, Dhaka, Bangladesh');
+        $this->footer_phone         = Setting::get('home_footer_phone', Setting::get('contact_phone', '+880 1800-000000'));
+        $this->footer_copyright     = Setting::get('home_footer_copyright', '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.');
+        $this->footer_show_login    = (bool) Setting::get('home_footer_show_login', true);
+
+        // Sections Enabled map
+        $this->sectionsEnabled = [
+            'partners'    => $this->partners_enabled,
+            'about'       => $this->about_enabled,
+            'services'    => $this->services_enabled,
+            'video_break' => $this->video_break_enabled,
+            'blueprint'   => $this->blueprint_enabled,
+            'projects'    => $this->projects_enabled,
+            'videos'      => $this->videos_enabled,
+            'photos'      => $this->photos_enabled,
+            'metrics'     => $this->metrics_enabled,
+            'parts'       => $this->parts_enabled,
+            'rfq'         => $this->rfq_enabled,
+        ];
     }
 
     public function selectSection(string $section): void
     {
-        if (in_array($section, ['header', 'hero'])) {
+        $allowed = array_merge(['header', 'hero', 'footer'], self::DEFAULT_SECTIONS_ORDER);
+        if (in_array($section, $allowed)) {
             $this->selectedSection = $section;
         }
+    }
+
+    public function moveSectionUp(string $key): void
+    {
+        $index = array_search($key, $this->sectionsOrder);
+        if ($index !== false && $index > 0) {
+            $temp = $this->sectionsOrder[$index - 1];
+            $this->sectionsOrder[$index - 1] = $this->sectionsOrder[$index];
+            $this->sectionsOrder[$index] = $temp;
+            $this->sectionsOrder = array_values($this->sectionsOrder);
+            Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+            $this->dispatch('flash-message', [
+                'type' => 'success',
+                'message' => 'Homepage sections reordered successfully.',
+            ]);
+        }
+    }
+
+    public function moveSectionDown(string $key): void
+    {
+        $index = array_search($key, $this->sectionsOrder);
+        if ($index !== false && $index < count($this->sectionsOrder) - 1) {
+            $temp = $this->sectionsOrder[$index + 1];
+            $this->sectionsOrder[$index + 1] = $this->sectionsOrder[$index];
+            $this->sectionsOrder[$index] = $temp;
+            $this->sectionsOrder = array_values($this->sectionsOrder);
+            Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+            $this->dispatch('flash-message', [
+                'type' => 'success',
+                'message' => 'Homepage sections reordered successfully.',
+            ]);
+        }
+    }
+
+    public function toggleSectionEnabled(string $key): void
+    {
+        if (array_key_exists($key, $this->sectionsEnabled)) {
+            $newState = !($this->sectionsEnabled[$key] ?? true);
+            $this->sectionsEnabled[$key] = $newState;
+            $prop = $key . '_enabled';
+            if (property_exists($this, $prop)) {
+                $this->{$prop} = $newState;
+            }
+            Setting::set('home_' . $key . '_enabled', $newState ? '1' : '0');
+            $this->dispatch('flash-message', [
+                'type' => 'success',
+                'message' => ucfirst(str_replace('_', ' ', $key)) . ' visibility toggled.',
+            ]);
+        }
+    }
+
+    public function resetSectionsOrder(): void
+    {
+        $this->sectionsOrder = self::DEFAULT_SECTIONS_ORDER;
+        Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+        $this->dispatch('flash-message', [
+            'type' => 'success',
+            'message' => 'Homepage section order reset to corporate standard defaults.',
+        ]);
     }
 
     public function setHeroTab(string $tab): void
@@ -767,13 +1121,227 @@ class HomepageBuilder extends Component
         ]);
     }
 
+    public function savePartners(): void
+    {
+        Setting::set('home_partners_enabled', $this->partners_enabled ? '1' : '0');
+        Setting::set('home_partners_tagline', trim($this->partners_tagline));
+        Setting::set('home_partners_mode', $this->partners_mode);
+        Setting::set('home_partners_speed', $this->partners_speed);
+        Setting::set('home_partners_bg_style', $this->partners_bg_style);
+        Setting::set('home_partners_brands_list', trim($this->partners_brands_list));
+
+        $this->sectionsEnabled['partners'] = $this->partners_enabled;
+        session()->flash('message', 'Partners & OEM Ticker section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Partners section saved.']);
+    }
+
+    public function saveAbout(): void
+    {
+        Setting::set('home_about_enabled', $this->about_enabled ? '1' : '0');
+        Setting::set('home_about_badge', trim($this->about_badge));
+        Setting::set('home_about_title', trim($this->about_title));
+        Setting::set('home_about_description', trim($this->about_description));
+
+        Setting::set('home_about_p1_icon', trim($this->about_p1_icon));
+        Setting::set('home_about_p1_title', trim($this->about_p1_title));
+        Setting::set('home_about_p1_desc', trim($this->about_p1_desc));
+
+        Setting::set('home_about_p2_icon', trim($this->about_p2_icon));
+        Setting::set('home_about_p2_title', trim($this->about_p2_title));
+        Setting::set('home_about_p2_desc', trim($this->about_p2_desc));
+
+        Setting::set('home_about_p3_icon', trim($this->about_p3_icon));
+        Setting::set('home_about_p3_title', trim($this->about_p3_title));
+        Setting::set('home_about_p3_desc', trim($this->about_p3_desc));
+
+        Setting::set('home_about_quote_text', trim($this->about_quote_text));
+        Setting::set('home_about_quote_author', trim($this->about_quote_author));
+        Setting::set('home_about_quote_role', trim($this->about_quote_role));
+        Setting::set('home_about_quote_initials', trim($this->about_quote_initials));
+
+        $this->sectionsEnabled['about'] = $this->about_enabled;
+        session()->flash('message', 'About Us & Pillars section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'About Us section saved.']);
+    }
+
+    public function saveServices(): void
+    {
+        Setting::set('home_services_enabled', $this->services_enabled ? '1' : '0');
+        Setting::set('home_services_badge', trim($this->services_badge));
+        Setting::set('home_services_title', trim($this->services_title));
+        Setting::set('home_services_subtitle', trim($this->services_subtitle));
+        Setting::set('home_services_mode', $this->services_mode);
+        Setting::set('home_services_limit', (string) max(1, min(24, (int) $this->services_limit)));
+
+        $this->sectionsEnabled['services'] = $this->services_enabled;
+        session()->flash('message', 'Precision Services section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Services section saved.']);
+    }
+
+    public function saveVideoBreak(): void
+    {
+        Setting::set('home_video_break_enabled', $this->video_break_enabled ? '1' : '0');
+        Setting::set('home_video_break_badge', trim($this->video_break_badge));
+        Setting::set('home_video_break_heading', trim($this->video_break_heading));
+        Setting::set('home_video_break_subtitle', trim($this->video_break_subtitle));
+        Setting::set('home_video_break_cta1_text', trim($this->video_break_cta1_text));
+        Setting::set('home_video_break_cta1_url', trim($this->video_break_cta1_url));
+        Setting::set('home_video_break_cta2_text', trim($this->video_break_cta2_text));
+        Setting::set('home_video_break_cta2_url', trim($this->video_break_cta2_url));
+
+        $this->sectionsEnabled['video_break'] = $this->video_break_enabled;
+        session()->flash('message', 'Marine Video Window Break section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Video Break saved.']);
+    }
+
+    public function saveBlueprint(): void
+    {
+        Setting::set('home_blueprint_enabled', $this->blueprint_enabled ? '1' : '0');
+        Setting::set('home_blueprint_badge', trim($this->blueprint_badge));
+        Setting::set('home_blueprint_title', trim($this->blueprint_title));
+        Setting::set('home_blueprint_subtitle', trim($this->blueprint_subtitle));
+
+        Setting::set('home_blueprint_mission_icon', trim($this->blueprint_mission_icon));
+        Setting::set('home_blueprint_mission_title', trim($this->blueprint_mission_title));
+        Setting::set('home_blueprint_mission_desc', trim($this->blueprint_mission_desc));
+
+        Setting::set('home_blueprint_vision_icon', trim($this->blueprint_vision_icon));
+        Setting::set('home_blueprint_vision_title', trim($this->blueprint_vision_title));
+        Setting::set('home_blueprint_vision_desc', trim($this->blueprint_vision_desc));
+
+        Setting::set('home_blueprint_values_icon', trim($this->blueprint_values_icon));
+        Setting::set('home_blueprint_values_title', trim($this->blueprint_values_title));
+        Setting::set('home_blueprint_value1', trim($this->blueprint_value1));
+        Setting::set('home_blueprint_value2', trim($this->blueprint_value2));
+        Setting::set('home_blueprint_value3', trim($this->blueprint_value3));
+
+        $this->sectionsEnabled['blueprint'] = $this->blueprint_enabled;
+        session()->flash('message', 'Corporate Blueprint (Mission & Vision) saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Blueprint saved.']);
+    }
+
+    public function saveProjects(): void
+    {
+        Setting::set('home_projects_enabled', $this->projects_enabled ? '1' : '0');
+        Setting::set('home_projects_badge', trim($this->projects_badge));
+        Setting::set('home_projects_title', trim($this->projects_title));
+        Setting::set('home_projects_subtitle', trim($this->projects_subtitle));
+
+        $this->sectionsEnabled['projects'] = $this->projects_enabled;
+        session()->flash('message', 'Featured Projects section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Projects section saved.']);
+    }
+
+    public function saveVideos(): void
+    {
+        Setting::set('home_videos_enabled', $this->videos_enabled ? '1' : '0');
+        Setting::set('home_videos_badge', trim($this->videos_badge));
+        Setting::set('home_videos_title', trim($this->videos_title));
+        Setting::set('home_videos_subtitle', trim($this->videos_subtitle));
+        Setting::set('home_videos_mode', $this->videos_mode);
+        Setting::set('home_videos_limit', (string) max(1, min(12, (int) $this->videos_limit)));
+
+        $this->sectionsEnabled['videos'] = $this->videos_enabled;
+        session()->flash('message', 'Video Gallery section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Video Gallery saved.']);
+    }
+
+    public function savePhotos(): void
+    {
+        Setting::set('home_photos_enabled', $this->photos_enabled ? '1' : '0');
+        Setting::set('home_photos_badge', trim($this->photos_badge));
+        Setting::set('home_photos_title', trim($this->photos_title));
+        Setting::set('home_photos_subtitle', trim($this->photos_subtitle));
+        Setting::set('home_photos_mode', $this->photos_mode);
+        Setting::set('home_photos_limit', (string) max(1, min(24, (int) $this->photos_limit)));
+
+        $this->sectionsEnabled['photos'] = $this->photos_enabled;
+        session()->flash('message', 'Photo Gallery section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Photo Gallery saved.']);
+    }
+
+    public function saveMetrics(): void
+    {
+        Setting::set('home_metrics_enabled', $this->metrics_enabled ? '1' : '0');
+        Setting::set('home_metrics_stat1_val', trim($this->metric_counter1_val));
+        Setting::set('home_metrics_stat1_lbl', trim($this->metric_counter1_lbl));
+        Setting::set('home_metrics_stat2_val', trim($this->metric_counter2_val));
+        Setting::set('home_metrics_stat2_lbl', trim($this->metric_counter2_lbl));
+        Setting::set('home_metrics_stat3_val', trim($this->metric_counter3_val));
+        Setting::set('home_metrics_stat3_lbl', trim($this->metric_counter3_lbl));
+        Setting::set('home_metrics_stat4_val', trim($this->metric_counter4_val));
+        Setting::set('home_metrics_stat4_lbl', trim($this->metric_counter4_lbl));
+
+        $this->sectionsEnabled['metrics'] = $this->metrics_enabled;
+        session()->flash('message', 'Metrics Counters section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Metrics section saved.']);
+    }
+
+    public function saveParts(): void
+    {
+        Setting::set('home_parts_enabled', $this->parts_enabled ? '1' : '0');
+        Setting::set('home_parts_badge', trim($this->parts_badge));
+        Setting::set('home_parts_title', trim($this->parts_title));
+        Setting::set('home_parts_subtitle', trim($this->parts_subtitle));
+        Setting::set('home_parts_mode', $this->parts_mode);
+        Setting::set('home_parts_limit', (string) max(1, min(24, (int) $this->parts_limit)));
+
+        $this->sectionsEnabled['parts'] = $this->parts_enabled;
+        session()->flash('message', 'Genuine Spare Parts section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Parts section saved.']);
+    }
+
+    public function saveRfq(): void
+    {
+        Setting::set('home_rfq_enabled', $this->rfq_enabled ? '1' : '0');
+        Setting::set('home_rfq_badge', trim($this->rfq_badge));
+        Setting::set('home_rfq_title', trim($this->rfq_title));
+        Setting::set('home_rfq_subtitle', trim($this->rfq_subtitle));
+        Setting::set('home_rfq_btn_text', trim($this->rfq_btn_text));
+
+        $this->sectionsEnabled['rfq'] = $this->rfq_enabled;
+        session()->flash('message', '24/7 Operations RFQ Desk section saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'RFQ Desk saved.']);
+    }
+
+    public function saveFooter(): void
+    {
+        Setting::set('home_footer_enabled', $this->footer_enabled ? '1' : '0');
+        Setting::set('home_footer_bio', trim($this->footer_bio));
+        Setting::set('home_footer_show_social', $this->footer_show_social ? '1' : '0');
+        Setting::set('home_footer_cert_text', trim($this->footer_cert_text));
+        Setting::set('home_footer_col2_title', trim($this->footer_col2_title));
+        Setting::set('home_footer_col3_title', trim($this->footer_col3_title));
+        Setting::set('home_footer_col4_title', trim($this->footer_col4_title));
+        Setting::set('home_footer_workshop_addr', trim($this->footer_workshop_addr));
+        Setting::set('home_footer_hq_addr', trim($this->footer_hq_addr));
+        Setting::set('home_footer_phone', trim($this->footer_phone));
+        Setting::set('home_footer_copyright', trim($this->footer_copyright));
+        Setting::set('home_footer_show_login', $this->footer_show_login ? '1' : '0');
+
+        session()->flash('message', 'Corporate Footer Studio saved successfully.');
+        $this->dispatch('flash-message', ['type' => 'success', 'message' => 'Corporate Footer saved.']);
+    }
+
     public function saveCurrentSection(): void
     {
-        if ($this->selectedSection === 'hero') {
-            $this->saveHero();
-        } else {
-            $this->saveHeader();
-        }
+        match ($this->selectedSection) {
+            'header'      => $this->saveHeader(),
+            'hero'        => $this->saveHero(),
+            'partners'    => $this->savePartners(),
+            'about'       => $this->saveAbout(),
+            'services'    => $this->saveServices(),
+            'video_break' => $this->saveVideoBreak(),
+            'blueprint'   => $this->saveBlueprint(),
+            'projects'    => $this->saveProjects(),
+            'videos'      => $this->saveVideos(),
+            'photos'      => $this->savePhotos(),
+            'metrics'     => $this->saveMetrics(),
+            'parts'       => $this->saveParts(),
+            'rfq'         => $this->saveRfq(),
+            'footer'      => $this->saveFooter(),
+            default       => $this->saveHeader(),
+        };
     }
 
     /**
@@ -968,6 +1536,146 @@ class HomepageBuilder extends Component
 
         $this->saveHeader();
         $this->saveHero();
+
+        // Reset Sections Order
+        $this->sectionsOrder = self::DEFAULT_SECTIONS_ORDER;
+        Setting::set('home_sections_order', json_encode($this->sectionsOrder), 'homepage', 'json');
+
+        // 1. Partners
+        $this->partners_enabled     = true;
+        $this->partners_tagline     = 'Multi-Brand Authorized Engineering & Overhauls For Global OEM Platforms';
+        $this->partners_mode        = 'static';
+        $this->partners_speed       = 'normal';
+        $this->partners_bg_style    = 'theme_default';
+        $this->partners_brands_list = 'Accelleron (ABB), MAN Energy Solutions, KBB Kompressorenbau, Napier Turbochargers, Mitsubishi Heavy Industries (MET), PBS Turbo, INNIO Waukesha, Ariel Compressors';
+        $this->savePartners();
+
+        // 2. About
+        $this->about_enabled        = true;
+        $this->about_badge          = 'Conglomerate Heritage & Vision';
+        $this->about_title          = 'A Heritage of Heavy Industrial Power, Maritime Integrity, & Turn-Key Engineering.';
+        $this->about_description    = 'Operating under the high standards of global marine engineering, Nordroy Marine & Turbochargers unites heavy mechanical overhaul workshops, non-destructive metallurgical testing (NDT), dynamic rotor calibration, and comprehensive spare parts logistics under one unified corporate umbrella.';
+        $this->about_p1_icon        = 'solid:anchor';
+        $this->about_p1_title       = 'Global Port Reach';
+        $this->about_p1_desc        = '24/7 flying squads equipped for anchorage and berth call overhauls.';
+        $this->about_p2_icon        = 'solid:gauge-high';
+        $this->about_p2_title       = 'Calibrated Precision';
+        $this->about_p2_desc        = 'Computerized Schenck dynamic balancing up to 100,000 RPM.';
+        $this->about_p3_icon        = 'solid:certificate';
+        $this->about_p3_title       = 'OEM Alliances';
+        $this->about_p3_desc        = 'Direct access to genuine replacement parts and calibrated drawings.';
+        $this->about_quote_text     = '"In maritime logistics and heavy power generation, downtime is measured in thousands of dollars per hour. Our mission is to restore engine efficiency with zero deviation from OEM tolerances."';
+        $this->about_quote_author   = 'Technical Operations';
+        $this->about_quote_role     = 'Turbomachinery Overhaul Division';
+        $this->about_quote_initials = 'NR';
+        $this->saveAbout();
+
+        // 3. Services
+        $this->services_enabled     = true;
+        $this->services_badge       = 'Workshop & Port Capabilities';
+        $this->services_title       = 'Precision Overhaul Services';
+        $this->services_subtitle    = 'Engineered according to manufacturer tolerance protocols with calibrated German Schenck balancing rigs.';
+        $this->services_mode        = 'static';
+        $this->services_limit       = 6;
+        $this->saveServices();
+
+        // 4. Video Break
+        $this->video_break_enabled  = true;
+        $this->video_break_badge    = 'Global Marine Engineering Excellence';
+        $this->video_break_heading  = '24/7 Rapid Emergency Response Across 40+ International Ports';
+        $this->video_break_subtitle = 'Our certified flying squads board commercial vessels at anchorage or alongside berths to deliver on-site turbocharger diagnostics, cartridge swap-outs, and dynamic balancing.';
+        $this->video_break_cta1_text= 'View Overhaul Capabilities →';
+        $this->video_break_cta1_url = '/services';
+        $this->video_break_cta2_text= 'Contact Port Operations';
+        $this->video_break_cta2_url = '/contact';
+        $this->saveVideoBreak();
+
+        // 5. Blueprint
+        $this->blueprint_enabled    = true;
+        $this->blueprint_badge      = 'Corporate Blueprint';
+        $this->blueprint_title      = 'Mission, Vision & Core Values';
+        $this->blueprint_subtitle   = 'Guiding principles that define our commitment to global shipowners, captive power operators, and heavy industries.';
+        $this->blueprint_mission_icon = 'solid:bullseye';
+        $this->blueprint_mission_title= 'Our Mission';
+        $this->blueprint_mission_desc = 'To eliminate engine downtime by delivering certified, multi-brand turbocharger overhauls, high-speed dynamic balancing, and genuine OEM parts with unmatched turnaround speed, metallurgical precision, and total engineering transparency.';
+        $this->blueprint_vision_icon  = 'solid:eye';
+        $this->blueprint_vision_title = 'Our Vision 2030';
+        $this->blueprint_vision_desc  = 'To be the premier independent maritime turbomachinery conglomerate in South Asia and global waters, recognized by international classification societies as the benchmark for quality, technical integrity, and decarbonization retrofits.';
+        $this->blueprint_values_icon  = 'solid:shield-halved';
+        $this->blueprint_values_title = 'Core Values';
+        $this->blueprint_value1       = 'Zero-Defect Quality: Strict adherence to ISO 9001 protocols.';
+        $this->blueprint_value2       = 'Rapid Port Agility: 24/7 readiness for urgent port calls.';
+        $this->blueprint_value3       = 'Technical Rigor: Calibrated testing and certified reports.';
+        $this->saveBlueprint();
+
+        // 6. Projects
+        $this->projects_enabled     = true;
+        $this->projects_badge       = 'Execution Proven Track Record';
+        $this->projects_title       = 'Featured Industrial & Marine Projects';
+        $this->projects_subtitle    = 'A glimpse of recent turn-key overhauls completed on commercial ships and captive power plants.';
+        $this->saveProjects();
+
+        // 7. Videos
+        $this->videos_enabled       = true;
+        $this->videos_badge         = 'Workshop & Port In Action';
+        $this->videos_title         = 'Video Gallery (Hover to Play)';
+        $this->videos_subtitle      = 'Hover your mouse over any video card to stream a live silent preview of our precision balancing and overhaul operations.';
+        $this->videos_mode          = 'static';
+        $this->videos_limit         = 3;
+        $this->saveVideos();
+
+        // 8. Photos
+        $this->photos_enabled       = true;
+        $this->photos_badge         = 'Visual Facilities';
+        $this->photos_title         = 'Workshop & Engineering Gallery';
+        $this->photos_subtitle      = 'Click on any photo below to inspect high-resolution images of our port workshops and overhaul facilities.';
+        $this->photos_mode          = 'static';
+        $this->photos_limit         = 8;
+        $this->savePhotos();
+
+        // 9. Metrics
+        $this->metrics_enabled      = true;
+        $this->metric_counter1_val  = '30+';
+        $this->metric_counter1_lbl  = 'Years of Excellence';
+        $this->metric_counter2_val  = '1,450+';
+        $this->metric_counter2_lbl  = 'Turbomachines Overhauled';
+        $this->metric_counter3_val  = '12+';
+        $this->metric_counter3_lbl  = 'Global Ports Covered';
+        $this->metric_counter4_val  = '100%';
+        $this->metric_counter4_lbl  = 'Calibrated Schenck Testing';
+        $this->saveMetrics();
+
+        // 10. Parts
+        $this->parts_enabled        = true;
+        $this->parts_badge          = 'OEM Replacement Inventory';
+        $this->parts_title          = 'Genuine Spare Parts Catalog';
+        $this->parts_subtitle       = 'Traceable serial numbers with mill test certificates ready for immediate dispatch.';
+        $this->parts_mode           = 'static';
+        $this->parts_limit          = 6;
+        $this->saveParts();
+
+        // 11. RFQ
+        $this->rfq_enabled          = true;
+        $this->rfq_badge            = '24/7 Operations Desk';
+        $this->rfq_title            = 'Request Instant Quotation or Emergency Port Call';
+        $this->rfq_subtitle         = 'Our duty marine engineering superintendents respond within 45 minutes of RFQ submission.';
+        $this->rfq_btn_text         = 'Submit Technical RFQ to Duty Desk';
+        $this->saveRfq();
+
+        // 12. Footer
+        $this->footer_enabled       = true;
+        $this->footer_bio           = 'A premier industrial conglomerate and maritime engineering group specializing in authorized multi-brand exhaust gas turbocharger overhauls, dynamic rotor balancing up to 100,000 RPM, genuine OEM spare parts supply, and technical port assistance across global maritime hubs.';
+        $this->footer_show_social   = true;
+        $this->footer_cert_text     = 'ISO 9001:2015 & DNV Certified';
+        $this->footer_col2_title    = 'OEM Spare Parts';
+        $this->footer_col3_title    = 'Technical Services';
+        $this->footer_col4_title    = 'Port & HQ Offices';
+        $this->footer_workshop_addr = 'Near Marine Academy Jetty, Chattogram Port, Bangladesh.';
+        $this->footer_hq_addr       = 'Gulshan Industrial Area, Dhaka, Bangladesh';
+        $this->footer_phone         = '+880 1800-000000';
+        $this->footer_copyright     = '© 2026 Nordroy Marine & Turbochargers. All rights reserved. Maritime Engineering & Industrial Overhauls.';
+        $this->footer_show_login    = true;
+        $this->saveFooter();
 
         session()->flash('message', 'Real production design restored perfectly.');
         $this->dispatch('flash-message', [

@@ -1,4 +1,24 @@
 <div class="space-y-6">
+    @php
+        $sectionMeta = [
+            'header'      => ['title' => 'Header (Topbar & Navbar)', 'short' => 'Header', 'badge' => 'Locked', 'icon' => 'solid:window-maximize', 'desc' => 'Emergency topbar & sticky navbar'],
+            'hero'        => ['title' => 'Hero Banner', 'short' => 'Hero Banner', 'badge' => 'Locked', 'icon' => 'solid:sparkles', 'desc' => 'Industrial showcase & instrument dial'],
+            'partners'    => ['title' => 'OEM Brand Partners', 'short' => 'Partners', 'badge' => 'Reorderable', 'icon' => 'solid:handshake', 'desc' => 'Multi-brand animated ticker'],
+            'about'       => ['title' => 'Corporate Heritage', 'short' => 'About Us', 'badge' => 'Reorderable', 'icon' => 'solid:building-columns', 'desc' => 'Pillars & leadership quote'],
+            'services'    => ['title' => 'Precision Services', 'short' => 'Services', 'badge' => 'Reorderable', 'icon' => 'solid:gears', 'desc' => '6 certified overhaul services'],
+            'video_break' => ['title' => 'Marine Video Break', 'short' => 'Video Break', 'badge' => 'Reorderable', 'icon' => 'solid:film', 'desc' => 'Atmospheric marine window break'],
+            'blueprint'   => ['title' => 'Corporate Blueprint', 'short' => 'Blueprint', 'badge' => 'Reorderable', 'icon' => 'solid:compass-drafting', 'desc' => 'Mission, Vision 2030, Values'],
+            'projects'    => ['title' => 'Featured Projects', 'short' => 'Projects', 'badge' => 'Reorderable', 'icon' => 'solid:ship', 'desc' => 'Vessel & power plant overhauls'],
+            'videos'      => ['title' => 'Video Gallery', 'short' => 'Videos', 'badge' => 'Reorderable', 'icon' => 'solid:circle-play', 'desc' => 'Silent hover-to-play preview'],
+            'photos'      => ['title' => 'Photo Gallery', 'short' => 'Photos', 'badge' => 'Reorderable', 'icon' => 'solid:camera', 'desc' => 'High-res workshop lightbox'],
+            'metrics'     => ['title' => 'Metrics & Stats', 'short' => 'Metrics', 'badge' => 'Reorderable', 'icon' => 'solid:chart-pie', 'desc' => '4 corporate counter milestones'],
+            'parts'       => ['title' => 'Genuine Spare Parts', 'short' => 'Parts', 'badge' => 'Reorderable', 'icon' => 'solid:boxes-stacked', 'desc' => 'Traceable OEM replacement spares'],
+            'rfq'         => ['title' => 'RFQ Duty Desk', 'short' => 'RFQ Desk', 'badge' => 'Reorderable', 'icon' => 'solid:headset', 'desc' => '24/7 emergency response quote form'],
+            'footer'      => ['title' => 'Corporate Footer', 'short' => 'Footer', 'badge' => 'Locked', 'icon' => 'solid:table-cells', 'desc' => 'Bio, addresses, columns, copyright'],
+        ];
+        $currentSection = $sectionMeta[$selectedSection] ?? $sectionMeta['header'];
+    @endphp
+
     <!-- Top Action Bar -->
     <div class="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -10,13 +30,13 @@
                     <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-300">
                         V2 CMS
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Locked: {{ $selectedSection === 'hero' ? 'Hero Banner' : 'Header' }}
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold rounded-full {{ in_array($selectedSection, ['header', 'hero', 'footer']) ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20' }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ in_array($selectedSection, ['header', 'hero', 'footer']) ? 'bg-emerald-500 animate-pulse' : 'bg-cyan-500' }}"></span>
+                        {{ $currentSection['badge'] }}: {{ $currentSection['short'] }}
                     </span>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Customize homepage layout, emergency topbar, sticky navigation, branding logos, colors, and action buttons.
+                    Customize homepage layout, emergency topbar, sticky navigation, reorderable body sections, and corporate footer.
                 </p>
             </div>
 
@@ -29,7 +49,7 @@
                 </a>
 
                 <button type="button" wire:click="restoreProductionDesign" 
-                        wire:confirm="Restore real production header design (100% real corporate data, zero demo values)?"
+                        wire:confirm="Restore real production design (100% real corporate data, zero demo values across all sections and footer)?"
                         class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 transition-colors cursor-pointer shadow-2xs"
                         title="Restore 100% Real Production Design">
                     <x-icon name="solid:rotate-left" class="w-3.5 h-3.5" />
@@ -40,7 +60,7 @@
                         class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#003C58] hover:bg-[#002f45] dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50">
                     <span wire:loading.remove wire:target="saveCurrentSection" class="flex items-center gap-1.5">
                         <x-icon name="solid:floppy-disk" class="w-3.5 h-3.5" />
-                        <span>Save {{ $selectedSection === 'hero' ? 'Hero Banner' : 'Header' }}</span>
+                        <span>Save {{ $currentSection['short'] }}</span>
                     </span>
                     <span wire:loading wire:target="saveCurrentSection" class="flex items-center gap-1.5">
                         <svg class="animate-spin h-3.5 w-3.5 text-white dark:text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -74,17 +94,17 @@
                 <div class="p-3.5 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <x-icon name="solid:cubes" class="w-4 h-4 text-[#003C58] dark:text-cyan-400" />
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Homepage Sections</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Homepage Hierarchy</span>
                     </div>
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        2 Active Sections (Locked)
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 font-mono">
+                        {{ count($sectionsOrder) + 3 }} Units
                     </span>
                 </div>
 
                 <div class="p-3 space-y-2">
-                    <!-- 1. LOCKED HEADER (Topbar & Main Navigation) -->
+                    <!-- PINNED TOP: 1. LOCKED HEADER (Topbar & Main Navigation) -->
                     <div wire:click="selectSection('header')"
-                         class="group p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === 'header' ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }}">
+                         class="group p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === 'header' ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }}">
                         <div class="flex items-center gap-2.5 truncate">
                             <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
                                 <x-icon name="solid:window-maximize" class="w-3.5 h-3.5" />
@@ -102,9 +122,9 @@
                         </div>
                     </div>
 
-                    <!-- 2. LOCKED HERO BANNER -->
+                    <!-- PINNED TOP: 2. LOCKED HERO BANNER -->
                     <div wire:click="selectSection('hero')"
-                         class="group p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === 'hero' ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }}">
+                         class="group p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === 'hero' ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }}">
                         <div class="flex items-center gap-2.5 truncate">
                             <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
                                 <x-icon name="solid:sparkles" class="w-3.5 h-3.5" />
@@ -121,12 +141,97 @@
                             </span>
                         </div>
                     </div>
+
+                    <!-- REORDERABLE BODY SECTIONS HEADER -->
+                    <div class="pt-2 pb-1 px-1 flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Body Sections (Reorderable)
+                        </span>
+                        <button type="button" wire:click="resetSectionsOrder" title="Reset to standard corporate order"
+                                class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer flex items-center gap-1">
+                            <x-icon name="solid:arrows-rotate" class="w-2.5 h-2.5" />
+                            <span>Reset Order</span>
+                        </button>
+                    </div>
+
+                    <!-- DYNAMIC REORDERABLE SECTIONS LIST -->
+                    @foreach($sectionsOrder as $idx => $secKey)
+                        @php
+                            $sec = $sectionMeta[$secKey] ?? ['title' => ucfirst($secKey), 'icon' => 'solid:cubes', 'desc' => ''];
+                            $isEnabled = $sectionsEnabled[$secKey] ?? true;
+                        @endphp
+                        <div wire:click="selectSection('{{ $secKey }}')"
+                             class="group p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === $secKey ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }} {{ $isEnabled ? '' : 'opacity-50' }}">
+                            
+                            <div class="flex items-center gap-2 truncate flex-1 min-w-0 mr-2">
+                                <span class="w-5 h-5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 shrink-0">
+                                    {{ $idx + 1 }}
+                                </span>
+                                <span class="w-6 h-6 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
+                                    <x-icon :name="$sec['icon']" class="w-3 h-3" />
+                                </span>
+                                <div class="truncate">
+                                    <span class="block text-xs font-bold truncate leading-tight">{{ $sec['title'] }}</span>
+                                    <span class="block text-[9px] text-slate-500 dark:text-slate-400 truncate">{{ $sec['desc'] }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Controls: Move Up, Move Down, Toggle Visibility -->
+                            <div class="flex items-center gap-1 shrink-0" @click.stop>
+                                <!-- Move Up -->
+                                <button type="button" wire:click.stop="moveSectionUp('{{ $secKey }}')" 
+                                        @disabled($idx === 0)
+                                        title="Move Up"
+                                        class="w-6 h-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-400 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer">
+                                    <x-icon name="solid:chevron-up" class="w-2.5 h-2.5" />
+                                </button>
+
+                                <!-- Move Down -->
+                                <button type="button" wire:click.stop="moveSectionDown('{{ $secKey }}')" 
+                                        @disabled($idx === count($sectionsOrder) - 1)
+                                        title="Move Down"
+                                        class="w-6 h-6 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-400 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer">
+                                    <x-icon name="solid:chevron-down" class="w-2.5 h-2.5" />
+                                </button>
+
+                                <!-- Toggle Visibility -->
+                                <button type="button" wire:click.stop="toggleSectionEnabled('{{ $secKey }}')"
+                                        title="{{ $isEnabled ? 'Disable Section' : 'Enable Section' }}"
+                                        class="w-6 h-6 rounded-md border flex items-center justify-center transition-colors cursor-pointer {{ $isEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-400' }}">
+                                    <x-icon :name="$isEnabled ? 'solid:eye' : 'solid:eye-slash'" class="w-2.5 h-2.5" />
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <!-- PINNED BOTTOM: FOOTER -->
+                    <div class="pt-2">
+                        <div wire:click="selectSection('footer')"
+                             class="group p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between {{ $selectedSection === 'footer' ? 'bg-cyan-50/70 border-cyan-500 text-cyan-900 dark:bg-cyan-950/40 dark:border-cyan-500 dark:text-cyan-200 shadow-xs' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700' }}">
+                            <div class="flex items-center gap-2.5 truncate">
+                                <span class="w-7 h-7 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[#003C58] dark:text-cyan-400 shrink-0 shadow-2xs">
+                                    <x-icon name="solid:table-cells" class="w-3.5 h-3.5" />
+                                </span>
+                                <div class="truncate">
+                                    <span class="block text-xs font-bold truncate">Corporate Footer Studio</span>
+                                    <span class="block text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pinned &bull; 4 Columns &bull; HQ</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase rounded bg-[#003C58]/10 text-[#003C58] dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center gap-1">
+                                    <x-icon name="solid:lock-closed" class="w-2.5 h-2.5" />
+                                    <span>LOCKED</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Informational Lock Rule Note -->
+                <!-- Info Note -->
                 <div class="p-3.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
                     <p class="leading-relaxed">
-                        <strong class="text-slate-800 dark:text-slate-200">Lock Rule:</strong> The Header and Hero Banner are locked at the top of the homepage hierarchy and cannot be displaced. Other sections will be configured one by one sequentially.
+                        <strong class="text-slate-800 dark:text-slate-200">Reordering:</strong> Use the ▲ / ▼ arrow buttons to move sections up or down. Click the eye icon to toggle visibility on frontend.
                     </p>
                 </div>
             </div>
@@ -2374,6 +2479,11 @@
                 </div>
 
             </div>
+            @endif
+
+            {{-- Dynamic Body Sections & Corporate Footer Studios --}}
+            @if(in_array($selectedSection, ['partners', 'about', 'services', 'video_break', 'blueprint', 'projects', 'videos', 'photos', 'metrics', 'parts', 'rfq', 'footer']))
+                @include('livewire.admin.pages.homepage-builder.' . $selectedSection)
             @endif
         </div>
 
