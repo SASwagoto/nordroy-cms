@@ -102,14 +102,48 @@
         $heroTitleSuffix = \App\Models\Setting::get('home_hero_title_suffix', '');
         $heroTitleHighlightStyle = \App\Models\Setting::get('home_hero_title_highlight_style', 'gradient_cyan');
         $heroTitleHighlightCustom = \App\Models\Setting::get('home_hero_title_highlight_custom', '#0ea5e9');
+        $heroTitleSize = \App\Models\Setting::get('home_hero_title_size', 'standard');
+        $heroTitleWeight = \App\Models\Setting::get('home_hero_title_weight', 'black');
+        $heroTitleGlow = \App\Models\Setting::get('home_hero_title_glow', 'none');
+        $heroTitleGradDir = \App\Models\Setting::get('home_hero_title_grad_dir', '135deg');
+        $heroTitleGradFrom = \App\Models\Setting::get('home_hero_title_grad_from', '#00d2ff');
+        $heroTitleGradVia = \App\Models\Setting::get('home_hero_title_grad_via', '#0084ff');
+        $heroTitleGradTo = \App\Models\Setting::get('home_hero_title_grad_to', '#003C58');
+
+        $heroTitleSizeClass = match($heroTitleSize) {
+            'compact' => 'text-2xl sm:text-4xl lg:text-5xl',
+            'large' => 'text-4xl sm:text-5xl lg:text-7xl',
+            'extra_large' => 'text-4xl sm:text-6xl lg:text-8xl',
+            default => 'text-3xl sm:text-5xl lg:text-6xl',
+        };
+        $heroTitleWeightClass = match($heroTitleWeight) {
+            'bold' => 'font-bold',
+            'extrabold' => 'font-extrabold',
+            default => 'font-black',
+        };
+        $heroTitleGlowClass = match($heroTitleGlow) {
+            'subtle' => 'drop-shadow-xs',
+            'cyan' => 'drop-shadow-[0_4px_24px_rgba(6,182,212,0.45)]',
+            'amber' => 'drop-shadow-[0_4px_24px_rgba(245,158,11,0.45)]',
+            'deep' => 'drop-shadow-lg',
+            default => 'drop-shadow-none',
+        };
 
         $heroHighlightClass = match($heroTitleHighlightStyle) {
             'gradient_amber' => 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent drop-shadow-xs',
             'brand_primary' => 'text-[#003C58] dark:text-cyan-400',
             'gradient_emerald' => 'bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent drop-shadow-xs',
+            'gradient_custom' => 'bg-clip-text text-transparent',
             'solid_custom' => '',
             default => 'bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-300 bg-clip-text text-transparent drop-shadow-xs',
         };
+
+        $heroHighlightInlineStyle = '';
+        if ($heroTitleHighlightStyle === 'solid_custom') {
+            $heroHighlightInlineStyle = 'color: ' . $heroTitleHighlightCustom . ';';
+        } elseif ($heroTitleHighlightStyle === 'gradient_custom') {
+            $heroHighlightInlineStyle = 'background-image: linear-gradient(' . $heroTitleGradDir . ', ' . $heroTitleGradFrom . ($heroTitleGradVia ? ', ' . $heroTitleGradVia : '') . ', ' . $heroTitleGradTo . ');';
+        }
 
         $heroSubtitle = \App\Models\Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.');
 
@@ -193,6 +227,15 @@
         $heroHudL3Val = \App\Models\Setting::get('home_hero_hud_l3_val', 'CHATTOGRAM • MONGLA • GLOBAL');
 
         // Dynamic visual dimension classes
+        $heroVisualPadding = \App\Models\Setting::get('home_hero_visual_padding', 'spacious');
+        $visualCardPaddingClass = match($heroVisualPadding) {
+            'none' => 'p-0',
+            'compact' => 'p-3 sm:p-4',
+            'standard' => 'p-5 sm:p-7',
+            'extra_spacious' => 'p-8 sm:p-12',
+            default => 'p-6 sm:p-8',
+        };
+
         $visualFrameMaxW = match($heroVisualSize) {
             'compact' => 'max-w-[300px]',
             'large' => 'max-w-[420px]',
@@ -285,12 +328,12 @@
 
                     <!-- Main Headline (With Multicolor Highlight Scope) -->
                     @if($heroTitle)
-                    <h1 class="reveal-init reveal-fade-up reveal-delay-100 text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.12] tracking-tight font-heading text-slate-900 dark:text-white drop-shadow-xs">
+                    <h1 class="reveal-init reveal-fade-up reveal-delay-100 {{ $heroTitleSizeClass }} {{ $heroTitleWeightClass }} leading-[1.12] tracking-tight font-heading text-slate-900 dark:text-white {{ $heroTitleGlowClass }}">
                         @if($heroTitleHighlightEnabled && $heroTitleHighlight)
                             @if($heroTitlePrefix)
                                 <span>{{ __($heroTitlePrefix) }}</span>
                             @endif
-                            <span class="{{ $heroHighlightClass }}" @if($heroTitleHighlightStyle === 'solid_custom') style="color: {{ $heroTitleHighlightCustom }};" @endif>
+                            <span class="{{ $heroHighlightClass }}" @if($heroHighlightInlineStyle) style="{{ $heroHighlightInlineStyle }}" @endif>
                                 {{ __($heroTitleHighlight) }}
                             </span>
                             @if($heroTitleSuffix)
@@ -341,12 +384,14 @@
 
                     <!-- Extra Content: Emergency Advisory Notice Bar -->
                     @if($heroNoticeEnabled && $heroNoticeText)
-                    <div class="reveal-init reveal-fade-up reveal-delay-250 w-full p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center gap-3 text-xs text-cyan-900 dark:text-cyan-200">
-                        <x-icon :name="$heroNoticeIcon ?: 'solid:bullhorn'" class="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                        <span class="flex-1 font-semibold">{{ __($heroNoticeText) }}</span>
-                        @if($heroNoticeUrl)
-                        <a href="{{ $heroNoticeUrl }}" class="shrink-0 font-bold underline hover:no-underline text-cyan-700 dark:text-cyan-300">
-                            Details &rarr;
+                    <div class="reveal-init reveal-fade-up reveal-delay-250 w-full p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-between gap-3 text-xs text-cyan-900 dark:text-cyan-200">
+                        <div class="flex items-center gap-2.5">
+                            <x-icon :name="$heroNoticeIcon ?: 'solid:bullhorn'" class="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                            <span class="font-medium">{{ __($heroNoticeText) }}</span>
+                        </div>
+                        @if(!empty($heroNoticeUrl))
+                        <a href="{{ $heroNoticeUrl }}" class="shrink-0 font-bold underline hover:no-underline text-cyan-700 dark:text-cyan-300 flex items-center gap-1">
+                            <span>Details &rarr;</span>
                         </a>
                         @endif
                     </div>
@@ -429,7 +474,7 @@
                 <!-- Right Column: PRECISION TURBINE INSTRUMENT DIAL -->
                 @if($heroVisualEnabled)
                 <div class="{{ $rightColSpan }} {{ $rightOrder }} relative reveal-init reveal-scale reveal-delay-200">
-                    <div class="relative rounded-3xl p-6 sm:p-8 {{ $visualCardClass }} transition-all"
+                    <div class="relative rounded-3xl {{ $visualCardPaddingClass }} {{ $visualCardClass }} transition-all"
                          @if($heroVisualBgStyle === 'solid_custom') style="background-color: {{ $heroVisualCustomBg }};" @endif>
                         
                         <!-- High-Contrast Tachometer Frame with Calibrated Tick Marks -->
@@ -579,7 +624,7 @@
 
                     <!-- 3 Strategic Pillars -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                        <div class="reveal-init reveal-fade-up reveal-delay-100 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
                                 <x-icon name="solid:anchor" class="w-5 h-5" />
                             </div>
@@ -587,7 +632,7 @@
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">24/7 flying squads equipped for anchorage and berth call overhauls.</p>
                         </div>
 
-                        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                        <div class="reveal-init reveal-fade-up reveal-delay-200 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
                                 <x-icon name="solid:gauge-high" class="w-5 h-5" />
                             </div>
@@ -595,7 +640,7 @@
                             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Computerized Schenck dynamic balancing up to 100,000 RPM.</p>
                         </div>
 
-                        <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
+                        <div class="reveal-init reveal-fade-up reveal-delay-300 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800">
                             <div class="w-10 h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 flex items-center justify-center text-[#003C58] dark:text-cyan-400 mb-3">
                                 <x-icon name="solid:certificate" class="w-5 h-5" />
                             </div>
@@ -607,7 +652,7 @@
                 </div>
 
                 <!-- Right: Executive Leadership Quote Box (Dana Group inspired) (5 cols) -->
-                <div class="lg:col-span-5">
+                <div class="lg:col-span-5 reveal-init reveal-scale reveal-delay-200">
                     <div class="p-8 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-lg relative space-y-6">
                         <div class="text-[#003C58] dark:text-cyan-400 opacity-30 text-5xl font-serif leading-none">&ldquo;</div>
                         <blockquote class="text-sm sm:text-base text-slate-700 dark:text-slate-300 italic leading-relaxed">
@@ -652,7 +697,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 
                 <!-- Service 1 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">01 / BALANCING</span>
                         <x-icon name="solid:gauge" class="w-5 h-5 text-slate-400" />
@@ -664,7 +709,7 @@
                 </div>
 
                 <!-- Service 2 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-200 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">02 / WELDING</span>
                         <x-icon name="solid:fire-flame-curved" class="w-5 h-5 text-slate-400" />
@@ -676,7 +721,7 @@
                 </div>
 
                 <!-- Service 3 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-300 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">03 / CHRA</span>
                         <x-icon name="solid:arrows-rotate" class="w-5 h-5 text-slate-400" />
@@ -688,7 +733,7 @@
                 </div>
 
                 <!-- Service 4 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">04 / CHEMICAL</span>
                         <x-icon name="solid:spray-can" class="w-5 h-5 text-slate-400" />
@@ -700,7 +745,7 @@
                 </div>
 
                 <!-- Service 5 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-200 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">05 / FLYING SQUAD</span>
                         <x-icon name="solid:truck-fast" class="w-5 h-5 text-slate-400" />
@@ -712,7 +757,7 @@
                 </div>
 
                 <!-- Service 6 -->
-                <div class="p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
+                <div class="reveal-init reveal-fade-up reveal-delay-300 p-6 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#003C58] dark:hover:border-cyan-500/50 transition-all space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">06 / RETROFIT</span>
                         <x-icon name="solid:wrench" class="w-5 h-5 text-slate-400" />
@@ -777,7 +822,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 <!-- Mission Card -->
-                <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                     <div class="w-12 h-12 rounded-2xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
                         <x-icon name="solid:bullseye" class="w-6 h-6" />
                     </div>
@@ -788,7 +833,7 @@
                 </div>
 
                 <!-- Vision Card -->
-                <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="reveal-init reveal-fade-up reveal-delay-200 p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                     <div class="w-12 h-12 rounded-2xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
                         <x-icon name="solid:eye" class="w-6 h-6" />
                     </div>
@@ -799,7 +844,7 @@
                 </div>
 
                 <!-- Core Values Card -->
-                <div class="p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="reveal-init reveal-fade-up reveal-delay-300 p-8 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                     <div class="w-12 h-12 rounded-2xl bg-[#003C58]/10 dark:bg-cyan-500/10 flex items-center justify-center text-[#003C58] dark:text-cyan-400">
                         <x-icon name="solid:shield-halved" class="w-6 h-6" />
                     </div>
@@ -838,7 +883,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 <!-- Project 1 -->
-                <div class="rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all group">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all group">
                     <div class="h-60 bg-slate-100 dark:bg-slate-900 relative overflow-hidden flex items-center justify-center">
                         <img src="{{ asset('assets/images/gallery/gallery-plant.webp') }}" alt="7.2 MW Plant Overhaul" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <div class="absolute bottom-3 left-4 right-4 bg-white/90 dark:bg-[#07131e]/90 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs shadow-sm">
@@ -859,7 +904,7 @@
                 </div>
 
                 <!-- Project 2 -->
-                <div class="rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all group">
+                <div class="reveal-init reveal-fade-up reveal-delay-200 rounded-3xl bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all group">
                     <div class="h-60 bg-slate-100 dark:bg-slate-900 relative overflow-hidden flex items-center justify-center">
                         <img src="{{ asset('assets/images/gallery/gallery-turbine.webp') }}" alt="CHRA Cartridge Exchange" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <div class="absolute bottom-3 left-4 right-4 bg-white/90 dark:bg-[#07131e]/90 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs shadow-sm">
@@ -906,7 +951,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 <!-- Video Card 1 -->
-                <div class="rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
+                <div class="reveal-init reveal-fade-up reveal-delay-100 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
                      x-data="{ isHovered: false }">
                     <a href="{{ route('project.details', ['slug' => 'marine-vessel-turbocharger-overhaul']) }}"
                        class="relative aspect-video bg-slate-100 dark:bg-black overflow-hidden flex items-center justify-center cursor-pointer block"
@@ -963,7 +1008,7 @@
                 </div>
 
                 <!-- Video Card 2 -->
-                <div class="rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
+                <div class="reveal-init reveal-fade-up reveal-delay-200 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
                      x-data="{ isHovered: false }">
                     <a href="{{ route('project.details', ['slug' => 'emergency-anchorage-flying-squad']) }}"
                        class="relative aspect-video bg-slate-100 dark:bg-black overflow-hidden flex items-center justify-center cursor-pointer block"
@@ -1016,7 +1061,7 @@
                 </div>
 
                 <!-- Video Card 3 -->
-                <div class="rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
+                <div class="reveal-init reveal-fade-up reveal-delay-300 rounded-3xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col justify-between group"
                      x-data="{ isHovered: false }">
                     <a href="{{ route('project.details', ['slug' => 'industrial-power-plant-balancing']) }}"
                        class="relative aspect-video bg-slate-100 dark:bg-black overflow-hidden flex items-center justify-center cursor-pointer block"
@@ -1094,7 +1139,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                 
                 <!-- Photo 1: Dynamic Balancing Bay -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-100 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-balancing.webp') }}', title: 'Dynamic Rotor Balancing Bay (Schenck Hard-Bearing Calibrated)' })">
                     <img src="{{ asset('assets/images/gallery/gallery-balancing.webp') }}" alt="Dynamic Balancing" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1110,7 +1155,7 @@
                 </div>
 
                 <!-- Photo 2: Micro-TIG Welding Bay -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-150 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-welding.webp') }}', title: 'Micro-TIG Turbine Blade Reconstruction Bay' })">
                     <img src="{{ asset('assets/images/gallery/gallery-welding.webp') }}" alt="Micro-TIG Welding" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1126,7 +1171,7 @@
                 </div>
 
                 <!-- Photo 3: Cartridge Rebuild Station -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-200 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-turbine.webp') }}', title: 'Heavy Turbocharger Cartridge (CHRA) Assembly' })">
                     <img src="{{ asset('assets/images/gallery/gallery-turbine.webp') }}" alt="CHRA Assembly" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1142,7 +1187,7 @@
                 </div>
 
                 <!-- Photo 4: 7.2 MW Plant Turbomachinery -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-250 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-plant.webp') }}', title: '7.2 MW Captive Power Plant Turbomachinery Overhaul' })">
                     <img src="{{ asset('assets/images/gallery/gallery-plant.webp') }}" alt="Captive Power Plant" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1158,7 +1203,7 @@
                 </div>
 
                 <!-- Photo 5: Generator Overhaul -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-100 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-generator.webp') }}', title: 'Industrial Diesel & Gas Generator Turbochargers' })">
                     <img src="{{ asset('assets/images/gallery/gallery-generator.webp') }}" alt="Generator Turbochargers" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1174,7 +1219,7 @@
                 </div>
 
                 <!-- Photo 6: Vessel Port Flying Squad -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-150 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-vessel.jpg') }}', title: 'Chattogram Port Anchorage Vessel Flying Squad' })">
                     <img src="{{ asset('assets/images/gallery/gallery-vessel.jpg') }}" alt="Vessel Port Call" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1190,7 +1235,7 @@
                 </div>
 
                 <!-- Photo 7: NDT Inspection -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-200 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-technician.jpg') }}', title: 'Non-Destructive Metallurgical Flaw Detection & Testing' })">
                     <img src="{{ asset('assets/images/gallery/gallery-technician.jpg') }}" alt="NDT Inspection" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1206,7 +1251,7 @@
                 </div>
 
                 <!-- Photo 8: Industrial Power Diagnostics -->
-                <div class="group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
+                <div class="reveal-init reveal-fade-up reveal-delay-250 group relative rounded-3xl overflow-hidden aspect-[4/3] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer"
                      @click="$dispatch('open-lightbox', { src: '{{ asset('assets/images/gallery/gallery-substation.webp') }}', title: 'Industrial Turbine Power Substation Diagnostics' })">
                     <img src="{{ asset('assets/images/gallery/gallery-substation.webp') }}" alt="Turbine Power Diagnostics" class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
                     <div class="absolute inset-0 bg-[#003C58]/20 dark:bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1277,37 +1322,37 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-100 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:fan" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Turbine Blades</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">Nimonic 80A / 90</span>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-150 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:circle-notch" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Rotor Shafts</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">Forged Alloy Steel</span>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-200 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:ring" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Nozzle Rings</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">High-Temp Resistant</span>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-250 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:compact-disc" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Bearing Bushes</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">Hydrodynamic Squeeze</span>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-300 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:asterisk" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Impellers</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">Milled Titanium / Al</span>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
+                <div class="reveal-init reveal-fade-up reveal-delay-350 p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all">
                     <x-icon name="solid:shield" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400" />
                     <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white">Seal Kits</h4>
                     <span class="text-[10px] text-slate-500 font-mono block">Gas &amp; Oil Labyrinth</span>
@@ -1324,7 +1369,7 @@
     <section id="rfq" class="reveal-init reveal-fade-up py-20 lg:py-28 bg-slate-50 dark:bg-[#06121d] text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div class="max-w-[1536px] mx-auto px-4 sm:px-8">
             
-            <div class="max-w-4xl mx-auto rounded-3xl p-8 sm:p-12 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
+            <div class="reveal-init reveal-scale reveal-delay-150 max-w-4xl mx-auto rounded-3xl p-8 sm:p-12 bg-white dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 shadow-xl space-y-8">
                 
                 <div class="text-center space-y-2">
                     <span class="text-xs font-bold uppercase tracking-wider text-[#003C58] dark:text-cyan-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">

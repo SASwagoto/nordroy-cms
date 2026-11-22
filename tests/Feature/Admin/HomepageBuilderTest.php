@@ -426,6 +426,67 @@ class HomepageBuilderTest extends TestCase
         $frontend->assertSee('PEAK SPEED');
     }
 
+    public function test_admin_can_customize_hero_headline_typography_and_custom_gradient(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_title_size', 'extra_large')
+            ->set('hero_title_weight', 'extrabold')
+            ->set('hero_title_glow', 'cyan')
+            ->set('hero_title_highlight_enabled', true)
+            ->set('hero_title_prefix', 'Authorized')
+            ->set('hero_title_highlight', 'Propulsion Overhauls')
+            ->set('hero_title_suffix', 'Engineering')
+            ->set('hero_title_highlight_style', 'gradient_custom')
+            ->set('hero_title_grad_dir', 'to right')
+            ->set('hero_title_grad_from', '#ff0077')
+            ->set('hero_title_grad_via', '#7928ca')
+            ->set('hero_title_grad_to', '#00dfd8')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('extra_large', Setting::get('home_hero_title_size'));
+        $this->assertEquals('extrabold', Setting::get('home_hero_title_weight'));
+        $this->assertEquals('cyan', Setting::get('home_hero_title_glow'));
+        $this->assertEquals('gradient_custom', Setting::get('home_hero_title_highlight_style'));
+        $this->assertEquals('to right', Setting::get('home_hero_title_grad_dir'));
+        $this->assertEquals('#ff0077', Setting::get('home_hero_title_grad_from'));
+        $this->assertEquals('#7928ca', Setting::get('home_hero_title_grad_via'));
+        $this->assertEquals('#00dfd8', Setting::get('home_hero_title_grad_to'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('text-4xl sm:text-6xl lg:text-8xl');
+        $frontend->assertSee('font-extrabold');
+        $frontend->assertSee('drop-shadow-[0_4px_24px_rgba(6,182,212,0.45)]');
+        $frontend->assertSee('linear-gradient(to right, #ff0077, #7928ca, #00dfd8)');
+    }
+
+    public function test_admin_can_customize_turbine_box_padding_and_notice_route_picker(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(HomepageBuilder::class)
+            ->set('hero_visual_padding', 'extra_spacious')
+            ->set('hero_notice_enabled', true)
+            ->set('hero_notice_text', 'Active Port Anchorage Alert')
+            ->set('hero_notice_link_type', 'internal')
+            ->set('hero_notice_url', '/contact')
+            ->call('saveHero')
+            ->assertHasNoErrors();
+
+        $this->assertEquals('extra_spacious', Setting::get('home_hero_visual_padding'));
+        $this->assertEquals('internal', Setting::get('home_hero_notice_link_type'));
+        $this->assertEquals('/contact', Setting::get('home_hero_notice_url'));
+
+        $frontend = $this->get('/');
+        $frontend->assertStatus(200);
+        $frontend->assertSee('p-8 sm:p-12');
+        $frontend->assertSee('Active Port Anchorage Alert');
+        $frontend->assertSee('href="/contact"', false);
+    }
+
     public function test_restore_production_design_restores_hero_banner_defaults(): void
     {
         $this->actingAs($this->admin);
@@ -435,17 +496,23 @@ class HomepageBuilderTest extends TestCase
         Setting::set('home_metric1_value', '999');
         Setting::set('home_hero_column_split', '5_7');
         Setting::set('home_hero_visual_size', 'compact');
+        Setting::set('home_hero_title_size', 'compact');
+        Setting::set('home_hero_visual_padding', 'none');
 
         Livewire::test(HomepageBuilder::class)
             ->call('restoreProductionDesign')
             ->assertSet('hero_title', 'Precision Turbocharger Overhauls & Marine Propulsion Support.')
             ->assertSet('hero_metric1_value', '100,000')
             ->assertSet('hero_column_split', '7_5')
-            ->assertSet('hero_visual_size', 'standard');
+            ->assertSet('hero_visual_size', 'standard')
+            ->assertSet('hero_title_size', 'standard')
+            ->assertSet('hero_visual_padding', 'spacious');
 
         $this->assertEquals('Precision Turbocharger Overhauls & Marine Propulsion Support.', Setting::get('home_hero_title'));
         $this->assertEquals('100,000', Setting::get('home_metric1_value'));
         $this->assertEquals('7_5', Setting::get('home_hero_column_split'));
         $this->assertEquals('standard', Setting::get('home_hero_visual_size'));
+        $this->assertEquals('standard', Setting::get('home_hero_title_size'));
+        $this->assertEquals('spacious', Setting::get('home_hero_visual_padding'));
     }
 }

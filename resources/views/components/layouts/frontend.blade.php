@@ -203,23 +203,23 @@
                 opacity: 0;
                 will-change: transform, opacity;
                 transition-property: opacity, transform;
-                transition-duration: 0.8s;
+                transition-duration: 0.85s;
                 transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
             }
             .reveal-fade-up {
-                transform: translateY(28px);
+                transform: translateY(38px);
             }
             .reveal-fade-down {
-                transform: translateY(-28px);
+                transform: translateY(-38px);
             }
             .reveal-slide-left {
-                transform: translateX(-36px);
+                transform: translateX(-44px);
             }
             .reveal-slide-right {
-                transform: translateX(36px);
+                transform: translateX(44px);
             }
             .reveal-scale {
-                transform: scale(0.95);
+                transform: scale(0.92) translateY(24px);
             }
             .reveal-fade {
                 transform: none;
@@ -238,8 +238,10 @@
             .reveal-delay-200 { transition-delay: 200ms; }
             .reveal-delay-250 { transition-delay: 250ms; }
             .reveal-delay-300 { transition-delay: 300ms; }
+            .reveal-delay-350 { transition-delay: 350ms; }
             .reveal-delay-400 { transition-delay: 400ms; }
             .reveal-delay-500 { transition-delay: 500ms; }
+            .reveal-delay-600 { transition-delay: 600ms; }
         }
 
         .icon-glow {
@@ -1279,8 +1281,8 @@
                         }
                     });
                 }, {
-                    threshold: 0.05,
-                    rootMargin: "0px 0px -20px 0px"
+                    threshold: 0.12,
+                    rootMargin: "0px 0px -40px 0px"
                 });
 
                 targets.forEach(function(el) {

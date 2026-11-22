@@ -164,8 +164,16 @@ class HomepageBuilder extends Component
     public string $hero_title_prefix = 'Precision Turbocharger Overhauls &';
     public string $hero_title_highlight = 'Marine Propulsion Support.';
     public string $hero_title_suffix = '';
-    public string $hero_title_highlight_style = 'gradient_cyan'; // 'gradient_cyan', 'gradient_amber', 'brand_primary', 'gradient_emerald', 'solid_custom'
+    public string $hero_title_highlight_style = 'gradient_cyan'; // 'gradient_cyan', 'gradient_amber', 'brand_primary', 'gradient_emerald', 'gradient_custom', 'solid_custom'
     public string $hero_title_highlight_custom = '#0ea5e9';
+    public string $hero_title_size = 'standard'; // 'compact', 'standard', 'large', 'extra_large'
+    public string $hero_title_weight = 'black'; // 'bold', 'extrabold', 'black'
+    public string $hero_title_glow = 'none'; // 'none', 'subtle', 'cyan', 'amber', 'deep'
+    // Custom Multi-color Gradient Controls for Headline Highlight
+    public string $hero_title_grad_dir = '135deg';
+    public string $hero_title_grad_from = '#00d2ff';
+    public string $hero_title_grad_via = '#0084ff';
+    public string $hero_title_grad_to = '#003C58';
     public string $hero_subtitle = 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.';
 
     // Extra Content: Capability Feature Bullets
@@ -188,6 +196,7 @@ class HomepageBuilder extends Component
     public string $hero_notice_text = 'Emergency Port Calls & Anchorage Squads on standby 24/7';
     public string $hero_notice_icon = 'solid:bullhorn';
     public string $hero_notice_url = '/contact#emergency';
+    public string $hero_notice_link_type = 'internal'; // 'internal', 'external'
 
     // Hero CTAs
     public bool $hero_cta1_enabled = true;
@@ -217,6 +226,7 @@ class HomepageBuilder extends Component
     public bool $hero_visual_enabled = true;
     public string $hero_visual_type = 'tachometer'; // 'tachometer', 'image'
     public string $hero_visual_size = 'standard'; // 'compact', 'standard', 'large', 'extra_large'
+    public string $hero_visual_padding = 'spacious'; // 'none', 'compact', 'standard', 'spacious', 'extra_spacious'
     public string $hero_visual_bg_style = 'cockpit_card'; // 'cockpit_card', 'frosted_glass', 'transparent', 'ambient_glow', 'solid_custom'
     public string $hero_visual_custom_bg = '#07131e';
     public string $hero_visual_border = 'border'; // 'border', 'thick_ring', 'none'
@@ -386,6 +396,13 @@ class HomepageBuilder extends Component
         $this->hero_title_suffix    = Setting::get('home_hero_title_suffix', '');
         $this->hero_title_highlight_style = Setting::get('home_hero_title_highlight_style', 'gradient_cyan');
         $this->hero_title_highlight_custom = Setting::get('home_hero_title_highlight_custom', '#0ea5e9');
+        $this->hero_title_size      = Setting::get('home_hero_title_size', 'standard');
+        $this->hero_title_weight    = Setting::get('home_hero_title_weight', 'black');
+        $this->hero_title_glow      = Setting::get('home_hero_title_glow', 'none');
+        $this->hero_title_grad_dir  = Setting::get('home_hero_title_grad_dir', '135deg');
+        $this->hero_title_grad_from = Setting::get('home_hero_title_grad_from', '#00d2ff');
+        $this->hero_title_grad_via  = Setting::get('home_hero_title_grad_via', '#0084ff');
+        $this->hero_title_grad_to   = Setting::get('home_hero_title_grad_to', '#003C58');
 
         $this->hero_subtitle        = Setting::get('home_hero_subtitle', 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.');
 
@@ -409,6 +426,7 @@ class HomepageBuilder extends Component
         $this->hero_notice_text     = Setting::get('home_hero_notice_text', 'Emergency Port Calls & Anchorage Squads on standby 24/7');
         $this->hero_notice_icon     = Setting::get('home_hero_notice_icon', 'solid:bullhorn');
         $this->hero_notice_url      = Setting::get('home_hero_notice_url', '/contact#emergency');
+        $this->hero_notice_link_type = Setting::get('home_hero_notice_link_type', (str_starts_with($this->hero_notice_url, 'http://') || str_starts_with($this->hero_notice_url, 'https://')) ? 'external' : 'internal');
 
         // CTAs
         $this->hero_cta1_enabled    = (bool) Setting::get('home_hero_cta1_enabled', true);
@@ -438,6 +456,7 @@ class HomepageBuilder extends Component
         $this->hero_visual_enabled  = (bool) Setting::get('home_hero_visual_enabled', true);
         $this->hero_visual_type     = Setting::get('home_hero_visual_type', 'tachometer');
         $this->hero_visual_size     = Setting::get('home_hero_visual_size', 'standard');
+        $this->hero_visual_padding  = Setting::get('home_hero_visual_padding', 'spacious');
         $this->hero_visual_bg_style = Setting::get('home_hero_visual_bg_style', 'cockpit_card');
         $this->hero_visual_custom_bg = Setting::get('home_hero_visual_custom_bg', '#07131e');
         $this->hero_visual_border   = Setting::get('home_hero_visual_border', 'border');
@@ -655,6 +674,13 @@ class HomepageBuilder extends Component
         Setting::set('home_hero_title_suffix', trim($this->hero_title_suffix));
         Setting::set('home_hero_title_highlight_style', $this->hero_title_highlight_style);
         Setting::set('home_hero_title_highlight_custom', trim($this->hero_title_highlight_custom));
+        Setting::set('home_hero_title_size', $this->hero_title_size);
+        Setting::set('home_hero_title_weight', $this->hero_title_weight);
+        Setting::set('home_hero_title_glow', $this->hero_title_glow);
+        Setting::set('home_hero_title_grad_dir', $this->hero_title_grad_dir);
+        Setting::set('home_hero_title_grad_from', trim($this->hero_title_grad_from));
+        Setting::set('home_hero_title_grad_via', trim($this->hero_title_grad_via));
+        Setting::set('home_hero_title_grad_to', trim($this->hero_title_grad_to));
         Setting::set('home_hero_subtitle', trim($this->hero_subtitle));
 
         // Extra Content: Bullets & Notice
@@ -676,6 +702,7 @@ class HomepageBuilder extends Component
         Setting::set('home_hero_notice_text', trim($this->hero_notice_text));
         Setting::set('home_hero_notice_icon', trim($this->hero_notice_icon));
         Setting::set('home_hero_notice_url', trim($this->hero_notice_url));
+        Setting::set('home_hero_notice_link_type', $this->hero_notice_link_type);
 
         Setting::set('home_hero_cta1_enabled', $this->hero_cta1_enabled ? '1' : '0');
         Setting::set('home_hero_cta1_text', trim($this->hero_cta1_text));
@@ -700,6 +727,7 @@ class HomepageBuilder extends Component
         Setting::set('home_hero_visual_enabled', $this->hero_visual_enabled ? '1' : '0');
         Setting::set('home_hero_visual_type', $this->hero_visual_type);
         Setting::set('home_hero_visual_size', $this->hero_visual_size);
+        Setting::set('home_hero_visual_padding', $this->hero_visual_padding);
         Setting::set('home_hero_visual_bg_style', $this->hero_visual_bg_style);
         Setting::set('home_hero_visual_custom_bg', trim($this->hero_visual_custom_bg));
         Setting::set('home_hero_visual_border', $this->hero_visual_border);
@@ -852,6 +880,13 @@ class HomepageBuilder extends Component
         $this->hero_title_suffix    = '';
         $this->hero_title_highlight_style = 'gradient_cyan';
         $this->hero_title_highlight_custom = '#0ea5e9';
+        $this->hero_title_size      = 'standard';
+        $this->hero_title_weight    = 'black';
+        $this->hero_title_glow      = 'none';
+        $this->hero_title_grad_dir  = '135deg';
+        $this->hero_title_grad_from = '#00d2ff';
+        $this->hero_title_grad_via  = '#0084ff';
+        $this->hero_title_grad_to   = '#003C58';
         $this->hero_subtitle        = 'Specialized multi-brand maintenance, dynamic rotor balancing up to 100,000 RPM, and global OEM spare parts logistics for oceangoing commercial vessels, industrial captive power plants, and oil & gas terminals.';
 
         // Feature Bullets
@@ -873,6 +908,7 @@ class HomepageBuilder extends Component
         $this->hero_notice_text     = 'Emergency Port Calls & Anchorage Squads on standby 24/7';
         $this->hero_notice_icon     = 'solid:bullhorn';
         $this->hero_notice_url      = '/contact#emergency';
+        $this->hero_notice_link_type = 'internal';
 
         $this->hero_cta1_enabled    = true;
         $this->hero_cta1_text       = 'Explore Overhaul Services';
@@ -897,6 +933,7 @@ class HomepageBuilder extends Component
         $this->hero_visual_enabled  = true;
         $this->hero_visual_type     = 'tachometer';
         $this->hero_visual_size     = 'standard';
+        $this->hero_visual_padding  = 'spacious';
         $this->hero_visual_bg_style = 'cockpit_card';
         $this->hero_visual_custom_bg = '#07131e';
         $this->hero_visual_border   = 'border';

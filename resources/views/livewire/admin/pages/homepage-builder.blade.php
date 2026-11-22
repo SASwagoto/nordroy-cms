@@ -1475,6 +1475,48 @@
                         </div>
 
                         <div class="space-y-4">
+                            <!-- Headline Typography Controls (Size, Weight, Glow) -->
+                            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider block">Headline Typography &amp; Scale</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <!-- Font Size -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Headline Font Size</label>
+                                        <select wire:model.live="hero_title_size"
+                                                class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            <option value="compact">Compact Executive (2xl to 5xl)</option>
+                                            <option value="standard">Standard Corporate (3xl to 6xl - Default)</option>
+                                            <option value="large">Large Display (4xl to 7xl)</option>
+                                            <option value="extra_large">Massive Statement (4xl to 8xl)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Font Weight -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Font Weight</label>
+                                        <select wire:model.live="hero_title_weight"
+                                                class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            <option value="bold">Bold (700)</option>
+                                            <option value="extrabold">Extra Bold (800)</option>
+                                            <option value="black">Ultra Black (900 - Default)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Text Glow / Shadow -->
+                                    <div class="space-y-1">
+                                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Glow &amp; Shadow Depth</label>
+                                        <select wire:model.live="hero_title_glow"
+                                                class="w-full px-2.5 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            <option value="none">None (Clean Flat)</option>
+                                            <option value="subtle">Subtle Soft Shadow</option>
+                                            <option value="cyan">Cyan Ambient Glow</option>
+                                            <option value="amber">Maritime Amber Glow</option>
+                                            <option value="deep">Deep High-Contrast Shadow</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Multicolor Scope vs Single Headline -->
                             @if($hero_title_highlight_enabled)
                             <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
@@ -1506,19 +1548,61 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800">
-                                    <!-- Highlight Style -->
+                                <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                                    <!-- Highlight Style Preset -->
                                     <div class="space-y-1.5">
-                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Highlight Color / Gradient Preset</label>
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Highlight Color / Gradient Engine</label>
                                         <select wire:model.live="hero_title_highlight_style"
                                                 class="w-full px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
                                             <option value="gradient_cyan">Electric Cyan Gradient (Default Brand)</option>
                                             <option value="gradient_amber">Maritime Amber / Gold Gradient</option>
                                             <option value="brand_primary">Corporate Navy Primary Solid</option>
                                             <option value="gradient_emerald">Emerald Engineering Efficiency</option>
+                                            <option value="gradient_custom">Custom Multi-Color Gradient (Full Controls)</option>
                                             <option value="solid_custom">Custom Solid Hex Color</option>
                                         </select>
                                     </div>
+
+                                    <!-- Custom Gradient Builder if selected -->
+                                    @if($hero_title_highlight_style === 'gradient_custom')
+                                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">Custom Multi-Color Gradient Generator</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                                            <div class="space-y-1">
+                                                <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Direction</label>
+                                                <select wire:model.live="hero_title_grad_dir"
+                                                        class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                                    <option value="135deg">135° Industrial Angle</option>
+                                                    <option value="to right">To Right (Horizontal)</option>
+                                                    <option value="to bottom">To Bottom (Vertical)</option>
+                                                    <option value="45deg">45° Diagonal</option>
+                                                    <option value="90deg">90° Direct</option>
+                                                </select>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Start Color</label>
+                                                <div class="flex items-center gap-1.5">
+                                                    <input type="color" wire:model.live="hero_title_grad_from" class="w-6 h-6 rounded border-0 cursor-pointer">
+                                                    <input type="text" wire:model="hero_title_grad_from" class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                                                </div>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Middle Via (Optional)</label>
+                                                <div class="flex items-center gap-1.5">
+                                                    <input type="color" wire:model.live="hero_title_grad_via" class="w-6 h-6 rounded border-0 cursor-pointer">
+                                                    <input type="text" wire:model="hero_title_grad_via" placeholder="#0084ff" class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                                                </div>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">End Color</label>
+                                                <div class="flex items-center gap-1.5">
+                                                    <input type="color" wire:model.live="hero_title_grad_to" class="w-6 h-6 rounded border-0 cursor-pointer">
+                                                    <input type="text" wire:model="hero_title_grad_to" class="w-full px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     <!-- Custom Hex Color if selected -->
                                     @if($hero_title_highlight_style === 'solid_custom')
@@ -1533,9 +1617,15 @@
                                 </div>
 
                                 <!-- Live Interactive Preview -->
-                                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left space-y-1">
-                                    <span class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Live Headline Preview</span>
-                                    <div class="text-base sm:text-lg font-black text-white tracking-tight">
+                                <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-left space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Live Headline Preview</span>
+                                        <span class="text-[9px] font-mono text-cyan-400">{{ strtoupper($hero_title_size) }} &bull; {{ strtoupper($hero_title_weight) }}</span>
+                                    </div>
+                                    <div class="tracking-tight text-white leading-tight
+                                        {{ $hero_title_size === 'compact' ? 'text-base sm:text-lg' : ($hero_title_size === 'large' ? 'text-xl sm:text-2xl' : ($hero_title_size === 'extra_large' ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl')) }}
+                                        {{ $hero_title_weight === 'bold' ? 'font-bold' : ($hero_title_weight === 'extrabold' ? 'font-extrabold' : 'font-black') }}
+                                        {{ $hero_title_glow === 'cyan' ? 'drop-shadow-[0_4px_16px_rgba(6,182,212,0.6)]' : ($hero_title_glow === 'amber' ? 'drop-shadow-[0_4px_16px_rgba(245,158,11,0.6)]' : ($hero_title_glow === 'deep' ? 'drop-shadow-lg' : ($hero_title_glow === 'subtle' ? 'drop-shadow-xs' : ''))) }}">
                                         <span>{{ $hero_title_prefix }}</span>
                                         @if($hero_title_highlight)
                                             @if($hero_title_highlight_style === 'gradient_cyan')
@@ -1543,9 +1633,14 @@
                                             @elseif($hero_title_highlight_style === 'gradient_amber')
                                                 <span class="text-transparent bg-clip-text bg-linear-to-r from-amber-400 via-orange-300 to-yellow-500 font-extrabold">{{ $hero_title_highlight }}</span>
                                             @elseif($hero_title_highlight_style === 'brand_primary')
-                                                <span class="text-[#003C58] dark:text-cyan-400 font-extrabold">{{ $hero_title_highlight }}</span>
+                                                <span class="text-cyan-400 font-extrabold">{{ $hero_title_highlight }}</span>
                                             @elseif($hero_title_highlight_style === 'gradient_emerald')
                                                 <span class="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 via-teal-300 to-cyan-400 font-extrabold">{{ $hero_title_highlight }}</span>
+                                            @elseif($hero_title_highlight_style === 'gradient_custom')
+                                                <span class="text-transparent bg-clip-text font-extrabold"
+                                                      style="background-image: linear-gradient({{ $hero_title_grad_dir }}, {{ $hero_title_grad_from }}{{ $hero_title_grad_via ? ', ' . $hero_title_grad_via : '' }}, {{ $hero_title_grad_to }});">
+                                                    {{ $hero_title_highlight }}
+                                                </span>
                                             @else
                                                 <span style="color: {{ $hero_title_highlight_custom }};" class="font-extrabold">{{ $hero_title_highlight }}</span>
                                             @endif
@@ -1918,11 +2013,37 @@
                                            class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
                                 </div>
 
-                                <!-- Notice Link URL -->
-                                <div class="space-y-1">
-                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Notice Link URL (Optional)</label>
-                                    <input type="text" wire:model="hero_notice_url" placeholder="#emergency or /contact"
-                                           class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                <!-- Notice Link Destination (Internal Route Picker vs External URL) -->
+                                <div class="space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Destination Link</label>
+                                        <div class="inline-flex rounded-lg bg-slate-200 dark:bg-slate-800 p-0.5 text-[10px]">
+                                            <button type="button" wire:click="$set('hero_notice_link_type', 'internal')"
+                                                    class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $hero_notice_link_type === 'internal' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                                Internal Route
+                                            </button>
+                                            <button type="button" wire:click="$set('hero_notice_link_type', 'external')"
+                                                    class="px-2 py-0.5 rounded-md transition-all cursor-pointer {{ $hero_notice_link_type === 'external' ? 'bg-white dark:bg-slate-950 text-[#003C58] dark:text-cyan-400 shadow-2xs font-bold' : 'text-slate-500' }}">
+                                                External URL
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    @if($hero_notice_link_type === 'internal')
+                                        <select wire:model.live="hero_notice_url"
+                                                class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                            @foreach($internalLinkOptions as $category => $routes)
+                                                <optgroup label="{{ $category }}">
+                                                    @foreach($routes as $rUrl => $rLabel)
+                                                        <option value="{{ $rUrl }}">{{ $rLabel }}</option>
+                                                    @endforeach
+                                                </optgroup>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input type="text" wire:model="hero_notice_url" placeholder="https://..."
+                                               class="w-full px-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium">
+                                    @endif
                                 </div>
                             </div>
 
@@ -1984,7 +2105,7 @@
                                 <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Showcase Dimensions &amp; Backdrop Styling</span>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <!-- Dial Size -->
                                 <div class="space-y-1.5">
                                     <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
@@ -1997,6 +2118,22 @@
                                         <option value="standard">Standard Dial (360px - Recommended)</option>
                                         <option value="large">Large Dial (420px)</option>
                                         <option value="extra_large">Extra Large Showcase (480px)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Box Padding Control -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                        <span>Showcase Box Padding</span>
+                                        <span class="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">{{ $hero_visual_padding }}</span>
+                                    </label>
+                                    <select wire:model.live="hero_visual_padding"
+                                            class="w-full px-3.5 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-cyan-500/20">
+                                        <option value="none">None / Zero Padding (p-0)</option>
+                                        <option value="compact">Compact Dense (p-3 sm:p-4)</option>
+                                        <option value="standard">Standard Frame (p-5 sm:p-7)</option>
+                                        <option value="spacious">Spacious Frame (p-6 sm:p-8 - Default)</option>
+                                        <option value="extra_spacious">Extra Spacious Luxury (p-8 sm:p-12)</option>
                                     </select>
                                 </div>
 
