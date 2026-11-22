@@ -115,9 +115,10 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Image Asset Path / URL</label>
-                        <input type="text" wire:model="photos_static_items.{{ $phIdx }}.image_url"
-                               class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        <x-homepage-builder.media-picker 
+                            model="photos_static_items.{{ $phIdx }}.image_url" 
+                            :value="$photo['image_url'] ?? ''" 
+                            label="Photo Asset (Media Library / Upload)" />
                     </div>
                 </div>
                 @endforeach

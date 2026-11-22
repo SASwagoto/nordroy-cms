@@ -45,9 +45,10 @@
 
                 @if($footer_logo_type === 'custom_logo')
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Custom Logo Asset Path</label>
-                    <input type="text" wire:model="footer_custom_logo" placeholder="assets/images/footer-logo.png"
-                           class="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                    <x-homepage-builder.media-picker 
+                        model="footer_custom_logo" 
+                        :value="$footer_custom_logo" 
+                        label="Custom Footer Logo Asset" />
                 </div>
                 @endif
 
@@ -169,15 +170,18 @@
 
                 <div class="space-y-2">
                     @foreach($footer_col2_links as $lIdx => $lItem)
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                        <input type="text" wire:model="footer_col2_links.{{ $lIdx }}.text" placeholder="Link Label"
-                               class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-medium">
-                        <input type="text" wire:model="footer_col2_links.{{ $lIdx }}.url" placeholder="/products"
-                               class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-                        <button type="button" wire:click="removeFooterCol2Link({{ $lIdx }})"
-                                class="w-6 h-6 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer">
-                            <x-icon name="solid:xmark" class="w-3.5 h-3.5" />
-                        </button>
+                    <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <input type="text" wire:model="footer_col2_links.{{ $lIdx }}.text" placeholder="Link Label"
+                                   class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-medium">
+                            <button type="button" wire:click="removeFooterCol2Link({{ $lIdx }})"
+                                    class="w-6 h-6 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Link">
+                                <x-icon name="solid:xmark" class="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                        <x-homepage-builder.link-picker 
+                            model="footer_col2_links.{{ $lIdx }}.url" 
+                            :options="$internalLinkOptions" />
                     </div>
                     @endforeach
                 </div>
@@ -234,15 +238,18 @@
 
                 <div class="space-y-2">
                     @foreach($footer_col3_links as $lIdx => $lItem)
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                        <input type="text" wire:model="footer_col3_links.{{ $lIdx }}.text" placeholder="Link Label"
-                               class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-medium">
-                        <input type="text" wire:model="footer_col3_links.{{ $lIdx }}.url" placeholder="/services"
-                               class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-                        <button type="button" wire:click="removeFooterCol3Link({{ $lIdx }})"
-                                class="w-6 h-6 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer">
-                            <x-icon name="solid:xmark" class="w-3.5 h-3.5" />
-                        </button>
+                    <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <input type="text" wire:model="footer_col3_links.{{ $lIdx }}.text" placeholder="Link Label"
+                                   class="flex-1 px-2.5 py-1 text-xs rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-medium">
+                            <button type="button" wire:click="removeFooterCol3Link({{ $lIdx }})"
+                                    class="w-6 h-6 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center cursor-pointer" title="Remove Link">
+                                <x-icon name="solid:xmark" class="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                        <x-homepage-builder.link-picker 
+                            model="footer_col3_links.{{ $lIdx }}.url" 
+                            :options="$internalLinkOptions" />
                     </div>
                     @endforeach
                 </div>

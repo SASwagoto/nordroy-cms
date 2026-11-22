@@ -2300,8 +2300,29 @@ class HomepageBuilder extends Component
             return;
         }
 
-        if (property_exists($this, $field)) {
-            $this->{$field} = $icon;
+        if ($field) {
+            if ($index !== null && is_numeric($index)) {
+                data_set($this, "{$field}.{$index}", $icon);
+            } else {
+                data_set($this, $field, $icon);
+            }
+        }
+    }
+
+    #[\Livewire\Attributes\On('media-selected')]
+    public function selectAsset($assetId, $assetUrl, $targetField = null, $targetIndex = null): void
+    {
+        if (!$targetField) return;
+
+        $path = $assetUrl;
+        if (str_starts_with($path, url('/'))) {
+            $path = ltrim(substr($path, strlen(url('/'))), '/');
+        }
+
+        if ($targetIndex !== null && is_numeric($targetIndex)) {
+            data_set($this, "{$targetField}.{$targetIndex}", $path);
+        } else {
+            data_set($this, $targetField, $path);
         }
     }
 

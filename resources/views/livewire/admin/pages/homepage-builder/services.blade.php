@@ -119,9 +119,11 @@
                                    class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Icon Identifier</label>
-                            <input type="text" wire:model="services_static_items.{{ $sIdx }}.icon"
-                                   class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Card Icon</label>
+                            <x-homepage-builder.icon-picker 
+                                model="services_static_items.{{ $sIdx }}.icon" 
+                                :value="$item['icon'] ?? 'solid:wrench'" 
+                                label="" />
                         </div>
                     </div>
 
@@ -132,9 +134,10 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Link URL</label>
-                        <input type="text" wire:model="services_static_items.{{ $sIdx }}.url"
-                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-slate-900 dark:text-white">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Link Destination</label>
+                        <x-homepage-builder.link-picker 
+                            model="services_static_items.{{ $sIdx }}.url" 
+                            :options="$internalLinkOptions" />
                     </div>
                 </div>
                 @endforeach

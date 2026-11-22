@@ -2583,4 +2583,7 @@
 
     <!-- Vector Icon Picker Modal -->
     <x-icon-picker-modal />
+
+    <!-- Unified Media Asset Picker Modal -->
+    <x-media-picker-modal />
 </div>

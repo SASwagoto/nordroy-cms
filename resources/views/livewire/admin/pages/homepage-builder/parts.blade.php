@@ -114,16 +114,19 @@
                                class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-2">
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Icon</label>
-                            <input type="text" wire:model="parts_static_items.{{ $pIdx }}.icon"
-                                   class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Part Icon</label>
+                            <x-homepage-builder.icon-picker 
+                                model="parts_static_items.{{ $pIdx }}.icon" 
+                                :value="$item['icon'] ?? 'solid:gears'" 
+                                label="" />
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target URL</label>
-                            <input type="text" wire:model="parts_static_items.{{ $pIdx }}.url"
-                                   class="w-full px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Link Destination</label>
+                            <x-homepage-builder.link-picker 
+                                model="parts_static_items.{{ $pIdx }}.url" 
+                                :options="$internalLinkOptions" />
                         </div>
                     </div>
                 </div>

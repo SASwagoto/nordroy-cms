@@ -124,14 +124,28 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Video File URL (MP4)</label>
-                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.video_url"
-                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                            <div class="flex items-center gap-1.5">
+                                <input type="text" wire:model="videos_static_items.{{ $vIdx }}.video_url" placeholder="assets/videos/..."
+                                       class="flex-1 px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                                <button type="button" @click="$dispatch('open-media-picker', { targetField: 'videos_static_items.{{ $vIdx }}.video_url' })"
+                                        class="px-2 py-1 rounded text-[11px] font-bold bg-[#003C58] text-white dark:bg-cyan-500 dark:text-slate-950 hover:opacity-90 shrink-0">
+                                    Browse
+                                </button>
+                            </div>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Thumbnail Poster Image URL</label>
-                            <input type="text" wire:model="videos_static_items.{{ $vIdx }}.thumbnail_url"
-                                   class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                            <x-homepage-builder.media-picker 
+                                model="videos_static_items.{{ $vIdx }}.thumbnail_url" 
+                                :value="$vItem['thumbnail_url'] ?? ''" 
+                                label="Thumbnail Poster Image" />
                         </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Details / Action Link</label>
+                        <x-homepage-builder.link-picker 
+                            model="videos_static_items.{{ $vIdx }}.link_url" 
+                            :options="$internalLinkOptions" />
                     </div>
                 </div>
                 @endforeach

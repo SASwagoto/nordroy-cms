@@ -99,16 +99,24 @@
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Call-to-Action 1</span>
                     <input type="text" wire:model="customSections.{{ $customKey }}.cta1_text" placeholder="Button Label"
                            class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <input type="text" wire:model="customSections.{{ $customKey }}.cta1_url" placeholder="/services"
-                           class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Route</label>
+                        <x-homepage-builder.link-picker 
+                            model="customSections.{{ $customKey }}.cta1_url" 
+                            :options="$internalLinkOptions" />
+                    </div>
                 </div>
 
                 <div class="space-y-2 p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Call-to-Action 2 (Optional)</span>
                     <input type="text" wire:model="customSections.{{ $customKey }}.cta2_text" placeholder="Button Label"
                            class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <input type="text" wire:model="customSections.{{ $customKey }}.cta2_url" placeholder="/contact"
-                           class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Route</label>
+                        <x-homepage-builder.link-picker 
+                            model="customSections.{{ $customKey }}.cta2_url" 
+                            :options="$internalLinkOptions" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,16 +135,24 @@
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Primary Button</span>
                     <input type="text" wire:model="customSections.{{ $customKey }}.cta1_text" placeholder="Explore Services →"
                            class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <input type="text" wire:model="customSections.{{ $customKey }}.cta1_url" placeholder="/services"
-                           class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Route</label>
+                        <x-homepage-builder.link-picker 
+                            model="customSections.{{ $customKey }}.cta1_url" 
+                            :options="$internalLinkOptions" />
+                    </div>
                 </div>
 
                 <div class="space-y-2 p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Secondary Button</span>
                     <input type="text" wire:model="customSections.{{ $customKey }}.cta2_text" placeholder="Contact Duty Desk"
                            class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                    <input type="text" wire:model="customSections.{{ $customKey }}.cta2_url" placeholder="/contact"
-                           class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Target Route</label>
+                        <x-homepage-builder.link-picker 
+                            model="customSections.{{ $customKey }}.cta2_url" 
+                            :options="$internalLinkOptions" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,9 +197,11 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Icon Identifier</label>
-                        <input type="text" wire:model="customSections.{{ $customKey }}.features.{{ $fIdx }}.icon"
-                               class="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+                        <label class="text-[10px] font-bold text-slate-600 dark:text-slate-400">Card Icon</label>
+                        <x-homepage-builder.icon-picker 
+                            model="customSections.{{ $customKey }}.features.{{ $fIdx }}.icon" 
+                            :value="$feature['icon'] ?? 'solid:star'" 
+                            label="" />
                     </div>
                 </div>
                 @endforeach
