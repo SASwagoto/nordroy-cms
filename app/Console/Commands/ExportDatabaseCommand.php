@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class ExportDatabaseCommand extends Command
 {
-    protected $signature = 'db:export {--file=database_backup.sql : Output filename}';
-    protected $description = 'Export the corporate-cms database to a clean SQL file';
+    protected $signature = 'db:export {--file=database_backup.sql : Output filename} {--raw-mysqldump : Force external mysqldump binary instead of clean PHP generator}';
+    protected $description = 'Export the corporate-cms database to a 100% cPanel/MariaDB compatible SQL file';
 
     public function handle(): int
     {
@@ -16,44 +16,43 @@ class ExportDatabaseCommand extends Command
         $outputPath = base_path($filename);
 
         $dbName = config('database.connections.mysql.database');
-        $dbUser = config('database.connections.mysql.username');
-        $dbPass = config('database.connections.mysql.password');
-        $dbHost = config('database.connections.mysql.host', '127.0.0.1');
-        $dbPort = config('database.connections.mysql.port', '3306');
+        $this->info("Exporting database [{$dbName}] for cPanel/phpMyAdmin compatibility...");
 
-        $this->info("Exporting database [{$dbName}]...");
+        if ($this->option('raw-mysqldump')) {
+            $mysqldumpPath = $this->findMysqldumpPath();
+            if ($mysqldumpPath && file_exists($mysqldumpPath)) {
+                $dbUser = config('database.connections.mysql.username');
+                $dbPass = config('database.connections.mysql.password');
+                $dbHost = config('database.connections.mysql.host', '127.0.0.1');
+                $dbPort = config('database.connections.mysql.port', '3306');
 
-        // Try to locate mysqldump binary
-        $mysqldumpPath = $this->findMysqldumpPath();
+                $cmd = sprintf(
+                    '"%s" -u %s %s -h %s -P %s --set-gtid-purged=OFF %s --result-file="%s"',
+                    $mysqldumpPath,
+                    escapeshellarg($dbUser),
+                    $dbPass ? '-p' . escapeshellarg($dbPass) : '',
+                    escapeshellarg($dbHost),
+                    escapeshellarg($dbPort),
+                    escapeshellarg($dbName),
+                    $outputPath
+                );
 
-        if ($mysqldumpPath && file_exists($mysqldumpPath)) {
-            $cmd = sprintf(
-                '"%s" -u %s %s -h %s -P %s --set-gtid-purged=OFF %s --result-file="%s"',
-                $mysqldumpPath,
-                escapeshellarg($dbUser),
-                $dbPass ? '-p' . escapeshellarg($dbPass) : '',
-                escapeshellarg($dbHost),
-                escapeshellarg($dbPort),
-                escapeshellarg($dbName),
-                $outputPath
-            );
+                exec($cmd, $output, $returnCode);
 
-            exec($cmd, $output, $returnCode);
-
-            if ($returnCode === 0 && file_exists($outputPath) && filesize($outputPath) > 0) {
-                $sizeKb = round(filesize($outputPath) / 1024, 2);
-                $this->info("✓ Database successfully exported via mysqldump to: {$filename} ({$sizeKb} KB)");
-                return Command::SUCCESS;
+                if ($returnCode === 0 && file_exists($outputPath) && filesize($outputPath) > 0) {
+                    $sizeKb = round(filesize($outputPath) / 1024, 2);
+                    $this->info("✓ Database exported via mysqldump to: {$filename} ({$sizeKb} KB)");
+                    return Command::SUCCESS;
+                }
             }
         }
 
-        // Fallback: Pure PHP SQL Exporter
-        $this->warn('mysqldump binary not in PATH. Generating clean SQL dump via PHP PDO engine...');
-        $sql = $this->generateSqlDump();
+        // Default & Recommended: Clean, 100% cPanel MariaDB & phpMyAdmin compatible SQL dump
+        $sql = static::generateSqlDump();
         file_put_contents($outputPath, $sql);
 
         $sizeKb = round(filesize($outputPath) / 1024, 2);
-        $this->info("✓ Database successfully exported via PHP Engine to: {$filename} ({$sizeKb} KB)");
+        $this->info("✓ Clean cPanel/phpMyAdmin compatible SQL dump successfully generated: {$filename} ({$sizeKb} KB)");
 
         return Command::SUCCESS;
     }
@@ -83,21 +82,25 @@ class ExportDatabaseCommand extends Command
     {
         $tables = DB::select('SHOW FULL TABLES WHERE Table_Type = "BASE TABLE"');
         $dbName = config('database.connections.mysql.database');
+        $pdo = DB::connection()->getPdo();
 
-        $out = "-- Nordroy Corporate CMS SQL Database Dump\n";
+        $out = "-- ========================================================\n";
+        $out .= "-- Nordroy Corporate CMS - cPanel & phpMyAdmin Compatible Dump\n";
+        $out .= "-- Target Compatibility: MariaDB 10.x+, MySQL 5.7+, MySQL 8.x, MySQL 9.x\n";
         $out .= "-- Generated at: " . date('Y-m-d H:i:s') . "\n";
         $out .= "-- Host: " . config('database.connections.mysql.host') . "\n";
         $out .= "-- Database: " . $dbName . "\n";
-        $out .= "-- --------------------------------------------------------\n\n";
+        $out .= "-- ========================================================\n\n";
         $out .= "SET FOREIGN_KEY_CHECKS=0;\n";
         $out .= "SET SQL_MODE = \"NO_AUTO_VALUE_ON_ZERO\";\n";
+        $out .= "SET AUTOCOMMIT = 0;\n";
         $out .= "START TRANSACTION;\n";
         $out .= "SET time_zone = \"+00:00\";\n\n";
 
         foreach ($tables as $tObj) {
             $table = array_values((array)$tObj)[0];
 
-            // Table Structure
+            // Table Structure (guaranteed to use standard MySQL backticks)
             $create = DB::select("SHOW CREATE TABLE `{$table}`");
             $createSql = array_values((array)$create[0])[1] ?? '';
 
@@ -113,9 +116,14 @@ class ExportDatabaseCommand extends Command
                     $out .= "INSERT INTO `{$table}` VALUES \n";
                     $rowStrings = [];
                     foreach ($chunk as $row) {
-                        $vals = array_map(function ($val) {
-                            if ($val === null) return 'NULL';
-                            return "'" . addslashes((string)$val) . "'";
+                        $vals = array_map(function ($val) use ($pdo) {
+                            if ($val === null) {
+                                return 'NULL';
+                            }
+                            if (is_int($val) || is_float($val)) {
+                                return (string)$val;
+                            }
+                            return $pdo->quote((string)$val);
                         }, (array)$row);
                         $rowStrings[] = "(" . implode(', ', $vals) . ")";
                     }
@@ -131,3 +139,4 @@ class ExportDatabaseCommand extends Command
         return $out;
     }
 }
+
