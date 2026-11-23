@@ -448,3 +448,22 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| cPanel Zero-Terminal Deployment & Maintenance Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('cpanel')->name('cpanel.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CPanelMaintenanceController::class, 'index'])->name('hub');
+    Route::get('/clear-cache', [\App\Http\Controllers\CPanelMaintenanceController::class, 'clearCache'])->name('clear-cache');
+    Route::get('/storage-link', [\App\Http\Controllers\CPanelMaintenanceController::class, 'storageLink'])->name('storage-link');
+    Route::get('/optimize', [\App\Http\Controllers\CPanelMaintenanceController::class, 'optimize'])->name('optimize');
+    Route::get('/migrate', [\App\Http\Controllers\CPanelMaintenanceController::class, 'migrate'])->name('migrate');
+    Route::get('/download-sql', [\App\Http\Controllers\CPanelMaintenanceController::class, 'downloadSql'])->name('download-sql');
+});
+
+// Convenient direct shortcuts
+Route::get('/clear-cache', [\App\Http\Controllers\CPanelMaintenanceController::class, 'clearCache']);
+Route::get('/storage-link', [\App\Http\Controllers\CPanelMaintenanceController::class, 'storageLink']);
+
