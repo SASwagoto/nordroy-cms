@@ -66,7 +66,7 @@
                         </video>
 
                         <img src="{{ asset($v->thumbnail_url ?: 'assets/images/gallery/gallery-balancing.webp') }}" 
-                             alt="{{ $v->title }}"
+                             alt="{{ $v->display_title ?? (is_array($v->title) ? ($v->title[app()->getLocale()] ?? reset($v->title)) : $v->title) }}"
                              x-show="!isHovered"
                              class="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none transition-opacity duration-150" />
 
@@ -80,8 +80,8 @@
                     <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
                         <div class="space-y-1.5">
                             <span class="text-[10px] font-bold text-[#003C58] dark:text-cyan-400 uppercase tracking-widest">{{ $v->category ?? 'PROCEDURE' }}</span>
-                            <h4 class="text-sm font-bold font-heading text-slate-900 dark:text-white">{{ $v->title }}</h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ Str::limit($v->description, 90) }}</p>
+                            <h4 class="text-sm font-bold font-heading text-slate-900 dark:text-white">{{ $v->display_title ?? (is_array($v->title) ? ($v->title[app()->getLocale()] ?? reset($v->title)) : $v->title) }}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ Str::limit($v->display_description ?? (is_array($v->description) ? ($v->description[app()->getLocale()] ?? reset($v->description)) : $v->description), 90) }}</p>
                         </div>
                         <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
                             <a href="{{ route('video-gallery') }}" class="font-bold text-[#003C58] dark:text-cyan-400 hover:underline">

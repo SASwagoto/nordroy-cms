@@ -5,6 +5,24 @@ namespace App\Traits;
 trait HasTranslations
 {
     /**
+     * Automatically convert translatable array attributes to string
+     * when accessed as a model property (e.g. $model->title).
+     */
+    public function getAttribute($key)
+    {
+        $value = parent::getAttribute($key);
+
+        if (is_array($value) && (isset($value['en']) || isset($value['bn']))) {
+            $locale = app()->getLocale();
+            return $value[$locale]
+                ?? $value[config('app.fallback_locale', 'en')]
+                ?? (reset($value) ?: '');
+        }
+
+        return $value;
+    }
+
+    /**
      * Get translated attribute value.
      */
     public function getTranslation(string $attribute, ?string $locale = null): mixed

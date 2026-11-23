@@ -60,7 +60,7 @@
                 <a href="{{ route('product.details', $p->slug) }}" 
                    class="reveal-init reveal-fade-up reveal-delay-{{ ($idx % 6 + 1) * 50 }} p-5 rounded-2xl bg-slate-50 dark:bg-[#0b1b2b] border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-[#003C58] dark:hover:border-cyan-400 transition-all block group">
                     <x-icon :name="$p->icon ?: 'solid:gears'" class="w-8 h-8 mx-auto text-[#003C58] dark:text-cyan-400 group-hover:scale-110 transition-transform" />
-                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $p->name }}</h4>
+                    <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white truncate">{{ $p->display_title ?? (is_array($p->title ?? null) ? ($p->title[app()->getLocale()] ?? reset($p->title)) : ($p->name ?? 'Spare Part')) }}</h4>
                     <span class="text-[10px] text-slate-500 font-mono block truncate">{{ $p->part_number ?? 'OEM Certified' }}</span>
                 </a>
             @endforeach

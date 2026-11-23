@@ -63,9 +63,9 @@
                             <span class="text-xs font-mono font-bold text-[#003C58] dark:text-cyan-400">0{{ $idx + 1 }} / {{ strtoupper($svc->category ?? 'CAPABILITY') }}</span>
                             <x-icon :name="$svc->icon ?: 'solid:wrench'" class="w-5 h-5 text-slate-400" />
                         </div>
-                        <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">{{ $svc->title }}</h3>
+                        <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">{{ $svc->display_title ?? (is_array($svc->title) ? ($svc->title[app()->getLocale()] ?? reset($svc->title)) : $svc->title) }}</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                            {{ Str::limit($svc->excerpt ?? $svc->description, 140) }}
+                            {{ Str::limit($svc->display_summary ?? (is_array($svc->short_summary) ? ($svc->short_summary[app()->getLocale()] ?? reset($svc->short_summary)) : ($svc->short_summary ?? $svc->excerpt ?? '')), 140) }}
                         </p>
                     </div>
                     <a href="{{ route('service.details', $svc->slug) }}" class="pt-2 text-xs font-bold text-[#003C58] dark:text-cyan-400 hover:underline flex items-center gap-1">
